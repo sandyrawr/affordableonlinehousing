@@ -10,14 +10,14 @@ export const SideNavData = [
     {
         title: "Profile",
         // icon: <AccountCircleIcon/>,
-        link: "/student-temp",
+        link: "/profile",
     },
     {
         title: "Add Property",
         // icon: <AddHomeWorkIcon/>,
-        link: "/addproperty",
+        link: "/student",
     }, {
-        title: "Profile",
+        title: "Edit Property",
         // icon: <EditIcon/>,
         link: "/editproperty",
     }, {

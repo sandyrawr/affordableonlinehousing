@@ -34,8 +34,11 @@ from onlinehousingapp import views
 # ]
 
 urlpatterns = [
-    re_path(r'^student$', views.studentApi),
-    # re_path(r'^student$', views.studentApi),
-    re_path(r'^student/([0-9]+)$', views.studentApi),
+    path('property/', views.propertyApi),  # Add trailing slash
+    path('property/<int:id>/', views.propertyApi),  # Add trailing slash
     path('admin/', admin.site.urls),
+#     re_path(r'^property$', views.propertyApi),
+#     # re_path(r'^property$', views.studentApi),
+#     re_path(r'^property/([0-9]+)$', views.propertyApi),
+#     path('admin/', admin.site.urls),
 ]

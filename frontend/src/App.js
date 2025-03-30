@@ -1,16 +1,25 @@
-// import logo from './logo.svg';
 // import './App.css';
-// import Student from "./components/student-temp";
-import SideNav from "./components/SideNav";
+// import { Router, Routes, Route} from "react-router-dom";
 // import VerifyTeacher from './components/verify';
+import Property from "./components/Property";
+// import EditProperty from "./components/EditProperty";
 
+// import SideNav
+//  from "./components/SideNav";
 function App() {
   return (
-    <div className="App">
-      <SideNav/>
-      {/* <Student /> */}
-      {/* <Login/> */}
-    </div>
+    // <Router>
+      <div className="App">
+        {/* <SideNav/> */}
+        {/* <Student /> */}
+        {/* <EditProperty/> */}
+        <Property/>
+        {/* <Login/> */}
+        {/* <Routes>
+          <Route path="/student" element={<Student />} /> 
+        </Routes>  */}
+      </div>
+    // </Router> 
   );
 }
 

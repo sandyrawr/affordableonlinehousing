@@ -1,8 +1,8 @@
+# serializers.py
 from rest_framework import serializers
-from onlinehousingapp.models import Student
+from .models import Property
 
-class StudentSerializer(serializers.ModelSerializer):
+class PropertySerializer(serializers.ModelSerializer):
     class Meta:
-        model = Student
+        model = Property
         fields = '__all__'
-        

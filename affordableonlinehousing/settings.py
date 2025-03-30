@@ -88,7 +88,7 @@ DATABASES = {
 
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sms',
+        'NAME': 'housing',
         'PASSWORD' : '1234',
         'USER' : 'root',
         'HOST' : 'localhost',
@@ -97,7 +97,7 @@ DATABASES = {
 
 
 # # DATABASES['default'] = dj_database_url.parse('mysql://localhost:1234//root@localhost/sms')
-DATABASES['default'] = dj_database_url.parse('mysql://root:@localhost:3306/sms')
+DATABASES['default'] = dj_database_url.parse('mysql://root:@localhost:3306/housing')
 
 
 
