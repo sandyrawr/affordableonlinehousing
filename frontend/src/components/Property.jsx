@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from 'axios';
+import SideNav from "./SideNav";
+import "./Property.css"
 
 function Property() {
   const [id, setId] = useState('');
@@ -214,7 +216,9 @@ function Property() {
   }
 
   return (
-    <div className="container-fluid">
+    <div className="property-container">
+      <SideNav/>
+      <property-content>
       <h1 className="text-center my-4">Property Management</h1>
       
       {/* Form Section */}
@@ -474,6 +478,8 @@ function Property() {
           </div>
         </div>
       </div>
+      </property-content>
+      
     </div>
   );
 }

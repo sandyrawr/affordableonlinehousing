@@ -11,7 +11,7 @@ body{
 .SideNav{
   height: 100%;
   width: 250px;
-  background-color: rgb(2, 20, 90);  
+  background-color: rgb(14, 15, 23);
 }
 
 .SidebarList{
@@ -34,7 +34,7 @@ body{
 
 .SidebarList .row{
   cursor: pointer;
-  background-color:rgb(1, 9, 88);
+  background-color:rgb(14, 15, 23);
 }
 
 .row #icon{
@@ -49,9 +49,9 @@ body{
 
 .SidebarList .row:hover{
   cursor: pointer;
-  background-color: rgb(13, 20, 102);
+  background-color: rgb(17, 23, 65);
 }
 
 .SidebarList  #active{
-  background-color: rgb(156, 151, 210);
+  background-color: rgb(17, 23, 65);
 }
