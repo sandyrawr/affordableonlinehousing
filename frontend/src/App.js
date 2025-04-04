@@ -1,24 +1,31 @@
-// import './App.css';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import './App.css';
+import { Routes, Route } from 'react-router-dom';
 // import VerifyTeacher from './components/verify';
 import Property from "./components/Property";
 // import EditProperty from "./components/EditProperty";
 import SideNav from "./components/SideNav";
+import EditProperty from './components/EditProperty';
+import BookingRequests from './components/BookingRequests';
+import TourRequests from './components/TourRequests';
 
 function App() {
   return (
-    <Router>
       <div className="App">
         <SideNav/>
         {/* <Student /> */}
         {/* <EditProperty/> */}
         {/* <Property/> */}
         {/* <Login/> */}
-        <Routes>
-          <Route path="/property" element={<Property />} /> 
-        </Routes> 
+        <div className='content-area'>
+          <Routes>
+            <Route path="/property" element={<Property />} /> 
+            <Route path="/editproperty" element={<EditProperty />} /> 
+            <Route path="/bookingrequests" element={<BookingRequests />} /> 
+            <Route path="/tourrequests" element={<TourRequests />} /> 
+            <Route path="/logout" element={<Property />} /> 
+          </Routes>
+        </div>  
       </div>
-    </Router> 
   );
 }
 

@@ -14,9 +14,53 @@ class Property(models.Model):
     parking = models.BooleanField(default=False)
     balcony = models.BooleanField(default=False)
     petfriendly = models.BooleanField(default=False)
+    # owner = models.ForeignKey('Owner', on_delete=models.CASCADE)  
+    # location = models.ForeignKey('Location', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
+    
+class Location(models.Model):
+    name = models.CharField(max_length=255, )
+    transportcost = models.PositiveIntegerField()
+    utilitycost = models.PositiveIntegerField()
+    foodcost = models.PositiveIntegerField()
+    safetyrating = models.PositiveIntegerField()
+
+# class Tenant(models.Model):
+#     name = models.CharField(max_length=255)
+#     email = models.EmailField()  
+#     phonenumber = models.CharField(max_length=20)  
+#     password = models.CharField(max_length=255) 
+#     criminalhistory = models.BooleanField(default=False)  
+#     employmentstatus = models.BooleanField(default=False)  
+
+#     def __str__(self):
+#         return self.name
+    
+# class Owner(models.Model):
+#     name = models.CharField(max_length=255)
+#     email = models.EmailField()  
+#     phonenumber = models.CharField(max_length=20)  
+#     password = models.CharField(max_length=255) 
+#     criminalhistory = models.BooleanField(default=False)  
+#     address = models.TextField()  
+
+#     def __str__(self):
+#         return self.name
+    
+# class Booking(models.Model):
+#     name = models.CharField(max_length=255)
+#     email = models.EmailField()  
+#     phonenumber = models.CharField(max_length=20)  
+#     password = models.CharField(max_length=255) 
+#     criminalhistory = models.BooleanField(default=False)  
+#     address = models.TextField()  
+
+#     def __str__(self):
+#         return self.name
+
+
     
 # class Teacher (models .Model):
 #     full_name= models.CharField(max_length=100)

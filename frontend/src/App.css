@@ -55,3 +55,36 @@ body{
 .SidebarList  #active{
   background-color: rgb(17, 23, 65);
 }
+
+.main-content {
+  flex: 1;
+  overflow: auto; /* Allows content to scroll independently */
+  padding: 20px; /* Adjust as needed */
+  margin-left: 250px; /* Should match your SideNav width */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 15px;
+  }
+}
+
+.App{
+  display: flex;
+  min-height: 100vh;
+  gap: 20px; /* Clean spacing between SideNav and content */
+  padding-left: 0px; /* Optional: for extra breathing room */
+  width: 100vw;
+  height: 70vw;
+}
+
+.content-area {
+  flex: 1;
+  padding: 10px;
+  background-color: #f8f9fa;
+  overflow-x: auto;
+  width: 50px;
+  /* margin-right: 10px; Prevents content from touching viewport edge */
+}

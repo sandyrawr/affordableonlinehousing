@@ -1,6 +1,7 @@
 import React from 'react'
 import "../App.css";
 import { SideNavData } from './SideNavData';
+import { Link } from 'react-router-dom';
 
 function SideNav() {
   return ( 

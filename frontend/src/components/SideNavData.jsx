@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 // import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 // import AddHomeWorkIcon from '@mui/icons-material/AddHomeWork';
 // import EditIcon from '@mui/icons-material/Edit';
@@ -15,7 +16,7 @@ export const SideNavData = [
     {
         title: "Add Property",
         // icon: <AddHomeWorkIcon/>,
-        link: "/student",
+        link: "/property",
     }, {
         title: "Edit Property",
         // icon: <EditIcon/>,

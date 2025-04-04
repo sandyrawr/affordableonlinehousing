@@ -217,7 +217,7 @@ function Property() {
 
   return (
     <div className="property-container">
-      <SideNav/>
+      {/* <SideNav/> */}
       <property-content>
       <h1 className="text-center my-4">Property Management</h1>
       
