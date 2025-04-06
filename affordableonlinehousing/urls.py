@@ -37,6 +37,8 @@ urlpatterns = [
     path('property/', views.propertyApi),  # Add trailing slash
     path('property/<int:id>/', views.propertyApi),  # Add trailing slash
     path('admin/', admin.site.urls),
+    path('location/', views.locationApi),  # Add this new endpoint
+    path('location/<int:id>/', views.locationApi),  # Add this new endpoint
 #     re_path(r'^property$', views.propertyApi),
 #     # re_path(r'^property$', views.studentApi),
 #     re_path(r'^property/([0-9]+)$', views.propertyApi),

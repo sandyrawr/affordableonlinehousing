@@ -2,7 +2,9 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.parsers import JSONParser
 from django.http.response import JsonResponse
 from onlinehousingapp.serializers import PropertySerializer
+from onlinehousingapp.serializers import LocationSerializer
 from onlinehousingapp.models import Property
+from onlinehousingapp.models import Location
 
 @csrf_exempt
 def propertyApi(request, id=0):
@@ -29,3 +31,9 @@ def propertyApi(request, id=0):
         property = Property.objects.get(id=id)
         property.delete()
         return JsonResponse("Deleted Successfully", safe=False)
+
+def locationApi(request, id=0):
+    locations = Location.objects.all()
+    location_serializer = LocationSerializer(locations, many=True)
+    return JsonResponse(location_serializer.data, safe=False)
+

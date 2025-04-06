@@ -17,6 +17,8 @@ function Property() {
   const [parking, setParking] = useState(false);
   const [balcony, setBalcony] = useState(false);
   const [petfriendly, setPetfriendly] = useState(false);
+  const [locationId, setLocationId] = useState("");
+  const [locations, setLocations] = useState([]);
   
   const [properties, setProperties] = useState([]);
   const [errors, setErrors] = useState({
@@ -26,14 +28,27 @@ function Property() {
     bedroom: "",
     livingroom: "",
     washroom: "",
-    kitchen: ""
+    kitchen: "",
+    location: ""
   });
 
   useEffect(() => {
-    (async () => await Load())();
+    (async () => {
+      await Load();
+      await loadLocations();
+    })();
   }, []);
 
-  // Validation functions
+  async function loadLocations() {
+    try {
+      const result = await axios.get("http://127.0.0.1:8000/location/");
+      setLocations(result.data);
+    } catch (error) {
+      console.error("Error loading locations:", error);
+      alert("Failed to load location data");
+    }
+  }
+
   const validateTitle = (value) => {
     if (!value.trim()) return "Title is required";
     if (value.length > 255) return "Title too long (max 255 characters)";
@@ -72,6 +87,7 @@ function Property() {
     const livingroomError = validateNumber(livingroom, "Living room count");
     const washroomError = validateNumber(washroom, "Washroom count");
     const kitchenError = validateNumber(kitchen, "Kitchen count");
+    const locationError = locationId ? "" : "Location is required";
     
     setErrors({
       title: titleError,
@@ -80,13 +96,16 @@ function Property() {
       bedroom: bedroomError,
       livingroom: livingroomError,
       washroom: washroomError,
-      kitchen: kitchenError
+      kitchen: kitchenError,
+      location: locationError
     });
 
     return !titleError && !descriptionError && !rentError && 
-           !bedroomError && !livingroomError && !washroomError && !kitchenError;
+           !bedroomError && !livingroomError && !washroomError && 
+           !kitchenError && !locationError;
   };
 
+ 
   async function Load() {
     try {
       const result = await axios.get("http://127.0.0.1:8000/property/");
@@ -114,7 +133,8 @@ function Property() {
         coliving: coliving,
         parking: parking,
         balcony: balcony,
-        petfriendly: petfriendly
+        petfriendly: petfriendly,
+        location: locationId
       });
       alert("Property Added Successfully");
       resetForm();
@@ -143,7 +163,8 @@ function Property() {
         coliving: coliving,
         parking: parking,
         balcony: balcony,
-        petfriendly: petfriendly
+        petfriendly: petfriendly,
+        location: locationId
       });
       alert("Property Updated Successfully");
       resetForm();
@@ -168,6 +189,7 @@ function Property() {
     setParking(false);
     setBalcony(false);
     setPetfriendly(false);
+    setLocationId("");
     setErrors({
       title: "",
       description: "",
@@ -175,7 +197,8 @@ function Property() {
       bedroom: "",
       livingroom: "",
       washroom: "",
-      kitchen: ""
+      kitchen: "",
+      location: ""
     });
   }
 
@@ -193,7 +216,7 @@ function Property() {
     setParking(property.parking);
     setBalcony(property.balcony);
     setPetfriendly(property.petfriendly);
-    // setPropertyId(property.propertyid);
+    setLocationId(property.location?.id || "");
     window.scrollTo(0, 0);
   }
 
@@ -271,7 +294,7 @@ function Property() {
                 {errors.rent && <div className="invalid-feedback">{errors.rent}</div>}
               </div>
               
-              <div className="col-md-6">
+              <div className="col-md-3">
                 <label>Status</label>
                 <div className="form-check form-switch">
                   <input 
@@ -284,6 +307,26 @@ function Property() {
                     {status ? "Available" : "Not Available"}
                   </label>
                 </div>
+              </div>
+
+              <div className="col-md-3">
+                <label>Location*</label>
+                <select
+                  className={`form-select ${errors.location && "is-invalid"}`}
+                  value={locationId}
+                  onChange={(e) => {
+                    setLocationId(e.target.value);
+                    setErrors({...errors, location: e.target.value ? "" : "Location is required"});
+                  }}
+                >
+                  <option value="">Select Location</option>
+                  {locations.map((location) => (
+                    <option key={location.id} value={location.id}>
+                      {location.name} {/* Show name but store ID */}
+                    </option>
+                  ))}
+                </select>
+                {errors.location && <div className="invalid-feedback">{errors.location}</div>}
               </div>
             </div>
 
@@ -428,6 +471,7 @@ function Property() {
                   <th>ID</th>
                   <th>Title</th>
                   <th>Rent</th>
+                  <th>Location</th>
                   <th>Rooms</th>
                   <th>Features</th>
                   <th>Status</th>
@@ -440,6 +484,12 @@ function Property() {
                     <td>{property.id}</td>
                     <td>{property.title}</td>
                     <td>${property.rent}</td>
+                    <td>
+                    {property.location ? (
+                        // Find the location name by ID
+                        locations.find(loc => loc.id === property.location)?.name || property.location
+                      ) : "N/A"}
+                    </td>
                     <td>
                       {property.bedroom} Beds, {property.livingroom} Living,<br/>
                       {property.washroom} Baths, {property.kitchen} Kitchens
@@ -479,7 +529,6 @@ function Property() {
         </div>
       </div>
       </property-content>
-      
     </div>
   );
 }

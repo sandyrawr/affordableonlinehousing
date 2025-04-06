@@ -7,11 +7,15 @@ import SideNav from "./components/SideNav";
 import EditProperty from './components/EditProperty';
 import BookingRequests from './components/BookingRequests';
 import TourRequests from './components/TourRequests';
+import Home from './components/Home';
+import SearchPage from './components/SearchPage';
 
 function App() {
   return (
       <div className="App">
-        <SideNav/>
+        <SearchPage/>
+        {/* <Home/> */}
+        {/* <SideNav/> */}
         {/* <Student /> */}
         {/* <EditProperty/> */}
         {/* <Property/> */}
