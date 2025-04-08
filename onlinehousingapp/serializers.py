@@ -2,6 +2,7 @@
 from rest_framework import serializers
 from .models import Property
 from .models import Location
+from .models import Tenant
 
 class PropertySerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,4 +12,10 @@ class PropertySerializer(serializers.ModelSerializer):
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location  
+        fields = '__all__'
+
+
+class TenantSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tenant
         fields = '__all__'

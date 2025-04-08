@@ -1,52 +1,58 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import './Cards.css';
-import CardItem from './CardItem';
+
+function CardItem({ src, text, path }) {
+  const navigate = useNavigate();
+  
+  return (
+    <li className='cards__item' onClick={() => navigate(path)}>
+      <div className='cards__item__link'>
+        <figure className='cards__item__pic-wrap' data-category={text}>
+          <img className='cards__item__img' alt={text} src={src} />
+        </figure>
+        <div className='cards__item__info'>
+          <h5 className='cards__item__text'>{text}</h5>
+        </div>
+      </div>
+    </li>
+  );
+}
 
 function Cards() {
+  const locations = [
+    { name: 'Gorkha', image: 'locations/gorkha.jpg' },
+    { name: 'Kathmandu', image: 'locations/ktm.jpg' },
+    { name: 'Chitwan', image: 'locations/chitwan.jpg' },
+    { name: 'Birtamode', image: 'locations/btm.jpg' },
+    { name: 'Dharan', image: 'locations/dharann.jpg' },
+    { name: 'Pokhara', image: 'locations/pokhara.jpg' }
+  ];
+
   return (
     <div className='cards'>
       <h1>RENT ANYWHERE</h1>
       <div className='cards__container'>
         <div className='cards__wrapper'>
           <ul className='cards__items'>
-            <CardItem
-              src='locations/gorkha.jpg'
-              text='Gorkha'
-            //   label='Adventure'
-              path='/services'
-            />
-            <CardItem
-              src='locations/ktm.jpg'
-              text='Kathmandu'
-            //   label='Luxury'
-              path='/services'
-            />
-            <CardItem
-              src='locations/chitwan.jpg'
-              text='Chitwan'
-            //   label='Luxury'
-              path='/services'
-            />
+            {locations.slice(0, 3).map((loc) => (
+              <CardItem
+                key={loc.name}
+                src={loc.image}
+                text={loc.name}
+                path={`/search?location=${loc.name}`}
+              />
+            ))}
           </ul>
           <ul className='cards__items'>
-            <CardItem
-              src='locations/btm.jpg'
-              text='Birtamode'
-            //   label='Mystery'
-              path='/services'
-            />
-            <CardItem
-              src='locations/dharann.jpg'
-              text='Dharan'
-            //   label='Adventure'
-              path='/products'
-            />
-            <CardItem
-              src='locations/pokhara.jpg'
-              text='Pokhara'
-            //   label='Adrenaline'
-              path='/sign-up'
-            />
+            {locations.slice(3).map((loc) => (
+              <CardItem
+                key={loc.name}
+                src={loc.image}
+                text={loc.name}
+                path={`/search?location=${loc.name}`}
+              />
+            ))}
           </ul>
         </div>
       </div>

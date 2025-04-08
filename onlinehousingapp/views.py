@@ -5,6 +5,11 @@ from onlinehousingapp.serializers import PropertySerializer
 from onlinehousingapp.serializers import LocationSerializer
 from onlinehousingapp.models import Property
 from onlinehousingapp.models import Location
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .serializers import TenantSerializer
+from rest_framework import status
+
 
 @csrf_exempt
 def propertyApi(request, id=0):
@@ -36,4 +41,65 @@ def locationApi(request, id=0):
     locations = Location.objects.all()
     location_serializer = LocationSerializer(locations, many=True)
     return JsonResponse(location_serializer.data, safe=False)
+
+@api_view(['POST'])
+def register_tenant(request):
+    serializer = TenantSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Property, Location
+from .serializers import PropertySerializer, LocationSerializer
+from django.db.models import Q
+
+@api_view(['GET'])
+def property_list(request):
+    # Get query parameters
+    location_name = request.GET.get('location', '')
+    bedroom = request.GET.get('bedroom', '')
+    livingroom = request.GET.get('livingroom', '')
+    washroom = request.GET.get('washroom', '')
+    kitchen = request.GET.get('kitchen', '')
+    min_rent = request.GET.get('minRent', '')
+    max_rent = request.GET.get('maxRent', '')
+    coliving = request.GET.get('coliving', 'false') == 'true'
+    parking = request.GET.get('parking', 'false') == 'true'
+    balcony = request.GET.get('balcony', 'false') == 'true'
+    petfriendly = request.GET.get('petfriendly', 'false') == 'true'
+    status = request.GET.get('status', 'true') == 'true'
+
+    # Start with all active properties
+    queryset = Property.objects.filter(status=status)
+
+    # Apply filters
+    if location_name:
+        queryset = queryset.filter(location__name__icontains=location_name)
+    if bedroom:
+        queryset = queryset.filter(bedroom__gte=bedroom)
+    if livingroom:
+        queryset = queryset.filter(livingroom__gte=livingroom)
+    if washroom:
+        queryset = queryset.filter(washroom__gte=washroom)
+    if kitchen:
+        queryset = queryset.filter(kitchen__gte=kitchen)
+    if min_rent:
+        queryset = queryset.filter(rent__gte=min_rent)
+    if max_rent:
+        queryset = queryset.filter(rent__lte=max_rent)
+    if coliving:
+        queryset = queryset.filter(coliving=True)
+    if parking:
+        queryset = queryset.filter(parking=True)
+    if balcony:
+        queryset = queryset.filter(balcony=True)
+    if petfriendly:
+        queryset = queryset.filter(petfriendly=True)
+
+    # Serialize and return the data
+    serializer = PropertySerializer(queryset, many=True)
+    return Response(serializer.data)
 

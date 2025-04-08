@@ -21,10 +21,6 @@
 #     path('admin/', admin.site.urls),
 # ]
 
-from django.contrib import admin
-from django.urls import path
-from django.urls import path, re_path
-from onlinehousingapp import views
 
 # urlpatterns = [
 #     url(r'^student$',views.studentApi),
@@ -33,12 +29,19 @@ from onlinehousingapp import views
 #     path('admin/', admin.site.urls),
 # ]
 
+from django.contrib import admin
+from django.urls import path
+from django.urls import path, re_path
+from onlinehousingapp import views
+
 urlpatterns = [
     path('property/', views.propertyApi),  # Add trailing slash
     path('property/<int:id>/', views.propertyApi),  # Add trailing slash
     path('admin/', admin.site.urls),
     path('location/', views.locationApi),  # Add this new endpoint
     path('location/<int:id>/', views.locationApi),  # Add this new endpoint
+    path('api/properties/', views.property_list, name='property-list'),
+    path('api/tenants/register/', views.register_tenant, name='register_tenant'),
 #     re_path(r'^property$', views.propertyApi),
 #     # re_path(r'^property$', views.studentApi),
 #     re_path(r'^property/([0-9]+)$', views.propertyApi),
