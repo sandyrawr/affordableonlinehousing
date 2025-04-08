@@ -1,95 +1,96 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
-import './Signup.css';
+import { useNavigate } from 'react-router-dom';
+import './login.css'; // Import the Login-specific CSS
 
 const TenantLogin = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
 
-  const [message, setMessage] = useState('');
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await fetch('http://localhost:8000/api/tenant/login/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
 
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+            const data = await response.json();
 
-  const handleSubmit = async e => {
-    e.preventDefault();
+            if (data.success) {
+                navigate('/sidenav'); // Navigate to SideNav upon successful login
+            } else {
+                setError(data.error || 'Login failed');
+            }
+        } catch (err) {
+            setError('Failed to connect to server');
+            console.error(err);
+        }
+    };
 
-    if (!formData.email || !formData.password) {
-      setMessage('❌ Both email and password are required!');
-      return;
-    }
+    return (
+        <div className="page-wrapper login-page">
+            <div className="login-container">
+                <div className="left-box">
+                    <h2 className="form-header">Tenant Login</h2>
+                    {error && <p className="message">{error}</p>}
 
-    try {
-      const response = await axios.post('http://localhost:8000/api/tenants/login/', formData);
-      setMessage('✅ Login successful!');
-      console.log('Success:', response.data);
-    } catch (error) {
-      const errMsg = error.response?.data || 'Something went wrong';
-      console.error('Login error:', errMsg);
-      setMessage(`❌ Login failed. ${JSON.stringify(errMsg)}`);
-    }
-  };
+                    {/* Continue your journey text */}
+                    <div className="continue-text">
+                        <p>Continue your journey with us!</p>
+                    </div>
 
-  return (
-    <div className="signup-wrapper">
-      <div className="signup-box">
-        <div className="signup-image-section">
-          <img src="locations/house.png" className="rounded-4" alt="House" />
+                    {/* Login form */}
+                    <form onSubmit={handleSubmit} className="login-form">
+                        <div className="input-group">
+                            <label>Email</label>
+                            <input
+                                type="email"
+                                placeholder='Email Address'
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="form-control"
+                                required
+                            />
+                        </div>
+
+                        <div className="input-group">
+                            <label>Password</label>
+                            <input
+                                type="password"
+                                placeholder='Password'
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="form-control"
+                                required
+                            />
+                        </div>
+
+                        <div className="submit-group">
+                            <button type="submit" className="btn-success w-100">Login</button>
+                        </div>
+                    </form>
+
+                    {/* Link to signup page */}
+                    <div className="signup-link">
+                        <p>
+                            Don't have an account? <a href="/signup">Sign up</a>
+                        </p>
+                    </div>
+                </div>
+
+                <div className="right-box">
+                    <div className="image-container">
+                        <img src="locations/house.png" alt="House" className="signup-image" />
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <form onSubmit={handleSubmit} className="signup-form-section">
-          <div className="mb-4">
-            <h2>Log In</h2>
-            <p>Welcome back! Please login to continue.</p>
-          </div>
-
-          {message && <p className="mb-3 text-sm text-danger">{message}</p>}
-
-          <div className="mb-3">
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="form-control"
-              placeholder="Email Address"
-              required
-            />
-          </div>
-
-          <div className="mb-3">
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="form-control"
-              placeholder="Password"
-              required
-            />
-          </div>
-
-          <div className="mb-3">
-            <button type="submit" className="btn btn-success w-100">
-              Log In
-            </button>
-          </div>
-
-          <div className="text-center">
-            <small>Don't have an account? <Link to="/signup">Sign Up</Link></small>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
+    );
 };
 
 export default TenantLogin;

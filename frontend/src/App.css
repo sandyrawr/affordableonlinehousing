@@ -1,12 +1,12 @@
-.App {
+/* .App {
 width: 100vw;
-height: 100vw;
-}
+height: 100vh;
+} */
 
-body{
+/* body{
   margin: 0;
   padding: 0;
-}
+} */
 
 .SideNav{
   height: 100%;
@@ -77,7 +77,7 @@ body{
   gap: 20px; /* Clean spacing between SideNav and content */
   padding-left: 0px; /* Optional: for extra breathing room */
   width: 100vw;
-  height: 70vw;
+  height: 70vh;
 }
 
 .content-area {

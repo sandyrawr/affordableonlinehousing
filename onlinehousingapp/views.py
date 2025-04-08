@@ -7,8 +7,14 @@ from onlinehousingapp.models import Property
 from onlinehousingapp.models import Location
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import TenantSerializer
+from .serializers import TenantSerializer, TenantLoginSerializer
 from rest_framework import status
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render
+from django.http import JsonResponse
+from .models import Tenant
+from django.contrib.auth.hashers import make_password
+import json
 
 
 @csrf_exempt
@@ -49,6 +55,34 @@ def register_tenant(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@csrf_exempt
+def tenant_login(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            email = data.get('email')
+            password = data.get('password')
+            
+            try:
+                tenant = Tenant.objects.get(email=email)
+                # Just check if password matches (insecure - for demo only)
+                if tenant.password == password:
+                    return JsonResponse({
+                        'success': True,
+                        'tenant': {
+                            'id': tenant.id,
+                            'name': tenant.name,
+                            'email': tenant.email
+                        }
+                    })
+                return JsonResponse({'success': False, 'error': 'Invalid password'}, status=401)
+            except Tenant.DoesNotExist:
+                return JsonResponse({'success': False, 'error': 'Tenant not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response

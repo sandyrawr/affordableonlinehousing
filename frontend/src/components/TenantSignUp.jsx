@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import './Signup.css';
+import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+
 
 const TenantSignUp = () => {
   const [formData, setFormData] = useState({
@@ -14,23 +16,23 @@ const TenantSignUp = () => {
 
   const [message, setMessage] = useState('');
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     if (name === 'employment_status') {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         employment_status: value === 'true',
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
         [name]: type === 'checkbox' ? checked : value,
       }));
     }
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!formData.phone_number) {
@@ -50,23 +52,23 @@ const TenantSignUp = () => {
   };
 
   return (
-    <div className="d-flex justify-content-center align-items-center min-vh-100" style={{ backgroundColor: '#f5f5f5' }}>
-      <div className="row p-4 bg-white shadow rounded-4" style={{ width: '90%', maxWidth: '1100px', marginTop: '-60px' }}>
-        <div className="col-md-6 d-flex justify-content-center align-items-center flex-column">
-          <div className="mb-3">
-            <img src="locations/house.png" className="rounded-4" style={{ width: '100%', maxWidth: '395px' }} alt="House" />
+    <div className='page-wrapper'>
+      <div className="signup-container">
+        <div className="left-box">
+          <div className="image-container">
+            <img src="locations/house.png" alt="House" className="signup-image" />
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="col-md-6">
-          <div className="mb-4">
+        <form onSubmit={handleSubmit} className="right-box">
+          <div className="form-header">
             <h2>Sign Up!</h2>
             <p>To start your new journey!</p>
           </div>
 
-          {message && <p className="mb-3 text-sm text-danger">{message}</p>}
+          {message && <p className="message text-danger">{message}</p>}
 
-          <div className="mb-3">
+          <div className="input-group">
             <input
               type="text"
               name="name"
@@ -78,7 +80,7 @@ const TenantSignUp = () => {
             />
           </div>
 
-          <div className="mb-3">
+          <div className="input-group">
             <input
               type="email"
               name="email"
@@ -90,7 +92,7 @@ const TenantSignUp = () => {
             />
           </div>
 
-          <div className="mb-3">
+          <div className="input-group">
             <input
               type="text"
               name="phone_number"
@@ -102,7 +104,7 @@ const TenantSignUp = () => {
             />
           </div>
 
-          <div className="mb-3">
+          <div className="input-group">
             <input
               type="password"
               name="password"
@@ -114,7 +116,7 @@ const TenantSignUp = () => {
             />
           </div>
 
-          <div className="form-check mb-3">
+          <div className="checkbox-group">
             <input
               type="checkbox"
               name="criminal_history"
@@ -123,14 +125,16 @@ const TenantSignUp = () => {
               className="form-check-input"
               id="criminalCheck"
             />
-            <label className="form-check-label" htmlFor="criminalCheck">
-              Do you have a criminal history?
+            <label htmlFor="criminalCheck" className="form-check-label">
+              Tick mark if you have a criminal history
             </label>
           </div>
 
-          <div className="mb-3">
-            <label htmlFor="employment_status" className="form-label">Employment Status</label>
+          <label htmlFor="employment_status" className="form-label d-block">Employment Status</label>
+
+          <div className="input-group">
             <select
+              id="employment_status"
               name="employment_status"
               value={formData.employment_status.toString()}
               onChange={handleChange}
@@ -142,17 +146,20 @@ const TenantSignUp = () => {
             </select>
           </div>
 
-          <div className="mb-3">
+
+          <div className="submit-group">
             <button type="submit" className="btn btn-success w-100">
               Register
             </button>
           </div>
 
           <div className="text-center">
-            <small>Already have an account? <a href="/login">Log In</a></small>
+            <small>
+            Already have an account? <Link to="/tenant-login">Log In</Link> {/* Use Link for navigation */}
+            </small>
           </div>
         </form>
-      </div>
+    </div>
     </div>
   );
 };

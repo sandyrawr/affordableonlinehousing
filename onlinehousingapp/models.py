@@ -21,12 +21,15 @@ class Property(models.Model):
         return self.title
     
 class Location(models.Model):
-    name = models.CharField(max_length=255, )
+    name = models.CharField(max_length=255)
     transportcost = models.PositiveIntegerField()
     utilitycost = models.PositiveIntegerField()
     foodcost = models.PositiveIntegerField()
     safetyrating = models.PositiveIntegerField()
-    # limage = models.ImageField()
+    image = models.ImageField(upload_to='location_images/', blank=True, null=True)
+
+    def __str__(self):
+        return self.name
 
 class Tenant(models.Model):
     name = models.CharField(max_length=100)

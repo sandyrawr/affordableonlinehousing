@@ -10,15 +10,15 @@ import TourRequests from './components/TourRequests';
 import Home from './components/Home';
 import SearchPage from './components/SearchPage';
 import TenantSignUp from './components/TenantSignUp';
-
+import TenantLogin from './components/TenantLogin';
 function App() {
   return (
       <div className="App">
         <TenantSignUp/>
+        {/* <TenantLogin/> */}
         {/* <SearchPage/> */}
         {/* <Home/> */}
         {/* <SideNav/> */}
-        {/* <Student /> */}
         {/* <EditProperty/> */}
         {/* <Property/> */}
         {/* <Login/> */}
@@ -29,6 +29,9 @@ function App() {
             <Route path="/tourrequests" element={<TourRequests />} /> 
             <Route path="/logout" element={<Property />} /> 
             <Route path="/search" element={<SearchPage />} />
+            <Route path="/tenant-login" element={<TenantLogin />} />
+            <Route path="/home" element={<Home />} />
+            <Route path="/sidenav" element={<SideNav />} />
           </Routes>
       </div>
   );
