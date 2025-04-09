@@ -12,12 +12,10 @@ import SearchPage from './components/SearchPage';
 import TenantSignUp from './components/TenantSignUp';
 import TenantLogin from './components/TenantLogin';
 import LocationForm from './components/LocationForm';
-import LocationGallery from './components/LocationGallery';
-
 function App() {
   return (
       <div className="App">
-        <LocationGallery/>
+        {/* <Home/> */}
         {/* <LocationForm/> */}
         {/* <TenantSignUp/> */}
         {/* <TenantLogin/> */}
@@ -25,7 +23,7 @@ function App() {
         {/* <Home/> */}
         {/* <SideNav/> */}
         {/* <EditProperty/> */}
-        {/* <Property/> */}
+        <Property/>
         {/* <Login/> */}
           <Routes>
             <Route path="/property" element={<Property />} /> 

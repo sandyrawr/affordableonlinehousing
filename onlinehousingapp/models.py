@@ -16,6 +16,7 @@ class Property(models.Model):
     petfriendly = models.BooleanField(default=False)
     owner = models.ForeignKey('Owner', on_delete=models.CASCADE)  
     location = models.ForeignKey('Location', on_delete=models.CASCADE)
+    prpimage = models.ImageField(upload_to='property_images/', blank=True, null=True)
 
     def __str__(self):
         return self.title

@@ -19,6 +19,7 @@ function Property() {
   const [petfriendly, setPetfriendly] = useState(false);
   const [locationId, setLocationId] = useState("");
   const [locations, setLocations] = useState([]);
+  const [image, setImage] = useState(null);
   
   const [properties, setProperties] = useState([]);
   const [errors, setErrors] = useState({
@@ -248,6 +249,14 @@ function Property() {
       <div className="card shadow mb-4">
         <div className="card-body">
           <form>
+            <div className="form-group">
+              <label>Property Image</label>
+              <input
+                type="file"
+                className="form-control"
+                onChange={(e) => setImage(e.target.files[0])}
+              />
+            </div>
             <div className="form-group">
               <label>Property Title*</label>
               <input 
