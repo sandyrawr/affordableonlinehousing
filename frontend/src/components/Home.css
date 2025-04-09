@@ -1,0 +1,8 @@
+.location-image {
+    transition: transform 0.3s ease; /* Smooth transition for zoom */
+  }
+  
+  .card:hover .location-image {
+    transform: scale(1.1); /* Zoom effect when hovering over the card */
+  }
+  

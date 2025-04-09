@@ -45,9 +45,11 @@ urlpatterns = [
     path('api/properties/', views.property_list, name='property-list'),
     path('api/tenants/register/', views.register_tenant, name='register_tenant'),
     path('api/tenant/login/', views.tenant_login, name='tenant-login'),
-    path('add-location/', views.add_location, name='add_location'),
+    path('add-location/', views.LocationCreateView.as_view(), name='add-location'),
 #     re_path(r'^property$', views.propertyApi),
 #     # re_path(r'^property$', views.studentApi),
 #     re_path(r'^property/([0-9]+)$', views.propertyApi),
 #     path('admin/', admin.site.urls),
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

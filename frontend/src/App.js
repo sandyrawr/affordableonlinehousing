@@ -11,10 +11,15 @@ import Home from './components/Home';
 import SearchPage from './components/SearchPage';
 import TenantSignUp from './components/TenantSignUp';
 import TenantLogin from './components/TenantLogin';
+import LocationForm from './components/LocationForm';
+import LocationGallery from './components/LocationGallery';
+
 function App() {
   return (
       <div className="App">
-        <TenantSignUp/>
+        <LocationGallery/>
+        {/* <LocationForm/> */}
+        {/* <TenantSignUp/> */}
         {/* <TenantLogin/> */}
         {/* <SearchPage/> */}
         {/* <Home/> */}

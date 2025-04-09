@@ -7,15 +7,19 @@ from onlinehousingapp.models import Property
 from onlinehousingapp.models import Location
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import TenantSerializer, TenantLoginSerializer
+from onlinehousingapp.serializers import TenantSerializer, TenantLoginSerializer
 from rest_framework import status
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render
 from django.http import JsonResponse
-from .models import Tenant
+from onlinehousingapp.models import Tenant
 from django.contrib.auth.hashers import make_password
 import json
-
+from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.response import Response
+from rest_framework import status, generics
+from .models import Location
+from .serializers import LocationSerializer
 
 @csrf_exempt
 def propertyApi(request, id=0):
@@ -82,6 +86,11 @@ def tenant_login(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)}, status=400)
     return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+
+class LocationCreateView(generics.CreateAPIView):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+    parser_classes = [MultiPartParser, FormParser]
 
 
 from rest_framework.decorators import api_view
