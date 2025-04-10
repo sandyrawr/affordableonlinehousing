@@ -1,0 +1,26 @@
+/* Property.css */
+.property-container {
+  display: flex;
+  min-height: 100vh;
+  gap: 20px; /* Clean spacing between SideNav and content */
+  padding-left: 200px; /* Optional: for extra breathing room */
+  padding-right: 10px; /* Optional: for extra breathing room */
+  width: 100vw;
+  height: 70vh;
+}
+
+.property-content {
+  flex: 1;
+  padding: 10px;
+  background-color: #f8f9fa;
+  overflow-x: auto;
+  /* margin-right: 10px; Prevents content from touching viewport edge */
+}
+
+/* Responsive adjustment */
+@media (max-width: 768px) {
+  .property-container {
+    gap: 20px; /* Smaller gap on mobile */
+    padding-left: 0;
+  }
+}

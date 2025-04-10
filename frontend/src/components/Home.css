@@ -1,0 +1,94 @@
+.location-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+}
+
+.img-container {
+  overflow: hidden;
+}
+
+.location-img {
+  height: 300px;
+  width: 100%;
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.location-overlay {
+  pointer-events: none; /* Prevent overlay from blocking hover */
+  transition: all 0.4s ease;
+}
+
+.location-title {
+  margin-bottom: 0;
+  font-size: 1.4rem;
+  transition: transform 0.3s ease;
+}
+
+.location-subtext {
+  margin-top: 0.5rem;
+  opacity: 0;
+  transform: translateY(10px);
+  font-size: 1rem;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Hover Effects */
+.location-card:hover .location-img {
+  transform: scale(1.1);
+}
+
+.location-card:hover .location-title {
+  transform: translateY(-10px);
+}
+
+.location-card:hover .location-subtext {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Top Section: Container for Logo and Profile Button */
+.top-section {
+  position: relative;
+  height: 60px; /* Height for the top section */
+  margin-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 10px; /* Space from the top edge */
+}
+
+/* Logo */
+.logo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 60px; /* Adjust the logo size */
+  object-fit: contain;
+  padding-left: 0px; /* Space from the left edge */
+}
+
+/* Profile Button */
+.profile-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 8px 16px;
+  font-size: 1rem;
+  border-radius: 25px;
+  margin-right: 0px; /* Space from the right edge */
+}
+
+/* Top Title */
+.top-title {
+  font-weight: 600;
+  font-size: 2rem;
+  color: #333;
+}
+
+/* Top Subtext */
+.top-subtext {
+  font-size: 1.2rem;
+  color: #666;
+  margin-top: 10px;
+}

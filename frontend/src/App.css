@@ -1,0 +1,90 @@
+/* .App {
+width: 100vw;
+height: 100vh;
+} */
+
+/* body{
+  margin: 0;
+  padding: 0;
+} */
+
+.SideNav{
+  height: 100%;
+  width: 250px;
+  background-color: rgb(14, 15, 23);
+}
+
+.SidebarList{
+  height: auto;
+  padding: 0%;
+  width: 100%;
+}
+
+.SidebarList .row {
+  width: 100%;
+  height: 60px;
+  list-style-type: none;
+  margin: 0%;
+  flex-direction: row;
+  color: antiquewhite;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+
+.SidebarList .row{
+  cursor: pointer;
+  background-color:rgb(14, 15, 23);
+}
+
+.row #icon{
+  flex: 30%;
+  display: grid;
+  place-items: center;
+}
+
+.row #title{
+  flex: 70%;
+}
+
+.SidebarList .row:hover{
+  cursor: pointer;
+  background-color: rgb(17, 23, 65);
+}
+
+.SidebarList  #active{
+  background-color: rgb(17, 23, 65);
+}
+
+.main-content {
+  flex: 1;
+  overflow: auto; /* Allows content to scroll independently */
+  padding: 20px; /* Adjust as needed */
+  margin-left: 250px; /* Should match your SideNav width */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    padding: 15px;
+  }
+}
+
+.App{
+  display: flex;
+  min-height: 100vh;
+  gap: 20px; /* Clean spacing between SideNav and content */
+  padding-left: 0px; /* Optional: for extra breathing room */
+  width: 100vw;
+  height: 70vh;
+}
+
+.content-area {
+  flex: 1;
+  padding: 10px;
+  background-color: #f8f9fa;
+  overflow-x: auto;
+  width: 50px;
+  /* margin-right: 10px; Prevents content from touching viewport edge */
+}
