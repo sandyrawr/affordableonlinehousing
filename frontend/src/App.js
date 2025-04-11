@@ -9,18 +9,24 @@ import BookingRequests from './components/BookingRequests';
 import TourRequests from './components/TourRequests';
 import Home from './components/Home';
 import SearchPage from './components/SearchPage';
+import AddProperty from './components/AddProperty';
 // import TenantSignUp from './components/TenantSignUp';
 // import TenantLogin from './components/TenantLogin';
-// import LocationForm from './components/LocationForm';
+import LocationForm from './components/LocationForm';
 import StartPage from './components/StartPage';
 import StartRegister from './components/StartRegister';
 import RegisterOwner from './components/RegisterOwner';
 import RegisterTenant from './components/RegisterTenant';
 import LoginPage from './components/LoginPage';
+import ProfilePage from './components/ProfilePage';
+import RegisterAdmin from './components/RegisterAdmin';
 // import Login from './components/Login';
 function App() {
   return (
       <div className="App">
+        {/* <AddProperty/> */}
+        {/* <RegisterAdmin/> */}
+        {/* <ProfilePage/> */}
         {/* <RegisterOwner/> */}
         {/* <RegisterTenant/> */}
         {/* <StartPage/> */}
@@ -50,6 +56,10 @@ function App() {
             <Route path="/registerowner" element={<RegisterOwner/>} />
             <Route path="/registertenant" element={<RegisterTenant/>} />
             <Route path="/login" element={<LoginPage/>} />
+            <Route path="/profile" element={<ProfilePage/>} />            
+            <Route path="/addlocation" element={<LocationForm/>} />            
+            <Route path="/addproperty" element={<AddProperty/>} />            
+
           </Routes>
       </div>
   );

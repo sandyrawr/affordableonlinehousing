@@ -19,15 +19,29 @@ function LoginPage() {
     e.preventDefault();
     try {
       const res = await axios.post('http://localhost:8000/api/login/', formData);
-      const { role, token } = res.data;
+      const { access, refresh, user_id, role, owner_id } = res.data; // Adjust to match your backend response
 
-      localStorage.setItem('token', token);
-      localStorage.setItem('role', role);
+      // Save the complete user data object to localStorage under 'userData'
+      const userData = {
+        accessToken: access,
+        refreshToken: refresh,
+        userId: user_id,
+        role: role,
+        ownerId: owner_id // Adding ownerId to userData
+      };
+      localStorage.setItem('userData', JSON.stringify(userData));
+      // Save tokens and user data to localStorage
+      // localStorage.setItem('accessToken', access);
+      // localStorage.setItem('refreshToken', refresh);
+      // localStorage.setItem('token', access);  // Store the access token under 'token' key
+      // localStorage.setItem('userId', user_id);
+      // localStorage.setItem('role', role);
+
 
       if (role === 'admin') {
-        navigate('/admin/dashboard');
+        navigate('/addlocation');
       } else if (role === 'owner') {
-        navigate('/owner/dashboard');
+        navigate('/profile');
       } else if (role === 'tenant') {
         navigate('/home');
       } else {

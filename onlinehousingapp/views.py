@@ -22,8 +22,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User
-from .serializers import OwnerSerializer, TenantSerializer, UserSerializer
+from .models import User, Admin, Owner, Property
+from .serializers import OwnerSerializer, TenantSerializer, UserSerializer, AdminSerializer, PropertySerializer
+from rest_framework.permissions import IsAuthenticated
+
 
 
 def locationApi(request, id=0):
@@ -61,6 +63,14 @@ class TenantRegistrationView(APIView):
             return Response({'message': 'Tenant registered successfully'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class AdminRegistrationView(APIView):
+    def post(self, request):
+        serializer = AdminSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Admin registered successfully'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class LoginView(APIView):
     def post(self, request):
@@ -83,6 +93,41 @@ class LoginView(APIView):
             'role': user.role,
             'email': user.email
         })
+
+class PropertyCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        try:
+            owner = Owner.objects.get(user=request.user)  # assuming Owner has FK to User
+        except Owner.DoesNotExist:
+            return Response({"error": "You are not registered as an owner."}, status=403)
+        
+        data = request.data.copy()
+        data['owner'] = owner.id  # Inject the owner ID
+        
+        serializer = PropertySerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+class OwnerDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, user_id):
+        try:
+            owner = Owner.objects.get(user_id=user_id)
+            return Response({
+                'id': owner.id,
+                'user_id': owner.user_id,
+                'additional_owner_details': owner.additional_field
+            })
+        except Owner.DoesNotExist:
+            return Response({'error': 'Owner not found'}, status=404)
+
+
 
 # @csrf_exempt
 # def propertyApi(request, id=0):

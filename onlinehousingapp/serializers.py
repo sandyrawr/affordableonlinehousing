@@ -2,7 +2,7 @@
 from rest_framework import serializers
 # from .models import Property
 from .models import Location
-from .models import User, Owner, Tenant
+from .models import User, Owner, Tenant, Admin, Property
 from django.contrib.auth.hashers import make_password
 
 # class PropertySerializer(serializers.ModelSerializer):
@@ -46,6 +46,21 @@ class TenantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tenant
         fields = '__all__'
+
+class AdminSerializer(serializers.ModelSerializer):
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.filter(role='admin'), source='user'
+    )
+
+    class Meta:
+        model = Admin
+        fields = '__all__'
+
+class PropertySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Property
+        fields = '__all__'
+        read_only_fields = ['owner']
 
     # def create(self, validated_data):
     #     # Extract user-related data

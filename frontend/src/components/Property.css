@@ -1,12 +1,13 @@
 /* Property.css */
 .property-container {
   display: flex;
-  min-height: 100vh;
-  gap: 20px; /* Clean spacing between SideNav and content */
-  padding-left: 200px; /* Optional: for extra breathing room */
+  /* min-height: 100vh; */
+  /* gap: 20px; Clean spacing between SideNav and content */
+  padding-left: 10px; /* Optional: for extra breathing room */
   padding-right: 10px; /* Optional: for extra breathing room */
+  padding-top: 0px;
   width: 100vw;
-  height: 70vh;
+  /* height: 70vh; */
 }
 
 .property-content {
