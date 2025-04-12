@@ -25,8 +25,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, Admin, Owner, Property
 from .serializers import OwnerSerializer, TenantSerializer, UserSerializer, AdminSerializer, PropertySerializer
 from rest_framework.permissions import IsAuthenticated
-
-
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 def locationApi(request, id=0):
     locations = Location.objects.all()
@@ -74,6 +73,7 @@ class AdminRegistrationView(APIView):
 
 class LoginView(APIView):
     def post(self, request):
+        # permission_classes = [AllowAny]
         email = request.data.get('email')
         password = request.data.get('password')
 
@@ -86,19 +86,45 @@ class LoginView(APIView):
             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
         refresh = RefreshToken.for_user(user)
-        return Response({
+        response_data = {
             'refresh': str(refresh),
             'access': str(refresh.access_token),
             'user_id': user.id,
             'role': user.role,
             'email': user.email
-        })
+        }
+
+        if user.role == 'owner':
+            try:
+                owner = Owner.objects.get(user=user)
+                response_data['owner_id'] = owner.id
+            except Owner.DoesNotExist:
+                response_data['owner_id'] = None
+
+        elif user.role == 'tenant':
+            try:
+                tenant = Tenant.objects.get(user=user)
+                response_data['tenant_id'] = tenant.id
+            except Tenant.DoesNotExist:
+                response_data['tenant_id'] = None
+
+        elif user.role == 'admin':
+            try:
+                admin = Admin.objects.get(user=user)
+                response_data['admin_id'] = admin.id
+            except Admin.DoesNotExist:
+                response_data['admin_id'] = None
+
+        return Response(response_data, status=status.HTTP_200_OK)
 
 class PropertyCreateView(APIView):
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
+        print("User:", request.user)
+        print("User ID:", request.user.id)
         try:
             owner = Owner.objects.get(user=request.user)  # assuming Owner has FK to User
         except Owner.DoesNotExist:
@@ -112,6 +138,7 @@ class PropertyCreateView(APIView):
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
+        
 
 class OwnerDetailView(APIView):
     permission_classes = [IsAuthenticated]

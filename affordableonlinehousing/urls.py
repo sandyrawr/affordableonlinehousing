@@ -51,8 +51,9 @@ urlpatterns = [
     path('api/register/tenant/', views.TenantRegistrationView.as_view(), name='tenant_register'),
     path('api/register/admin/', views.AdminRegistrationView.as_view(), name='admin_register'),
     path('api/login/', views.LoginView.as_view(), name='login'),
-    path('properties/', views.PropertyCreateView.as_view(), name='create-property'),
+    # path('properties/', views.PropertyCreateView.as_view(), name='create-property'),
     path('ownerdetail/<int:user_id>/', views.OwnerDetailView.as_view(), name='owner-detail'),
+    path('add-property/', views.PropertyCreateView.as_view(), name='add-property'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

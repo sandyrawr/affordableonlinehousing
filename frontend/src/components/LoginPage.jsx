@@ -31,8 +31,8 @@ function LoginPage() {
       };
       localStorage.setItem('userData', JSON.stringify(userData));
       // Save tokens and user data to localStorage
-      // localStorage.setItem('accessToken', access);
-      // localStorage.setItem('refreshToken', refresh);
+      localStorage.setItem('accessToken', access);
+      localStorage.setItem('refreshToken', refresh);
       // localStorage.setItem('token', access);  // Store the access token under 'token' key
       // localStorage.setItem('userId', user_id);
       // localStorage.setItem('role', role);
