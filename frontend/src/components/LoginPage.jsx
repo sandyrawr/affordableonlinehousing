@@ -19,20 +19,21 @@ function LoginPage() {
     e.preventDefault();
     try {
       const res = await axios.post('http://localhost:8000/api/login/', formData);
-      const { access, refresh, user_id, role, owner_id } = res.data;
+      const { access, refresh, user_id, role } = res.data;
 
+      // Store the tokens and user info in localStorage
       const userData = {
         accessToken: access,
         refreshToken: refresh,
         userId: user_id,
         role: role,
-        ownerId: owner_id
       };
 
       localStorage.setItem('userData', JSON.stringify(userData));
       localStorage.setItem('accessToken', access);
       localStorage.setItem('refreshToken', refresh);
 
+      // Redirect based on the user role
       if (role === 'admin') {
         navigate('/addlocation');
       } else if (role === 'owner') {

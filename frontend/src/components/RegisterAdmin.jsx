@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
-function RegisterAdmin() {
-  const navigate = useNavigate();
+const RegisterAdmin = () => {
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    role: 'admin',
   });
 
-  const handleChange = (e) => {
+  const handleChange = e => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -17,62 +16,30 @@ function RegisterAdmin() {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
+    const data = new FormData();
+    data.append('user.email', formData.email);
+    data.append('user.password', formData.password);
+    data.append('user.role', formData.role);
 
     try {
-      // Step 1: Register user and get the user_id
-      const userResponse = await axios.post('http://localhost:8000/api/register/user/', {
-        email: formData.email,
-        password: formData.password,
-        role: 'admin'
-      });
-
-      const user_Id = userResponse.data.user_id;
-
-      
-
-      // Step 2: Register Admin with the obtained user_id
-      const adminResponse = await axios.post('http://localhost:8000/api/register/admin/', {
-        user_id: user_Id,
-        user: user_Id
-
-      });
-
-      if (adminResponse.status === 201) {
-        alert('Admin registered successfully');
-        navigate('/login');
-      }
-    } catch (error) {
-      console.error('Error registering Admin:', error.response?.data || error.message);
-      alert('Failed to register Admin. Please check your input.');
+      await axios.post('http://localhost:8000/api/register/admin/', data);
+      alert('Admin registered successfully!');
+    } catch (err) {
+      console.error(err);
+      alert('Registration failed.');
     }
   };
 
   return (
-    <div className="container">
+    <form onSubmit={handleSubmit}>
       <h2>Register as Admin</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
-        <button type="submit">Register</button>
-      </form>
-    </div>
+      <input name="email" type="email" placeholder="Email" onChange={handleChange} required />
+      <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
+      <button type="submit">Register</button>
+    </form>
   );
-}
+};
 
 export default RegisterAdmin;

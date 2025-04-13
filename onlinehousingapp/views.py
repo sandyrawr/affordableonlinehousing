@@ -27,124 +27,156 @@ from .serializers import OwnerSerializer, TenantSerializer, UserSerializer, Admi
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-def locationApi(request, id=0):
+# def locationApi(request, id=0):
+#     locations = Location.objects.all()
+#     location_serializer = LocationSerializer(locations, many=True)
+#     return JsonResponse(location_serializer.data, safe=False)
+
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.http import JsonResponse
+from rest_framework.parsers import JSONParser
+from .models import Location
+from .serializers import LocationSerializer
+from django.views.decorators.http import require_http_methods
+
+@require_http_methods(["GET"])
+def locationApi(request):
     locations = Location.objects.all()
-    location_serializer = LocationSerializer(locations, many=True)
-    return JsonResponse(location_serializer.data, safe=False)
+    serializer = LocationSerializer(locations, many=True)
+    return JsonResponse(serializer.data, safe=False)
 
-class UserRegistrationView(APIView):
-    def post(self, request):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid():
-            user = serializer.save()
-            return Response({'user_id': user.id}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# class UserRegistrationView(APIView):
+#     def post(self, request):
+#         serializer = UserSerializer(data=request.data)
+#         if serializer.is_valid():
+#             user = serializer.save()
+#             return Response({'user_id': user.id}, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class OwnerRegistrationView(APIView):
-    def post(self, request):
-        serializer = OwnerSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'message': 'Owner registered successfully'}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework import status
-from .serializers import TenantSerializer
-
-class TenantRegistrationView(APIView):
-    def post(self, request):
-        serializer = TenantSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'message': 'Tenant registered successfully'}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class AdminRegistrationView(APIView):
-    def post(self, request):
-        serializer = AdminSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'message': 'Admin registered successfully'}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# class OwnerRegistrationView(APIView):
+#     def post(self, request):
+#         serializer = OwnerSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response({'message': 'Owner registered successfully'}, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class LoginView(APIView):
-    def post(self, request):
-        # permission_classes = [AllowAny]
-        permission_classes = [IsAuthenticated]
-        email = request.data.get('email')
-        password = request.data.get('password')
+# from rest_framework.response import Response
+# from rest_framework.views import APIView
+# from rest_framework import status
+# from .serializers import TenantSerializer
 
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+# class TenantRegistrationView(APIView):
+#     def post(self, request):
+#         serializer = TenantSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response({'message': 'Tenant registered successfully'}, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        if not check_password(password, user.password):
-            return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+# class AdminRegistrationView(APIView):
+#     def post(self, request):
+#         serializer = AdminSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response({'message': 'Admin registered successfully'}, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        refresh = RefreshToken.for_user(user)
-        response_data = {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-            'user_id': user.id,
-            'role': user.role,
-            'email': user.email
-        }
 
-        if user.role == 'owner':
-            try:
-                owner = Owner.objects.get(user=user)
-                response_data['owner_id'] = owner.id
-            except Owner.DoesNotExist:
-                response_data['owner_id'] = None
+# class LoginView(APIView):
+#     def post(self, request):
+#         # permission_classes = [AllowAny]
+#         permission_classes = [IsAuthenticated]
+#         email = request.data.get('email')
+#         password = request.data.get('password')
 
-        elif user.role == 'tenant':
-            try:
-                tenant = Tenant.objects.get(user=user)
-                response_data['tenant_id'] = tenant.id
-            except Tenant.DoesNotExist:
-                response_data['tenant_id'] = None
+#         try:
+#             user = User.objects.get(email=email)
+#         except User.DoesNotExist:
+#             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        elif user.role == 'admin':
-            try:
-                admin = Admin.objects.get(user=user)
-                response_data['admin_id'] = admin.id
-            except Admin.DoesNotExist:
-                response_data['admin_id'] = None
+#         if not check_password(password, user.password):
+#             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
-        return Response(response_data, status=status.HTTP_200_OK)
+#         refresh = RefreshToken.for_user(user)
+#         response_data = {
+#             'refresh': str(refresh),
+#             'access': str(refresh.access_token),
+#             'user_id': user.id,
+#             'role': user.role,
+#             'email': user.email
+#         }
 
-class PropertyCreateView(APIView):
-    # authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated]
-    parser_classes = [MultiPartParser, FormParser]
+#         if user.role == 'owner':
+#             try:
+#                 owner = Owner.objects.get(user=user)
+#                 response_data['owner_id'] = owner.id
+#             except Owner.DoesNotExist:
+#                 response_data['owner_id'] = None
 
-    def post(self, request):
-        # print("Authenticated User:", request.user)  # This should print a user object
-        # print("User ID:", request.user.id)  # This should print the user ID
-        # try:
-        #     owner = Owner.objects.get(user=request.user)  # assuming Owner has FK to User
-        # except Owner.DoesNotExist:
-        #     return Response({"error": "You are not registered as an owner."}, status=403)
+#         elif user.role == 'tenant':
+#             try:
+#                 tenant = Tenant.objects.get(user=user)
+#                 response_data['tenant_id'] = tenant.id
+#             except Tenant.DoesNotExist:
+#                 response_data['tenant_id'] = None
+
+#         elif user.role == 'admin':
+#             try:
+#                 admin = Admin.objects.get(user=user)
+#                 response_data['admin_id'] = admin.id
+#             except Admin.DoesNotExist:
+#                 response_data['admin_id'] = None
+
+#         return Response(response_data, status=status.HTTP_200_OK)
+
+# class PropertyCreateView(APIView):
+#     authentication_classes = [JWTAuthentication]
+#     permission_classes = [IsAuthenticated]
+#     parser_classes = [MultiPartParser, FormParser]
+
+#     def post(self, request):
+#         # print("Authenticated User:", request.user)  # This should print a user object
+#         # print("User ID:", request.user.id)  # This should print the user ID
+#         # try:
+#         #     owner = Owner.objects.get(user=request.user)  # assuming Owner has FK to User
+#         # except Owner.DoesNotExist:
+#         #     return Response({"error": "You are not registered as an owner."}, status=403)
         
-        # # data = request.data.copy()
-        # data['owner'] = owner.id  # Inject the owner ID
+#         # # data = request.data.copy()
+#         # data['owner'] = owner.id  # Inject the owner ID
 
-        # owner = Owner.objects.get(user=request.user)
+#         # owner = Owner.objects.get(user=request.user)
+
+#         data = request.data.copy()
+
+        
+#         serializer = PropertySerializer(data=data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=201)
+#         return Response(serializer.errors, status=400)
+        
+class AddPropertyView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        try:
+            user = request.user
+            owner = Owner.objects.get(user=user)
+        except Owner.DoesNotExist:
+            return Response({"error": "Owner profile not found."}, status=404)
 
         data = request.data.copy()
+        data['owner'] = owner.id  # inject owner ID
 
-        
         serializer = PropertySerializer(data=data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
-        
 
 class OwnerDetailView(APIView):
     # permission_classes = [IsAuthenticated]
@@ -171,13 +203,51 @@ class PropertyListView(APIView):
         serializer = PropertySerializer(properties, many=True)
         return Response(serializer.data)
 
+# class MyPropertiesView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         properties = Property.objects.filter(owner__user=request.user)
+#         serializer = PropertySerializer(properties, many=True)
+#         return Response(serializer.data)
+
+
 class MyPropertiesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        properties = Property.objects.filter(owner__user=request.user)
+        try:
+            owner = Owner.objects.get(user=request.user)
+        except Owner.DoesNotExist:
+            return Response({'error': 'Owner not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        properties = Property.objects.filter(owner=owner)
         serializer = PropertySerializer(properties, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+from rest_framework import generics
+from .models import User, Tenant, Owner, Admin
+from .serializers import UserSerializer, TenantSerializer, OwnerSerializer, AdminSerializer
+
+class RegisterUserView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class RegisterTenantView(generics.CreateAPIView):
+    queryset = Tenant.objects.all()
+    serializer_class = TenantSerializer
+
+
+class RegisterOwnerView(generics.CreateAPIView):
+    queryset = Owner.objects.all()
+    serializer_class = OwnerSerializer
+
+
+class RegisterAdminView(generics.CreateAPIView):
+    queryset = Admin.objects.all()
+    serializer_class = AdminSerializer
+
 
 # @csrf_exempt
 # def propertyApi(request, id=0):
@@ -299,3 +369,15 @@ class LocationCreateView(generics.CreateAPIView):
 #     serializer = PropertySerializer(queryset, many=True)
 #     return Response(serializer.data)
 
+# views.py
+from rest_framework import status, generics
+from rest_framework.response import Response
+from .serializers import LoginSerializer
+
+class LoginView(generics.GenericAPIView):
+    serializer_class = LoginSerializer
+    
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.create(serializer.validated_data), status=status.HTTP_200_OK)

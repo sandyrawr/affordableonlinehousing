@@ -7,28 +7,32 @@
   }
   
   .sidebar {
-    width: 220px;
-    background-color: #1e293b;
+    width: 225px;
+    background-color: #020a2c;
     color: white;
-    padding: 20px 10px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-  }
+    padding-right: 0px;  }
   
   .sidebar ul {
     list-style: none;
-    padding: 0;
+    padding-top: 0;
     margin: 0;
     flex-grow: 1;
   }
   
   .sidebar li {
     margin-bottom: 12px;
+    padding-bottom: 8px;
+    padding-top: 8px;
   }
   
   .sidebar button {
     width: 100%;
     padding: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
     background-color: transparent;
     border: none;
     color: white;
@@ -46,8 +50,14 @@
   }
   
   .main-content {
-    flex-grow: 1;
-    padding: 20px 30px 20px 20px; /* Reduced left padding */
-    background-color: #f8fafc;
+    padding: 10px;/* Reduced left padding */
+    padding-top: 10px;
+    background-color: #d9e2ea;
+    width: 1280px;
+    margin-left: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px; /* Added margin to separate from sidebar */
+    margin-right: 10px;
+    border-radius: 10px;
   }
   

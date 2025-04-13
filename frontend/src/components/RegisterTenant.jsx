@@ -1,184 +1,70 @@
-// src/pages/RegisterOwner.jsx
+// RegisterTenant.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
-import './OwnerSignup.css'; // Import the new CSS
-import { useNavigate, Link } from 'react-router-dom';
 
-function RegisterTenant() {
-  const navigate = useNavigate();
+const RegisterTenant = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    role: 'tenant',
     name: '',
     phone_number: '',
     criminal_history: false,
     employment_status: false,
-    user_image: null
+    user_image: null,
   });
 
-  const handleChange = (e) => {
-    const { name, value, type, checked, files } = e.target;
-
-    if (type === 'file') {
-      setFormData({ ...formData, user_image: files[0] });
-    } else if (type === 'checkbox') {
-      setFormData({ ...formData, [name]: checked });
-    } else if (name === 'employment_status') {
-      setFormData({ ...formData, employment_status: value === 'true' });
-    } else {
-      setFormData({ ...formData, [name]: value });
-    }
+  const handleChange = e => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value
+    });
   };
 
-  const handleSubmit = async (e) => {
+  const handleFileChange = e => {
+    setFormData({ ...formData, user_image: e.target.files[0] });
+  };
+
+  const handleSubmit = async e => {
     e.preventDefault();
+    const data = new FormData();
+    data.append('user.email', formData.email);
+    data.append('user.password', formData.password);
+    data.append('user.role', formData.role);
+    data.append('name', formData.name);
+    data.append('phone_number', formData.phone_number);
+    data.append('criminal_history', formData.criminal_history);
+    data.append('employment_status', formData.employment_status);
+    if (formData.user_image) {
+      data.append('user_image', formData.user_image);
+    }
 
     try {
-      const userResponse = await axios.post('http://localhost:8000/api/register/user/', {
-        email: formData.email,
-        password: formData.password,
-        role: 'tenant'
-      });
-
-      const user_Id = userResponse.data.user_id;
-
-      const form = new FormData();
-      form.append('user_id', user_Id);
-      form.append('user', user_Id);
-      form.append('name', formData.name);
-      form.append('phone_number', formData.phone_number);
-      form.append('criminal_history', formData.criminal_history);
-      form.append('employment_status', formData.employment_status);
-      if (formData.user_image) {
-        form.append('user_image', formData.user_image);
-      }
-
-      const ownerResponse = await axios.post('http://localhost:8000/api/register/tenant/', form, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-
-      if (ownerResponse.status === 201) {
-        alert('Tenant registered successfully');
-        navigate('/login');
-      }
-    } catch (error) {
-      console.error("Error registering tenant:", error.response?.data);
-      alert('Error registering tenant');
+      await axios.post('http://localhost:8000/api/register/tenant/', data);
+      alert('Tenant registered successfully!');
+    } catch (err) {
+      console.error(err);
+      alert('Registration failed.');
     }
   };
 
   return (
-    <div className="page-wrapper">
-      <div className="signup-container">
-        <div className="left-box">
-          <div className="image-container">
-            <img src="/locations/house.png" alt="House" className="signup-image" />
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="right-box">
-          <div className="form-header">
-            <h2>Register as Tenant</h2>
-            <p>Join us and find affordable hoousing with ease!</p>
-          </div>
-
-          <div className="input-group">
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              onChange={handleChange}
-              className="form-control"
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              onChange={handleChange}
-              className="form-control"
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <input
-              type="text"
-              name="name"
-              placeholder="Full Name"
-              onChange={handleChange}
-              className="form-control"
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <input
-              type="text"
-              name="phone_number"
-              placeholder="Phone Number"
-              onChange={handleChange}
-              className="form-control"
-              required
-            />
-          </div>
-
-          <div className="checkbox-group">
-            <input
-              type="checkbox"
-              name="criminal_history"
-              checked={formData.criminal_history}
-              onChange={handleChange}
-              className="form-check-input"
-              id="criminalCheck"
-            />
-            <label htmlFor="criminalCheck" className="form-check-label">
-              Tick if you have a criminal history
-            </label>
-          </div>
-
-          <label htmlFor="employment_status" className="form-label d-block">Employment Status</label>
-          <div className="input-group">
-            <select
-              name="employment_status"
-              value={formData.employment_status.toString()}
-              onChange={handleChange}
-              className="form-select"
-              required
-            >
-              <option value="">-- Select Employment Status --</option>
-              <option value="true">Employed</option>
-              <option value="false">Unemployed</option>
-            </select>
-          </div>
-
-          <div className="input-group">
-            <input
-              type="file"
-              name="user_image"
-              onChange={handleChange}
-              className="form-control"
-            />
-          </div>
-
-          <div className="submit-group">
-            <button type="submit" className="btn btn-success w-100">
-              Register
-            </button>
-          </div>
-
-          <div className="text-center">
-            <small>
-              Already have an account? <Link to="/login">Log In</Link>
-            </small>
-          </div>
-        </form>
-      </div>
-    </div>
+    <form onSubmit={handleSubmit} encType="multipart/form-data">
+      <input name="email" type="email" placeholder="Email" onChange={handleChange} required />
+      <input name="password" type="password" placeholder="Password" onChange={handleChange} required />
+      <input name="name" type="text" placeholder="Full Name" onChange={handleChange} required />
+      <input name="phone_number" type="text" placeholder="Phone Number" onChange={handleChange} required />
+      <label>
+        <input name="criminal_history" type="checkbox" onChange={handleChange} /> Criminal History
+      </label>
+      <label>
+        <input name="employment_status" type="checkbox" onChange={handleChange} /> Employed
+      </label>
+      <input name="user_image" type="file" onChange={handleFileChange} />
+      <button type="submit">Register as Tenant</button>
+    </form>
   );
-}
+};
 
 export default RegisterTenant;

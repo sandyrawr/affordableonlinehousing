@@ -7,7 +7,7 @@ const Home = () => {
   const [locations, setLocations] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:8000/location/")
+    axios.get("http://localhost:8000/locations/")
       .then(response => setLocations(response.data))
       .catch(error => console.error("Error fetching locations:", error));
   }, []);

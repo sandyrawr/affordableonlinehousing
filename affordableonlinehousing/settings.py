@@ -159,9 +159,9 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 REST_FRAMEWORK = {
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
-    # ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',  # Default to AllowAny for all views
     ],
@@ -180,7 +180,9 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
 }
 
-# AUTH_USER_MODEL = 'onlinehousingapp.User'
+AUTH_USER_MODEL = 'onlinehousingapp.User'
+# settings.py
+
 
 SIMPLE_JWT = {
     'USER_ID_FIELD': 'id',  # Uses the default id field

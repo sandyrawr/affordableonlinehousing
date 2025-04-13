@@ -40,21 +40,29 @@ urlpatterns = [
     # path('property/', views.propertyApi),  # Add trailing slash
     # path('property/<int:id>/', views.propertyApi),  # Add trailing slash
     # path('admin/', admin.site.urls),
-    path('location/', views.locationApi),  # Add this new endpoint
-    path('location/<int:id>/', views.locationApi),  # Add this new endpoint
+    # path('location/', views.locationApi),  # Add this new endpoint
+    # path('location/<int:id>/', views.locationApi),  # Add this new endpoint
     # path('api/properties/', views.property_list, name='property-list'),
     # path('api/tenants/register/', views.register_tenant, name='register_tenant'),
     # path('api/tenant/login/', views.tenant_login, name='tenant-login'),
     path('add-location/', views.LocationCreateView.as_view(), name='add-location'),
-    path('api/register/user/', views.UserRegistrationView.as_view(), name='user_register'),
-    path('api/register/owner/', views.OwnerRegistrationView.as_view(), name='owner_register'),
-    path('api/register/tenant/', views.TenantRegistrationView.as_view(), name='tenant_register'),
-    path('api/register/admin/', views.AdminRegistrationView.as_view(), name='admin_register'),
-    path('api/login/', views.LoginView.as_view(), name='login'),
+    path('locations/', views.locationApi, name='location-list'),  
+    # path('api/register/user/', views.UserRegistrationView.as_view(), name='user_register'),
+    # path('api/register/owner/', views.OwnerRegistrationView.as_view(), name='owner_register'),
+    # path('api/register/tenant/', views.TenantRegistrationView.as_view(), name='tenant_register'),
+    # path('api/register/admin/', views.AdminRegistrationView.as_view(), name='admin_register'),
+    # path('api/login/', views.LoginView.as_view(), name='login'),
     # path('properties/', views.PropertyCreateView.as_view(), name='create-property'),
     path('ownerdetail/<int:user_id>/', views.OwnerDetailView.as_view(), name='owner-detail'),
-    path('add-property/', views.PropertyCreateView.as_view(), name='add-property'),
+    # path('add-property/', views.PropertyCreateView.as_view(), name='add-property'),
     path('properties/', views.PropertyListView.as_view(), name='property-list'),
+    path('my-properties/', views.MyPropertiesView.as_view(), name='my-properties'),
+    path('api/register/user/', views.RegisterUserView.as_view(), name='register-user'),
+    path('api/register/tenant/', views.RegisterTenantView.as_view(), name='register-tenant'),
+    path('api/register/owner/', views.RegisterOwnerView.as_view(), name='register-owner'),
+    path('api/register/admin/', views.RegisterAdminView.as_view(), name='register-admin'),
+    path('api/login/', views.LoginView.as_view(), name='login'),
+    path('add-property/', views.AddPropertyView.as_view(), name='add-property'),
     path('my-properties/', views.MyPropertiesView.as_view(), name='my-properties'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
