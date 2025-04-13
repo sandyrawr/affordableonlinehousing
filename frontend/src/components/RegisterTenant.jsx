@@ -1,8 +1,10 @@
+// src/pages/RegisterOwner.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import './OwnerSignup.css'; // Import the new CSS
+import { useNavigate, Link } from 'react-router-dom';
 
-function RegisterOwner() {
+function RegisterTenant() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
@@ -18,25 +20,13 @@ function RegisterOwner() {
     const { name, value, type, checked, files } = e.target;
 
     if (type === 'file') {
-      setFormData({
-        ...formData,
-        user_image: files[0]
-      });
+      setFormData({ ...formData, user_image: files[0] });
     } else if (type === 'checkbox') {
-      setFormData({
-        ...formData,
-        [name]: checked
-      });
+      setFormData({ ...formData, [name]: checked });
     } else if (name === 'employment_status') {
-      setFormData({
-        ...formData,
-        employment_status: value === 'true'
-      });
+      setFormData({ ...formData, employment_status: value === 'true' });
     } else {
-      setFormData({
-        ...formData,
-        [name]: value
-      });
+      setFormData({ ...formData, [name]: value });
     }
   };
 
@@ -44,7 +34,6 @@ function RegisterOwner() {
     e.preventDefault();
 
     try {
-      // Step 1: Register user and get the user_id
       const userResponse = await axios.post('http://localhost:8000/api/register/user/', {
         email: formData.email,
         password: formData.password,
@@ -53,7 +42,6 @@ function RegisterOwner() {
 
       const user_Id = userResponse.data.user_id;
 
-      // Step 2: Submit owner details with the user_id
       const form = new FormData();
       form.append('user_id', user_Id);
       form.append('user', user_Id);
@@ -66,87 +54,131 @@ function RegisterOwner() {
       }
 
       const ownerResponse = await axios.post('http://localhost:8000/api/register/tenant/', form, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
 
       if (ownerResponse.status === 201) {
-        alert('Owner registered successfully');
+        alert('Tenant registered successfully');
         navigate('/login');
       }
     } catch (error) {
-      console.error("Error registering owner:", error.response.data);
-      alert('Error registering Owner');
+      console.error("Error registering tenant:", error.response?.data);
+      alert('Error registering tenant');
     }
   };
 
   return (
-    <div className="container">
-      <h2>Register as Tenant</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="name"
-          placeholder="Full Name"
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="text"
-          name="phone_number"
-          placeholder="Phone Number"
-          onChange={handleChange}
-          required
-        />
+    <div className="page-wrapper">
+      <div className="signup-container">
+        <div className="left-box">
+          <div className="image-container">
+            <img src="/locations/house.png" alt="House" className="signup-image" />
+          </div>
+        </div>
 
-        <label>
-          <input
-            type="checkbox"
-            name="criminal_history"
-            checked={formData.criminal_history}
-            onChange={handleChange}
-          />{' '}
-          Do you have a criminal history?
-        </label>
+        <form onSubmit={handleSubmit} className="right-box">
+          <div className="form-header">
+            <h2>Register as Tenant</h2>
+            <p>Join us and find affordable hoousing with ease!</p>
+          </div>
 
-        <label>
-          Employment Status:
-          <select
-            name="employment_status"
-            value={formData.employment_status}
-            onChange={handleChange}
-            required
-          >
-            <option value="">-- Select Employment Status --</option>
-            <option value="true">Employed</option>
-            <option value="false">Unemployed</option>
-          </select>
-        </label>
+          <div className="input-group">
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              onChange={handleChange}
+              className="form-control"
+              required
+            />
+          </div>
 
-        <input
-          type="file"
-          name="user_image"
-          onChange={handleChange}
-        />
-        <button type="submit">Register</button>
-      </form>
+          <div className="input-group">
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              onChange={handleChange}
+              className="form-control"
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <input
+              type="text"
+              name="name"
+              placeholder="Full Name"
+              onChange={handleChange}
+              className="form-control"
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <input
+              type="text"
+              name="phone_number"
+              placeholder="Phone Number"
+              onChange={handleChange}
+              className="form-control"
+              required
+            />
+          </div>
+
+          <div className="checkbox-group">
+            <input
+              type="checkbox"
+              name="criminal_history"
+              checked={formData.criminal_history}
+              onChange={handleChange}
+              className="form-check-input"
+              id="criminalCheck"
+            />
+            <label htmlFor="criminalCheck" className="form-check-label">
+              Tick if you have a criminal history
+            </label>
+          </div>
+
+          <label htmlFor="employment_status" className="form-label d-block">Employment Status</label>
+          <div className="input-group">
+            <select
+              name="employment_status"
+              value={formData.employment_status.toString()}
+              onChange={handleChange}
+              className="form-select"
+              required
+            >
+              <option value="">-- Select Employment Status --</option>
+              <option value="true">Employed</option>
+              <option value="false">Unemployed</option>
+            </select>
+          </div>
+
+          <div className="input-group">
+            <input
+              type="file"
+              name="user_image"
+              onChange={handleChange}
+              className="form-control"
+            />
+          </div>
+
+          <div className="submit-group">
+            <button type="submit" className="btn btn-success w-100">
+              Register
+            </button>
+          </div>
+
+          <div className="text-center">
+            <small>
+              Already have an account? <Link to="/login">Log In</Link>
+            </small>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
 
-export default RegisterOwner;
+export default RegisterTenant;

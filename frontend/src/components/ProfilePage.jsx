@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
-import { Link, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Property from './Property';
 import AddProperty from './AddProperty';
 import BookingRequests from './BookingRequests';
 import TourRequests from './TourRequests';
-// import MyProperties from './MyProperties';
-// import TourRequests from './TourRequests';
-// import BookingRequests from './BookingRequests';
-// import './ProfilePage.css';  // Optional: to style the layout
+import './ProfilePage.css';
+import MyProperties from './MyProperties';
+
+// import './ProfilePage.css'; // Optional styling file
 
 function ProfilePage() {
-  const [activeSection, setActiveSection] = useState('addProperty');
+  const [activeSection, setActiveSection] = useState('profile'); // Default to 'profile'
 
   return (
     <div className="profile-page-container">
       <div className="sidebar">
-        <h2>Profile</h2>
         <ul>
+          <li>
+            <button onClick={() => setActiveSection('profile')}>Profile</button>
+          </li>
           <li>
             <button onClick={() => setActiveSection('addproperty')}>Add Property</button>
           </li>
@@ -37,16 +39,24 @@ function ProfilePage() {
       <div className="main-content">
         <Routes>
           <Route path="/add-property" element={<AddProperty />} />
-          <Route path="/my-properties" element={<Property />} />
+          <Route path="/my-properties" element={<MyProperties />} />
           <Route path="/tour-requests" element={<TourRequests />} />
           <Route path="/booking-requests" element={<BookingRequests />} />
         </Routes>
+
         {/* Conditionally render content based on activeSection */}
+        {activeSection === 'profile' && (
+          <div>
+            <h2>Welcome to your profile!</h2>
+            <p>Here you can manage your account settings, view your info, etc.</p>
+            {/* Add more profile info or editable form here */}
+          </div>
+        )}
         {activeSection === 'addproperty' && <AddProperty />}
-        {activeSection === 'myProperties' && <Property />}
+        {activeSection === 'myProperties' && <MyProperties />}
         {activeSection === 'tourRequests' && <TourRequests />}
         {activeSection === 'bookingRequests' && <BookingRequests />}
-        {activeSection === 'logout' && <div>Logging out...</div>}  {/* You can add actual logout logic here */}
+        {activeSection === 'logout' && <div>Logging out...</div>}
       </div>
     </div>
   );

@@ -74,6 +74,7 @@ class AdminRegistrationView(APIView):
 class LoginView(APIView):
     def post(self, request):
         # permission_classes = [AllowAny]
+        permission_classes = [IsAuthenticated]
         email = request.data.get('email')
         password = request.data.get('password')
 
@@ -118,20 +119,25 @@ class LoginView(APIView):
         return Response(response_data, status=status.HTTP_200_OK)
 
 class PropertyCreateView(APIView):
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    # authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
     parser_classes = [MultiPartParser, FormParser]
 
     def post(self, request):
-        print("User:", request.user)
-        print("User ID:", request.user.id)
-        try:
-            owner = Owner.objects.get(user=request.user)  # assuming Owner has FK to User
-        except Owner.DoesNotExist:
-            return Response({"error": "You are not registered as an owner."}, status=403)
+        # print("Authenticated User:", request.user)  # This should print a user object
+        # print("User ID:", request.user.id)  # This should print the user ID
+        # try:
+        #     owner = Owner.objects.get(user=request.user)  # assuming Owner has FK to User
+        # except Owner.DoesNotExist:
+        #     return Response({"error": "You are not registered as an owner."}, status=403)
         
+        # # data = request.data.copy()
+        # data['owner'] = owner.id  # Inject the owner ID
+
+        # owner = Owner.objects.get(user=request.user)
+
         data = request.data.copy()
-        data['owner'] = owner.id  # Inject the owner ID
+
         
         serializer = PropertySerializer(data=data)
         if serializer.is_valid():
@@ -141,7 +147,7 @@ class PropertyCreateView(APIView):
         
 
 class OwnerDetailView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, user_id):
         try:
@@ -154,7 +160,24 @@ class OwnerDetailView(APIView):
         except Owner.DoesNotExist:
             return Response({'error': 'Owner not found'}, status=404)
 
+class PropertyListView(APIView):
+    def get(self, request):
+        location_name = request.GET.get('location')  # Get the location parameter from the URL
+        if location_name:
+            properties = Property.objects.filter(location__name=location_name)  # Filter properties by location
+        else:
+            properties = Property.objects.all()  # If no location is provided, return all properties
 
+        serializer = PropertySerializer(properties, many=True)
+        return Response(serializer.data)
+
+class MyPropertiesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        properties = Property.objects.filter(owner__user=request.user)
+        serializer = PropertySerializer(properties, many=True)
+        return Response(serializer.data)
 
 # @csrf_exempt
 # def propertyApi(request, id=0):

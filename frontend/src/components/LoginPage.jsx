@@ -1,6 +1,6 @@
-// src/pages/LoginPage.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
+import './Signup.css'; // Reusing the same styles as Signup
 import { useNavigate, Link } from 'react-router-dom';
 
 function LoginPage() {
@@ -19,24 +19,19 @@ function LoginPage() {
     e.preventDefault();
     try {
       const res = await axios.post('http://localhost:8000/api/login/', formData);
-      const { access, refresh, user_id, role, owner_id } = res.data; // Adjust to match your backend response
+      const { access, refresh, user_id, role, owner_id } = res.data;
 
-      // Save the complete user data object to localStorage under 'userData'
       const userData = {
         accessToken: access,
         refreshToken: refresh,
         userId: user_id,
         role: role,
-        ownerId: owner_id // Adding ownerId to userData
+        ownerId: owner_id
       };
+
       localStorage.setItem('userData', JSON.stringify(userData));
-      // Save tokens and user data to localStorage
       localStorage.setItem('accessToken', access);
       localStorage.setItem('refreshToken', refresh);
-      // localStorage.setItem('token', access);  // Store the access token under 'token' key
-      // localStorage.setItem('userId', user_id);
-      // localStorage.setItem('role', role);
-
 
       if (role === 'admin') {
         navigate('/addlocation');
@@ -54,31 +49,60 @@ function LoginPage() {
   };
 
   return (
-    <div className="container">
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
-        <button type="submit">Login</button>
-      </form>
+    <div className='page-wrapper'>
+      <div className="signup-container">
+        <div className="left-box">
+          <div className="image-container">
+            <img src="/locations/house.png" alt="House" className="signup-image" />
+          </div>
+        </div>
 
-      <div style={{ marginTop: '1rem' }}>
-        <p>Don't have an account? <Link to="/register">Sign Up</Link></p>
-        <p><Link to="/">Go Back Home</Link></p>
+        <form onSubmit={handleSubmit} className="right-box">
+          <div className="form-header">
+            <h2>Log In</h2>
+            <p>Welcome back! Please log in to continue.</p>
+          </div>
+
+          <div className="input-group">
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="form-control"
+              placeholder="Email Address"
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="form-control"
+              placeholder="Password"
+              required
+            />
+          </div>
+
+          <div className="submit-group">
+            <button type="submit" className="btn btn-success w-100">
+              Log In
+            </button>
+          </div>
+
+          <div className="text-center">
+            <small>
+              Don’t have an account? <Link to="/startregister">Sign Up</Link>
+            </small>
+            <br />
+            <small>
+              <Link to="/">Go Back Home</Link>
+            </small>
+          </div>
+        </form>
       </div>
     </div>
   );

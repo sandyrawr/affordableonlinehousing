@@ -19,7 +19,7 @@ class LocationSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = '__all__'
+        fields = ['email', 'password', 'role']
         extra_kwargs = {
             'password': {'write_only': True}
         }

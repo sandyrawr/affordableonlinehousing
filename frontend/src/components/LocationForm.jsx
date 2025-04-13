@@ -1,5 +1,5 @@
-// LocationForm.js
 import React, { useState } from 'react';
+import './LocationForm.css'; // Add this line for the CSS
 
 const LocationForm = () => {
   const [formData, setFormData] = useState({
@@ -45,15 +45,18 @@ const LocationForm = () => {
   };
 
   return (
-    <form onSubmit={handleSubmit} encType="multipart/form-data">
-      <input type="text" name="name" placeholder="Name" onChange={handleChange} required />
-      <input type="number" name="transportcost" placeholder="Transport Cost" onChange={handleChange} required />
-      <input type="number" name="utilitycost" placeholder="Utility Cost" onChange={handleChange} required />
-      <input type="number" name="foodcost" placeholder="Food Cost" onChange={handleChange} required />
-      <input type="number" name="safetyrating" placeholder="Safety Rating" onChange={handleChange} required />
-      <input type="file" name="image" accept="image/*" onChange={handleChange} />
-      <button type="submit">Add Location</button>
-    </form>
+    <div className="location-form-container">
+      <h2 className="form-title">Add New Location</h2>
+      <form onSubmit={handleSubmit} encType="multipart/form-data" className="location-form">
+        <input type="text" name="name" placeholder="Name" onChange={handleChange} required className="form-input" />
+        <input type="number" name="transportcost" placeholder="Transport Cost" onChange={handleChange} required className="form-input" />
+        <input type="number" name="utilitycost" placeholder="Utility Cost" onChange={handleChange} required className="form-input" />
+        <input type="number" name="foodcost" placeholder="Food Cost" onChange={handleChange} required className="form-input" />
+        <input type="number" name="safetyrating" placeholder="Safety Rating" onChange={handleChange} required className="form-input" />
+        <input type="file" name="image" accept="image/*" onChange={handleChange} className="form-input-file" />
+        <button type="submit" className="form-button">Add Location</button>
+      </form>
+    </div>
   );
 };
 

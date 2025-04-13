@@ -142,7 +142,14 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ORIGIN_ALLOWW_ALL =True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',  # 🔥 Critical for JWT
+    'content-type',
+]
+
+CORS_ORIGIN_ALLOW_ALL =True
 CORS_ALLOW_ALL_HEADERS = True
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  
@@ -152,7 +159,30 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
+    # ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # Default to AllowAny for all views
+    ],
+}
+
+# SIMPLE_JWT = {
+#     'SHOW_AUTH_HEADERS': True,  # Debug output
+# }
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),  # Set to your desired duration
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),    # Refresh token expiration (typically longer)
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+
+# AUTH_USER_MODEL = 'onlinehousingapp.User'
+
+SIMPLE_JWT = {
+    'USER_ID_FIELD': 'id',  # Uses the default id field
+    'USER_ID_CLAIM': 'user_id',
 }

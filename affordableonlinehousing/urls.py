@@ -54,6 +54,8 @@ urlpatterns = [
     # path('properties/', views.PropertyCreateView.as_view(), name='create-property'),
     path('ownerdetail/<int:user_id>/', views.OwnerDetailView.as_view(), name='owner-detail'),
     path('add-property/', views.PropertyCreateView.as_view(), name='add-property'),
+    path('properties/', views.PropertyListView.as_view(), name='property-list'),
+    path('my-properties/', views.MyPropertiesView.as_view(), name='my-properties'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

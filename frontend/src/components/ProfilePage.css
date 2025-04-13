@@ -1,0 +1,53 @@
+/* ProfilePage.css */
+
+.profile-page-container {
+    display: flex;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+  }
+  
+  .sidebar {
+    width: 220px;
+    background-color: #1e293b;
+    color: white;
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+  }
+  
+  .sidebar li {
+    margin-bottom: 12px;
+  }
+  
+  .sidebar button {
+    width: 100%;
+    padding: 10px;
+    background-color: transparent;
+    border: none;
+    color: white;
+    text-align: left;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border-radius: 4px;
+  }
+  
+  .sidebar button:hover,
+  .sidebar button:focus {
+    background-color: #334155;
+    outline: none;
+  }
+  
+  .main-content {
+    flex-grow: 1;
+    padding: 20px 30px 20px 20px; /* Reduced left padding */
+    background-color: #f8fafc;
+  }
+  
