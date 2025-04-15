@@ -67,6 +67,8 @@ urlpatterns = [
     path('properties/', views.FilteredPropertiesView.as_view(), name='properties-list'), 
     path('owner-profile/', views.OwnerProfileView.as_view(), name='owner-profile'), 
     # path('properties/<int:pk>/', PropertyUpdateView.as_view(), name='property-update'),
+    path('searchproperties/', views.SearchPropertyView.as_view(), name='search-property'),  
+    path('tenant-profile/', views.TenantProfileView.as_view(), name='tenant-profile'), 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

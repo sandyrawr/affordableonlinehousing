@@ -213,6 +213,23 @@ class OwnerProfileView(generics.RetrieveUpdateDestroyAPIView):
         self.perform_destroy(owner)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+class TenantProfileView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = TenantSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return Tenant.objects.get(user=self.request.user)
+
+    def perform_destroy(self, instance):
+        user = instance.user
+        user.delete()
+        super().perform_destroy(instance)
+
+    def delete(self, request, *args, **kwargs):
+        tenant = self.get_object()
+        self.perform_destroy(tenant)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 class PropertyListView(APIView):
     def get(self, request):
         location_name = request.GET.get('location')  # Get the location parameter from the URL
@@ -240,6 +257,7 @@ class FilteredPropertiesView(APIView):
         location = request.GET.get('location')
         property_type = request.GET.get('property_type')
         price_type = request.GET.get('price_type')
+        title = request.GET.get('title') 
 
         properties = Property.objects.all()
 
@@ -251,6 +269,9 @@ class FilteredPropertiesView(APIView):
 
         if price_type:
             properties = properties.filter(price_type__iexact=price_type)
+
+        if title:
+            properties = properties.filter(title__icontains=title)
 
         boolean_fields = [
             'balcony_terrace',
@@ -270,6 +291,21 @@ class FilteredPropertiesView(APIView):
 
         serializer = PropertySerializer(properties, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+# views.py
+from rest_framework import generics
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
+
+class SearchPropertyView(generics.ListAPIView): 
+    serializer_class = PropertySerializer
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_fields = [
+        'location__name', 'property_type', 'price_type',
+        'balcony_terrace', 'parking_space', 'garden_yard', 'swimming_pool',
+        'lift_elevator', 'pet_friendly', 'gym',
+    ]
+    search_fields = ['title']
 
 # class MyPropertiesView(APIView):
 #     permission_classes = [IsAuthenticated]

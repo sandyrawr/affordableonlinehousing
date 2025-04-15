@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import Property from '../Unused/Property';
 import AddProperty from '../AddProperty/AddProperty';
-import BookingRequests from '../Unused/BookingRequests';
-import TourRequests from '../Unused/TourRequests';
-import styles from './ProfilePage.module.css';
 import MyProperties from '../MyProperties/MyProperties';
+import TourRequests from '../Unused/TourRequests';
+import BookingRequests from '../Unused/BookingRequests';
+import styles from './ProfilePage.module.css';
 import axios from 'axios';
-import { UserCircle, Trash2, Save } from 'lucide-react';
+import { Save, Trash2 } from 'lucide-react';
 
 function ProfilePage() {
   const [activeSection, setActiveSection] = useState('profile');
@@ -24,7 +23,12 @@ function ProfilePage() {
       })
         .then(res => {
           setOwnerData(res.data);
-          setFormData(res.data);
+          setFormData({
+            ...res.data,
+            email: res.data.user?.email || '',
+            password: '',
+            new_password: ''
+          });
           setImagePreview(res.data.user_image);
         })
         .catch(err => console.error('Error fetching owner data:', err));
@@ -51,14 +55,42 @@ function ProfilePage() {
     const token = localStorage.getItem('accessToken');
     const form = new FormData();
 
-    Object.keys(formData).forEach(key => {
-      form.append(key, formData[key]);
-    });
+    // Object.keys(formData).forEach(key => {
+    //   form.append(key, formData[key]);
+    // });
 
-    const hasChanges = JSON.stringify(formData) !== JSON.stringify(ownerData);
+    const hasChanges =
+    formData.name !== ownerData.name ||
+    formData.phone_number !== ownerData.phone_number ||
+    formData.email !== ownerData.user?.email ||
+    formData.employment_status !== ownerData.employment_status ||
+    formData.criminal_history !== ownerData.criminal_history ||
+    formData.user_image !== ownerData.user_image ||
+    formData.new_password;
+    // Compare current formData with ownerData to check if anything changed
+    // const hasChanges = JSON.stringify(formData) !== JSON.stringify(ownerData);
     if (!hasChanges) {
       setMessage('No changes to update.');
       return;
+    }
+
+    // Append fields to FormData
+    form.append('name', formData.name);
+    form.append('phone_number', formData.phone_number);
+    form.append('employment_status', formData.employment_status);
+    form.append('criminal_history', formData.criminal_history);
+    form.append('email', formData.email);
+
+    if (formData.user_image && typeof formData.user_image !== 'string') {
+      form.append('user_image', formData.user_image);
+    }
+
+    if (formData.password) {
+      form.append('password', formData.password);
+    }
+
+    if (formData.new_password) {
+      form.append('new_password', formData.new_password);
     }
 
     axios.patch('http://localhost:8000/owner-profile/', form, {
@@ -67,11 +99,19 @@ function ProfilePage() {
         'Content-Type': 'multipart/form-data'
       }
     })
-      .then(() => {
+      .then(res => {
         setMessage('Changes saved successfully.');
-        setOwnerData(formData);
+        setOwnerData(res.data);
+        setFormData(prev => ({
+          ...prev,
+          password: '',
+          new_password: ''
+        }));
       })
-      .catch(err => console.error('Error updating profile:', err));
+      .catch(err => {
+        console.error('Error saving changes:', err);
+        setMessage(err.response?.data?.password?.[0] || 'Failed to update profile.');
+      });
   };
 
   const handleDeleteAccount = () => {
@@ -118,7 +158,8 @@ function ProfilePage() {
                     <img
                       src={imagePreview}
                       alt="Profile"
-                      style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover' }}
+                      className={styles.profileImage}
+                      // style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover' }}
                     />
                   </label>
                   <input id="imageUpload" type="file" hidden onChange={handleImageChange} />
@@ -129,6 +170,33 @@ function ProfilePage() {
                     type="text"
                     name="name"
                     value={formData.name || ''}
+                    onChange={handleChange}
+                    className="form-control mb-2"
+                  />
+
+                  <label>Email:</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email || ''}
+                    onChange={handleChange}
+                    className="form-control mb-2"
+                  />
+
+                  <label>Current Password:</label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password || ''}
+                    onChange={handleChange}
+                    className="form-control mb-2"
+                  />
+
+                  <label>New Password:</label>
+                  <input
+                    type="password"
+                    name="new_password"
+                    value={formData.new_password || ''}
                     onChange={handleChange}
                     className="form-control mb-2"
                   />

@@ -7,6 +7,7 @@ import "./SearchPage.module.css";
 const SearchPage = () => {
   const [properties, setProperties] = useState([]);
   const [filters, setFilters] = useState({
+    title: "",  
     property_type: "",
     price_type: "",
     balcony_terrace: false,
@@ -150,10 +151,20 @@ const SearchPage = () => {
         <div className="main-content col-md-9">
           <div className="top-section d-flex justify-content-between">
             <img src="./locations/logo.png" alt="Logo" className="logo" />
-            <Link to="/profile" className="btn btn-outline-primary profile-btn">Profile</Link>
+            <Link to="/tenantprofile" className="btn btn-outline-primary profile-btn">Profile</Link> 
           </div>
 
           <div className="text-center mb-4">
+            <div className="form-group mb-3">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Search by title..."
+                name="title"
+                value={filters.title}
+                onChange={handleFilterChange}
+              />
+            </div>
             <h2 className="top-title">Search Properties in {locationName}</h2>
             <p className="top-subtext">Find your dream home or office here in {locationName}.</p>
 

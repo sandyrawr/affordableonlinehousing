@@ -153,3 +153,39 @@
   font-weight: bold;
   color: #888;
 }
+
+/* Sidebar Styles */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  right: -300px;
+  width: 300px;
+  height: 100%;
+  background-color: #fff;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.2);
+  transition: right 0.3s ease-in-out;
+  z-index: 1000;
+}
+
+.sidebar-overlay.active {
+  right: 0;
+}
+
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  text-align: center;
+}
+
+.sidebar-content .btn {
+  margin: 10px 0;
+}
+
+.sidebar-content .btn-close {
+  align-self: flex-end;
+  border: none;
+  background: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
