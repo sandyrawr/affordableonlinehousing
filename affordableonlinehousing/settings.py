@@ -188,3 +188,4 @@ SIMPLE_JWT = {
     'USER_ID_FIELD': 'id',  # Uses the default id field
     'USER_ID_CLAIM': 'user_id',
 }
+

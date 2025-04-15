@@ -162,3 +162,9 @@ class LoginSerializer(serializers.Serializer):
             'user_id': user.id,
             'role': user.role
         }
+
+class OwnerProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Owner
+        fields = ['id', 'user', 'phone_number', 'employment_status', 'criminal_history', 'image']
+        read_only_fields = ['user']

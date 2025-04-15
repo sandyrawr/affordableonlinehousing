@@ -1,0 +1,145 @@
+/* Login.module.css */
+
+.pageWrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    background-color: #f2f2f2;
+    box-sizing: border-box;
+    overflow: auto;
+}
+
+.loginContainer {
+    display: flex;
+    flex-direction: row;
+    background-color: #fff;
+    border: 2px solid #4CAF50;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    max-width: 850px;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* Left (image) side */
+.leftBox {
+    flex: 1;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* Right (form) side */
+.rightBox {
+    flex: 1;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.formHeader {
+    font-size: 1.6rem;
+    margin-bottom: 0.25rem;
+    text-align: center;
+}
+
+.inputGroup {
+    margin-bottom: 1rem;
+}
+
+.formControl {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: #f9f9f9;
+    font-size: 1rem;
+    transition: border 0.3s ease;
+}
+
+.formControl:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+}
+
+.submitGroup {
+    margin-top: 1.5rem;
+}
+
+.btnSuccess {
+    background-color: #4CAF50;
+    border: none;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btnSuccess:hover {
+    background-color: #3e8e41;
+}
+
+.message {
+    color: #d9534f;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.signupLink {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.signupLink p {
+    font-size: 1rem;
+    color: #555;
+}
+
+.signupLink a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+.signupLink a:hover {
+    text-decoration: underline;
+}
+
+.imageContainer {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.signupImage {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.textCenter {
+    text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .loginContainer {
+        flex-direction: column;
+    }
+
+    .leftBox,
+    .rightBox {
+        width: 100%;
+    }
+}

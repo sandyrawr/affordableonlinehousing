@@ -1,0 +1,89 @@
+/* ProfilePage.module.css */
+
+.profilePageContainer {
+  display: flex;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+.sidebar {
+  width: 225px;
+  background-color: #020a2c;
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  padding-right: 0px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding-top: 0;
+  margin: 0;
+  flex-grow: 1;
+}
+
+.sidebar li {
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  padding-top: 8px;
+}
+
+.sidebarButton {
+  width: 100%;
+  padding: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
+  background-color: transparent;
+  border: none;
+  color: white;
+  text-align: left;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-radius: 4px;
+}
+
+.sidebarButton:hover,
+.sidebarButton:focus {
+  background-color: #334155;
+  outline: none;
+}
+
+.mainContent {
+  padding: 10px;
+  padding-top: 10px;
+  background-color: #d9e2ea;
+  width: 1280px;
+  margin-left: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-right: 10px;
+  border-radius: 10px;
+}
+
+.profileImage {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+.ownerDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.deleteButton {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.deleteButton:hover {
+  background-color: darkred;
+}

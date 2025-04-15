@@ -26,6 +26,9 @@ from .models import User, Admin, Owner, Property
 from .serializers import OwnerSerializer, TenantSerializer, UserSerializer, AdminSerializer, PropertySerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework import status
+from django.db import connection
+
 
 # def locationApi(request, id=0):
 #     locations = Location.objects.all()
@@ -178,19 +181,37 @@ class AddPropertyView(APIView):
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
 
-class OwnerDetailView(APIView):
-    # permission_classes = [IsAuthenticated]
+# class OwnerDetailView(APIView):
+#     # permission_classes = [IsAuthenticated]
 
-    def get(self, request, user_id):
-        try:
-            owner = Owner.objects.get(user_id=user_id)
-            return Response({
-                'id': owner.id,
-                'user_id': owner.user_id,
-                'additional_owner_details': owner.additional_field
-            })
-        except Owner.DoesNotExist:
-            return Response({'error': 'Owner not found'}, status=404)
+#     def get(self, request, user_id):
+#         try:
+#             owner = Owner.objects.get(user_id=user_id)
+#             return Response({
+#                 'id': owner.id,
+#                 'user_id': owner.user_id,
+#                 'additional_owner_details': owner.additional_field
+#             })
+#         except Owner.DoesNotExist:
+#             return Response({'error': 'Owner not found'}, status=404)
+
+class OwnerProfileView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = OwnerSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return Owner.objects.get(user=self.request.user)
+
+    def perform_destroy(self, instance):
+        # Delete the associated user
+        user = instance.user
+        user.delete()
+        super().perform_destroy(instance)
+
+    def delete(self, request, *args, **kwargs):
+        owner = self.get_object()
+        self.perform_destroy(owner)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class PropertyListView(APIView):
     def get(self, request):
@@ -203,28 +224,66 @@ class PropertyListView(APIView):
         serializer = PropertySerializer(properties, many=True)
         return Response(serializer.data)
 
-# class MyPropertiesView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request):
-#         properties = Property.objects.filter(owner__user=request.user)
-#         serializer = PropertySerializer(properties, many=True)
-#         return Response(serializer.data)
-
-
 class MyPropertiesView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        try:
-            owner = Owner.objects.get(user=request.user)
-        except Owner.DoesNotExist:
-            return Response({'error': 'Owner not found'}, status=status.HTTP_404_NOT_FOUND)
+        properties = Property.objects.filter(owner__user=request.user)
+        serializer = PropertySerializer(properties, many=True)
+        return Response(serializer.data)
 
-        properties = Property.objects.filter(owner=owner)
+from rest_framework import viewsets
+
+
+class FilteredPropertiesView(APIView):
+    def get(self, request):
+        location = request.GET.get('location')
+        property_type = request.GET.get('property_type')
+        price_type = request.GET.get('price_type')
+
+        properties = Property.objects.all()
+
+        if location:
+            properties = properties.filter(location__name__icontains=location)
+
+        if property_type:
+            properties = properties.filter(property_type__iexact=property_type)
+
+        if price_type:
+            properties = properties.filter(price_type__iexact=price_type)
+
+        boolean_fields = [
+            'balcony_terrace',
+            'parking_space',
+            'garden_yard',
+            'swimming_pool',
+            'lift_elevator',
+            'pet_friendly',
+            'gym',
+        ]
+
+        for field in boolean_fields:
+            val = request.GET.get(field)
+            # Only filter for True fields, don't filter if user left it unchecked
+            if val and val.lower() == 'true':
+                properties = properties.filter(**{field: True})
+
         serializer = PropertySerializer(properties, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-        
+
+# class MyPropertiesView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         try:
+#             owner = Owner.objects.get(user=request.user)
+#         except Owner.DoesNotExist:
+#             return Response({'error': 'Owner not found'}, status=status.HTTP_404_NOT_FOUND)
+
+#         properties = Property.objects.filter(owner=owner)
+#         serializer = PropertySerializer(properties, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+
 from rest_framework import generics
 from .models import User, Tenant, Owner, Admin
 from .serializers import UserSerializer, TenantSerializer, OwnerSerializer, AdminSerializer
@@ -247,6 +306,18 @@ class RegisterOwnerView(generics.CreateAPIView):
 class RegisterAdminView(generics.CreateAPIView):
     queryset = Admin.objects.all()
     serializer_class = AdminSerializer
+
+# class MyPropertiesListView(generics.ListAPIView):
+#     serializer_class = PropertySerializer
+#     permission_classes = [permissions.IsAuthenticated]
+
+#     def get_queryset(self):
+#         return Property.objects.filter(owner=self.request.user.owner)
+
+# class PropertyUpdateView(generics.RetrieveUpdateAPIView):
+#     queryset = Property.objects.all()
+#     serializer_class = PropertySerializer
+#     permission_classes = [permissions.IsAuthenticated]
 
 
 # @csrf_exempt
