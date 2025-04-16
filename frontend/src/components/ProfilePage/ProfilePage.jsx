@@ -35,6 +35,13 @@ function ProfilePage() {
     }
   }, [activeSection]);
 
+  useEffect(() => {
+    if (activeSection === 'logout') {
+      localStorage.clear();
+      window.location.href = '/login';
+    }
+  }, [activeSection]);
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
@@ -55,6 +62,13 @@ function ProfilePage() {
     const token = localStorage.getItem('accessToken');
     const form = new FormData();
 
+    const isImageFile = formData.user_image instanceof File;
+    const hasImageChanged = isImageFile || (
+      formData.user_image &&
+      ownerData.user_image &&
+      formData.user_image !== ownerData.user_image
+    );
+
     // Object.keys(formData).forEach(key => {
     //   form.append(key, formData[key]);
     // });
@@ -65,7 +79,7 @@ function ProfilePage() {
     formData.email !== ownerData.user?.email ||
     formData.employment_status !== ownerData.employment_status ||
     formData.criminal_history !== ownerData.criminal_history ||
-    formData.user_image !== ownerData.user_image ||
+    hasImageChanged ||
     formData.new_password;
     // Compare current formData with ownerData to check if anything changed
     // const hasChanges = JSON.stringify(formData) !== JSON.stringify(ownerData);

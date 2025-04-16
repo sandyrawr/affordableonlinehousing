@@ -22,6 +22,7 @@ import ProfilePage from './components/ProfilePage/ProfilePage';
 import RegisterAdmin from './components/RegisterAdmin/RegisterAdmin';
 import property from './components/Unused/Property';
 import TenantPage from './components/TenantPage/TenantPage';
+import PropertyDetails from './components/PropertyDetails/PropertyDetails';
 // import Login from './components/Login';
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
             <Route path="/addlocation" element={<LocationForm/>} />            
             <Route path="/addproperty" element={<AddProperty/>} />    
             <Route path="/tenantprofile" element={<TenantPage/>} />  
+            <Route path="/propertydetails/:id" element={<PropertyDetails />} /> 
           </Routes>
       
   );

@@ -47,6 +47,13 @@ const TenantPage = () => {
     const token = localStorage.getItem('accessToken');
     const form = new FormData();
 
+    const isImageFile = formData.user_image instanceof File;
+    const hasProfileChanged = isImageFile || (
+      formData.user_image &&
+      tenantData.user_image &&
+      formData.user_image !== tenantData.user_image
+    );
+
     // Compare current formData with tenantData to check if anything changed
     const changed =
       formData.name !== tenantData.name ||
@@ -54,7 +61,7 @@ const TenantPage = () => {
       formData.email !== tenantData.user?.email ||
       formData.employment_status !== tenantData.employment_status ||
       formData.criminal_history !== tenantData.criminal_history ||
-      formData.user_image !== tenantData.user_image ||
+      hasProfileChanged ||
       formData.new_password;
 
     if (!changed) {

@@ -236,12 +236,16 @@ class AdminSerializer(serializers.ModelSerializer):
 
 
 class PropertySerializer(serializers.ModelSerializer):
+    location_name = serializers.CharField(source='location.name', read_only=True)
+    location_id = serializers.IntegerField(source='location.id', read_only=True)
+
     class Meta:
         model = Property
         fields = '__all__'
         # read_only_fields = ['owner']
         extra_kwargs = {
             'owner': {'required': True},
+            'property_image': {'required': False}  # Make image optional for updates
         }
     # def create(self, validated_data):
     #     # Extract user-related data
@@ -291,4 +295,31 @@ class LoginSerializer(serializers.Serializer):
             'user_id': user.id,
             'role': user.role
         }
+
+
+class TenantCSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Tenant
+        fields = ['user', 'name', 'phone_number', 'criminal_history', 'employment_status', 'user_image']
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user')
+        user = User.objects.create_user(**user_data)
+        tenant = Tenant.objects.create(user=user, **validated_data)
+        return tenant
+
+class OwnerCSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Owner
+        fields = ['user', 'name', 'phone_number', 'criminal_history', 'employment_status', 'user_image']
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user')
+        user = User.objects.create_user(**user_data)
+        owner = Owner.objects.create(user=user, **validated_data)
+        return owner
 

@@ -24,6 +24,7 @@ from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, Admin, Owner, Property
 from .serializers import OwnerSerializer, TenantSerializer, UserSerializer, AdminSerializer, PropertySerializer
+from .serializers import OwnerCSerializer, TenantCSerializer, UserSerializer, AdminSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
@@ -232,11 +233,13 @@ class TenantProfileView(generics.RetrieveUpdateDestroyAPIView):
 
 class PropertyListView(APIView):
     def get(self, request):
-        location_name = request.GET.get('location')  # Get the location parameter from the URL
-        if location_name:
-            properties = Property.objects.filter(location__name=location_name)  # Filter properties by location
+        location_id = request.GET.get('location')
+        print(f"Filtering properties with location_id: {location_id}")  # Check location_id value
+        
+        if location_id:
+            properties = Property.objects.filter(location_id=location_id)
         else:
-            properties = Property.objects.all()  # If no location is provided, return all properties
+            properties = Property.objects.all()
 
         serializer = PropertySerializer(properties, many=True)
         return Response(serializer.data)
@@ -249,9 +252,31 @@ class MyPropertiesView(APIView):
         serializer = PropertySerializer(properties, many=True)
         return Response(serializer.data)
 
+class PropertyDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Property.objects.all()
+    serializer_class = PropertySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Property.objects.filter(owner__user=self.request.user)
+
+    def perform_update(self, serializer):
+        try:
+            owner = Owner.objects.get(user=self.request.user)
+            serializer.save(owner=owner)
+        except Owner.DoesNotExist:
+            raise ValidationError("Owner profile not found for the current user.")
+
+    def update(self, request, *args, **kwargs):
+        # Handle file uploads separately from other data
+        if request.FILES:
+            request.data.update(request.FILES)
+        return super().update(request, *args, **kwargs)
+
 from rest_framework import viewsets
 
 
+#search filter and feature fitler
 class FilteredPropertiesView(APIView):
     def get(self, request):
         location = request.GET.get('location')
@@ -307,6 +332,13 @@ class SearchPropertyView(generics.ListAPIView):
     ]
     search_fields = ['title']
 
+#displaying details of the clicked property
+from rest_framework.generics import RetrieveAPIView
+
+class PropertyDetailView(RetrieveAPIView):
+    queryset = Property.objects.all()
+    serializer_class = PropertySerializer
+
 # class MyPropertiesView(APIView):
 #     permission_classes = [IsAuthenticated]
 
@@ -331,12 +363,12 @@ class RegisterUserView(generics.CreateAPIView):
 
 class RegisterTenantView(generics.CreateAPIView):
     queryset = Tenant.objects.all()
-    serializer_class = TenantSerializer
+    serializer_class = TenantCSerializer
 
 
 class RegisterOwnerView(generics.CreateAPIView):
     queryset = Owner.objects.all()
-    serializer_class = OwnerSerializer
+    serializer_class = OwnerCSerializer
 
 
 class RegisterAdminView(generics.CreateAPIView):
@@ -421,6 +453,23 @@ class LocationCreateView(generics.CreateAPIView):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
     parser_classes = [MultiPartParser, FormParser]
+
+#getting lcoation name from location id
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from .models import Location
+
+@api_view(['GET'])
+def location_detail(request, pk):
+    try:
+        location = Location.objects.get(pk=pk)
+        return Response({
+            "id": location.id,
+            "name": location.name
+        })
+    except Location.DoesNotExist:
+        return Response({"error": "Location not found"}, status=404)
+
 
 
 # from rest_framework.decorators import api_view

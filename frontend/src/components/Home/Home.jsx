@@ -20,7 +20,7 @@ const Home = () => {
         <img src="./locations/logo.png" alt="Logo" className="logo" />
         
         {/* Profile Button */}
-        <Link to="/profile" className="btn btn-outline-primary profile-btn">Profile</Link>
+        <Link to="/tenantprofile" className="btn btn-outline-primary profile-btn">Profile</Link>
       </div>
 
       {/* Centered Top Text with Subtext */}

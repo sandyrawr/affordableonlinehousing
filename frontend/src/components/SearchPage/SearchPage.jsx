@@ -177,7 +177,7 @@ const SearchPage = () => {
             {properties.map(property => (
               <div key={property.id} className="col d-flex align-items-stretch">
                 <Link
-                  to={`/property/${property.id}`}
+                  to={`/propertydetails/${property.id}`}
                   className="w-100 text-decoration-none"
                 >
                   <div className="card property-card shadow-sm w-100 overflow-hidden">

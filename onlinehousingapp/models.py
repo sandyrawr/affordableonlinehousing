@@ -15,52 +15,6 @@ class Location(models.Model):
     def __str__(self):
         return self.name
 
-
-# class User(models.Model):
-#     ROLE_CHOICES = (
-#         ('tenant', 'Tenant'),
-#         ('owner', 'Owner'),
-#         ('admin', 'Admin'),
-#     )
-
-#     email = models.EmailField(unique=True)
-#     password = models.CharField(max_length=128)
-#     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
-
-#     def __str__(self):
-#         return f"{self.role.capitalize()} - {self.email}"
-
-
-# class Owner(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#     name = models.CharField(max_length=100)
-#     phone_number = models.CharField(max_length=20)
-#     criminal_history = models.BooleanField(default=False)
-#     employment_status = models.BooleanField(default=False)
-#     user_image = models.ImageField(upload_to='owner_images/', null=True, blank=True)
-
-#     def __str__(self):
-#         return self.name
-
-
-# class Tenant(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     name = models.CharField(max_length=100)
-#     phone_number = models.CharField(max_length=20)
-#     criminal_history = models.BooleanField(default=False)
-#     employment_status = models.BooleanField(default=False)
-#     user_image = models.ImageField(upload_to='tenant_images/', null=True, blank=True)
-
-#     def __str__(self):
-#         return self.name
-
-
-# class Admin(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-
-#     def __str__(self):
-#         return f"Admin - {self.user.email}"
-
 # models.py
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
@@ -132,44 +86,6 @@ class Admin(models.Model):
     def __str__(self):
         return f"Admin - {self.user.email}"
 
-
-# models.py
-# class Property(models.Model):
-#     PROPERTY_TYPE_CHOICES = [
-#         ('Apartment', 'Apartment'),
-#         ('House', 'House'),
-#         ('Studio', 'Studio'),
-#         ('Villa', 'Villa'),
-#         ('Commercial', 'Commercial'),
-#         ('Flat', 'Flat'),
-#     ]
-#     PRICE_TYPE_CHOICES = [
-#         ('Fixed', 'Fixed'),
-#         ('Negotiable', 'Negotiable'),
-#     ]
-
-#     title = models.CharField(max_length=255)
-#     property_type = models.CharField(max_length=50, choices=PROPERTY_TYPE_CHOICES)
-#     description = models.TextField()
-#     location = models.ForeignKey(Location, on_delete=models.CASCADE)
-#     bedrooms = models.IntegerField()
-#     bathrooms = models.IntegerField()
-#     total_rooms = models.IntegerField()
-#     floor_level = models.CharField(max_length=50)
-#     total_floors = models.IntegerField()
-#     owner = models.ForeignKey(Owner, on_delete=models.CASCADE, null=True)
-#     property_size = models.CharField(max_length=50)
-#     rent = models.DecimalField(max_digits=10, decimal_places=2)
-#     price_type = models.CharField(max_length=20, choices=PRICE_TYPE_CHOICES)
-#     balcony_terrace = models.BooleanField()
-#     parking_space = models.BooleanField()
-#     garden_yard = models.BooleanField()
-#     swimming_pool = models.BooleanField()
-#     lift_elevator = models.BooleanField()
-#     pet_friendly = models.BooleanField()
-#     gym = models.BooleanField()
-#     property_image = models.ImageField(upload_to='property_images/')
-
 class Property(models.Model):
     PROPERTY_TYPE_CHOICES = [
         ('Apartment', 'Apartment'),
@@ -209,39 +125,30 @@ class Property(models.Model):
     def __str__(self):
         return self.title
 
+class Booking(models.Model):
+    tenant = models.ForeignKey('Tenant', on_delete=models.CASCADE)
+    property = models.ForeignKey('Property', on_delete=models.CASCADE)
+    date_applied = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')],
+        default='pending'
+    )
+    message = models.TextField(blank=True, null=True)  # optional note from the tenant
 
+    def __str__(self):
+        return f"{self.tenant.user.email} -> {self.property.title} ({self.status})"
 
+class TourRequest(models.Model):
+    tenant = models.ForeignKey('Tenant', on_delete=models.CASCADE)
+    property = models.ForeignKey('Property', on_delete=models.CASCADE)
+    requested_date = models.DateField()
+    time_submitted = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(
+        max_length=20,
+        choices=[('pending', 'Pending'), ('confirmed', 'Confirmed'), ('declined', 'Declined')],
+        default='pending'
+    )
 
-
-# class Tenant(models.Model):
-#     name = models.CharField(max_length=100)
-#     email = models.EmailField(unique=True)
-#     phone_number = models.CharField(max_length=15)
-#     password = models.CharField(max_length=128)
-#     criminal_history = models.BooleanField(default=False)
-#     employment_status = models.BooleanField(default=True)
-
-#     def __str__(self):
-#         return self.name
-    
-# class Owner(models.Model):
-#     name = models.CharField(max_length=255)
-#     email = models.EmailField()  
-#     phonenumber = models.CharField(max_length=20)  
-#     password = models.CharField(max_length=255) 
-#     criminalhistory = models.BooleanField(default=False)  
-#     address = models.TextField()  
-
-#     def __str__(self):
-#         return self.name
-    
-# class Booking(models.Model):
-#     name = models.CharField(max_length=255)
-#     email = models.EmailField()  
-#     phonenumber = models.CharField(max_length=20)  
-#     password = models.CharField(max_length=255) 
-#     criminalhistory = models.BooleanField(default=False)  
-#     address = models.TextField()  
-
-#     def __str__(self):
-#         return self.name
+    def __str__(self):
+        return f"Tour for {self.property.title} by {self.tenant.user.email} on {self.requested_date}"

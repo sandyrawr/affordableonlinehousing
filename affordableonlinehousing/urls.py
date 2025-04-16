@@ -47,6 +47,7 @@ urlpatterns = [
     # path('api/tenant/login/', views.tenant_login, name='tenant-login'),
     path('add-location/', views.LocationCreateView.as_view(), name='add-location'),
     path('locations/', views.locationApi, name='location-list'),  
+    path('locations/<int:pk>/', views.location_detail),
     # path('api/register/user/', views.UserRegistrationView.as_view(), name='user_register'),
     # path('api/register/owner/', views.OwnerRegistrationView.as_view(), name='owner_register'),
     # path('api/register/tenant/', views.TenantRegistrationView.as_view(), name='tenant_register'),
@@ -69,6 +70,10 @@ urlpatterns = [
     # path('properties/<int:pk>/', PropertyUpdateView.as_view(), name='property-update'),
     path('searchproperties/', views.SearchPropertyView.as_view(), name='search-property'),  
     path('tenant-profile/', views.TenantProfileView.as_view(), name='tenant-profile'), 
+    path('my-properties/', views.MyPropertiesView.as_view(), name='my-properties'), 
+    path('property/<int:pk>/', views.PropertyDetailUpdateDeleteView.as_view(), name='property-detail'),
+    path("propertydetail/<int:pk>/", views.PropertyDetailView.as_view(), name="property-detail"), 
+    path('relatedproperties/', views.PropertyListView.as_view(), name='property-list'), 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

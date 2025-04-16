@@ -1,0 +1,71 @@
+.property-detail-container {
+    margin: 40px auto;
+    max-width: 1200px;
+  }
+  
+  .property-detail-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .property-image {
+    width: 100%;
+    max-width: 600px;
+  }
+  
+  .property-image-img {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    object-fit: cover;
+  }
+  
+  .property-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .property-title {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .property-type, .property-description, .property-location,
+  .property-bedrooms, .property-bathrooms, .property-total-rooms,
+  .property-floor-level, .property-size, .property-rent {
+    font-size: 1.1rem;
+  }
+  
+  .property-amenities {
+    padding-left: 20px;
+    list-style-type: none;
+    font-size: 1rem;
+  }
+  
+  .amenity-item {
+    padding-left: 10px;
+  }
+  
+  .loading-message {
+    text-align: center;
+    margin-top: 50px;
+    font-size: 1.5rem;
+    color: #333;
+  }
+
+  .clickable-card {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  
+  .clickable-card:hover {
+    transform: scale(1.03);
+  }
+  
+  
