@@ -22,9 +22,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User, Admin, Owner, Property
-from .serializers import OwnerSerializer, TenantSerializer, UserSerializer, AdminSerializer, PropertySerializer
-from .serializers import OwnerCSerializer, TenantCSerializer, UserSerializer, AdminSerializer
+from .models import User, Admin, Owner, Property, Booking, TourRequest
+from .serializers import OwnerSerializer, TenantSerializer, UserSerializer, AdminSerializer, PropertySerializer, BookingSerializer, TourRequestSerializer, PropertyDetailSerializer
+from .serializers import OwnerCSerializer, TenantCSerializer, UserSerializer, AdminSerializer, BookingCSerializer, TourRequestCSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
@@ -230,6 +230,19 @@ class TenantProfileView(generics.RetrieveUpdateDestroyAPIView):
         tenant = self.get_object()
         self.perform_destroy(tenant)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class TenantDetailView(generics.RetrieveAPIView):
+    serializer_class = TenantSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        # Get tenant object based on the tenant_id in the URL
+        tenant_id = self.kwargs["tenant_id"]
+        try:
+            return Tenant.objects.get(id=tenant_id)
+        except Tenant.DoesNotExist:
+            raise NotFound(detail="Tenant not found", code=404)
+
 
 class PropertyListView(APIView):
     def get(self, request):
@@ -537,3 +550,81 @@ class LoginView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         return Response(serializer.create(serializer.validated_data), status=status.HTTP_200_OK)
+
+class BookingCreateView(generics.CreateAPIView):
+    queryset = Booking.objects.all()
+    serializer_class = BookingCSerializer
+    permission_classes = [IsAuthenticated]
+
+#displaying bookgings
+class BookingListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            owner = Owner.objects.get(user=request.user)
+        except Owner.DoesNotExist:
+            return Response({"error": "Owner not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        bookings = Booking.objects.filter(property__owner=owner).select_related('tenant__user', 'property')
+        serializer = BookingSerializer(bookings, many=True, context={'request': request})
+        return Response(serializer.data)
+
+
+    def patch(self, request, booking_id):
+        try:
+            booking = Booking.objects.get(id=booking_id)
+        except Booking.DoesNotExist:
+            return Response({"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        new_status = request.data.get("status")
+        if new_status not in ["Accepted", "Rejected", "Pending"]:
+            return Response({"error": "Invalid status"}, status=status.HTTP_400_BAD_REQUEST)
+
+        booking.status = new_status
+        booking.save()
+        return Response({"message": f"Booking status updated to {new_status}"}, status=status.HTTP_200_OK)
+
+class TourRequestListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            owner = Owner.objects.get(user=request.user)
+        except Owner.DoesNotExist:
+            return Response({"error": "Owner not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Only fetch tour requests for properties owned by the logged-in owner
+        tour_requests = TourRequest.objects.filter(property__owner=owner).select_related('tenant__user', 'property')
+        serializer = TourRequestSerializer(tour_requests, many=True, context={'request': request})
+        return Response(serializer.data)
+    
+    def patch(self, request, tourrequest_id):
+        try:
+            tour = TourRequest.objects.get(id=tourrequest_id)
+        except TourRequest.DoesNotExist:
+            return Response({"error": "Tour not found"}, status=404)
+
+        new_status = request.data.get("status")
+        if new_status not in ["confirmed", "declined", "pending"]:
+            return Response({"error": "Invalid status"}, status=400)
+
+        tour.status = new_status
+        tour.save()
+        return Response({"message": f"Tour status updated to {new_status}"}, status=200)
+
+
+class TourRequestCreateView(generics.CreateAPIView):
+    queryset = TourRequest.objects.all()
+    serializer_class = TourRequestCSerializer
+    permission_classes = [IsAuthenticated]
+
+#for displaying owner image in the property details page
+class PropertyDetailView(APIView):
+    def get(self, request, pk):
+        try:
+            prop = Property.objects.get(pk=pk)
+            serializer = PropertyDetailSerializer(prop)
+            return Response(serializer.data)
+        except Property.DoesNotExist:
+            return Response({"error": "Property not found"}, status=status.HTTP_404_NOT_FOUND)

@@ -2,7 +2,7 @@
 from rest_framework import serializers
 # from .models import Property
 from .models import Location
-from .models import User, Owner, Tenant, Admin, Property
+from .models import User, Owner, Tenant, Admin, Property, Booking, TourRequest
 from django.contrib.auth.hashers import make_password
 
 # class PropertySerializer(serializers.ModelSerializer):
@@ -247,6 +247,20 @@ class PropertySerializer(serializers.ModelSerializer):
             'owner': {'required': True},
             'property_image': {'required': False}  # Make image optional for updates
         }
+
+#for extracting owner image for property details page
+class PropertyDetailSerializer(serializers.ModelSerializer):
+    owner_image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Property
+        fields = '__all__'  # or list the fields manually
+        extra_fields = ['owner_image']
+
+    def get_owner_image(self, obj):
+        return obj.owner.user_image.url if obj.owner.user_image else None
+
+        
     # def create(self, validated_data):
     #     # Extract user-related data
     #     user_data = validated_data.pop('user')
@@ -323,3 +337,58 @@ class OwnerCSerializer(serializers.ModelSerializer):
         owner = Owner.objects.create(user=user, **validated_data)
         return owner
 
+class BookingCSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Booking
+        fields = ['property', 'message', 'status', 'date_applied']  # exclude tenant
+        read_only_fields = ['status', 'date_applied']
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        tenant = Tenant.objects.get(user=user)
+        return Booking.objects.create(tenant=tenant, **validated_data)
+
+class TourRequestCSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TourRequest
+        fields = ['property', 'requested_date', 'status', 'time_submitted']  # exclude tenant
+        read_only_fields = ['status', 'time_submitted']
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        tenant = Tenant.objects.get(user=user)
+        return TourRequest.objects.create(tenant=tenant, **validated_data)
+
+class BookingSerializer(serializers.ModelSerializer):
+    tenant_name = serializers.SerializerMethodField()
+    tenant_image = serializers.SerializerMethodField()
+    property_title = serializers.CharField(source='property.title', read_only=True)
+    property_image = serializers.ImageField(source='property.property_image', read_only=True)
+
+    class Meta:
+        model = Booking
+        fields = ['id', 'tenant', 'tenant_name', 'tenant_image', 'property', 'property_title', 'property_image', 'message', 'status', 'date_applied']
+
+    def get_tenant_name(self, obj):
+        return obj.tenant.name  # Assumes user model has full_name field
+
+    def get_tenant_image(self, obj):
+        return obj.tenant.user_image.url if obj.tenant.user_image else None
+
+class TourRequestSerializer(serializers.ModelSerializer):
+    tenant_name = serializers.SerializerMethodField()
+    tenant_image = serializers.SerializerMethodField()
+    property_title = serializers.CharField(source='property.title', read_only=True)
+    property_type = serializers.CharField(source='property.property_type', read_only=True)
+    property_image = serializers.ImageField(source='property.property_image', read_only=True)
+
+    class Meta:
+        model = TourRequest
+        fields = ['id', 'tenant', 'tenant_name', 'tenant_image', 'property', 'property_title',
+                  'property_type', 'property_image', 'requested_date', 'status', 'time_submitted']
+
+    def get_tenant_name(self, obj):
+        return obj.tenant.name
+
+    def get_tenant_image(self, obj):
+        return obj.tenant.user_image.url if obj.tenant.user_image else None

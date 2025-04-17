@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import AddProperty from '../AddProperty/AddProperty';
 import MyProperties from '../MyProperties/MyProperties';
-import TourRequests from '../Unused/TourRequests';
-import BookingRequests from '../Unused/BookingRequests';
+import Bookings from '../Bookings/Bookings';
+import TourRequests from '../TourRequests/TourRequests';
+// import TourRequests from '../Unused/TourRequests';
+// import BookingRequests from '../Unused/BookingRequests';
 import styles from './ProfilePage.module.css';
 import axios from 'axios';
 import { Save, Trash2 } from 'lucide-react';
@@ -157,7 +159,7 @@ function ProfilePage() {
           <Route path="/add-property" element={<AddProperty />} />
           <Route path="/my-properties" element={<MyProperties />} />
           <Route path="/tour-requests" element={<TourRequests />} />
-          <Route path="/booking-requests" element={<BookingRequests />} />
+          <Route path="/booking-requests" element={<Bookings />} />
         </Routes>
 
         {activeSection === 'profile' && (
@@ -259,7 +261,7 @@ function ProfilePage() {
         {activeSection === 'addproperty' && <AddProperty />}
         {activeSection === 'myProperties' && <MyProperties />}
         {activeSection === 'tourRequests' && <TourRequests />}
-        {activeSection === 'bookingRequests' && <BookingRequests />}
+        {activeSection === 'bookingRequests' && <Bookings />}
         {activeSection === 'logout' && <div>Logging out...</div>}
       </div>
     </div>

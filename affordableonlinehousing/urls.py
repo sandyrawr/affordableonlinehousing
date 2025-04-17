@@ -74,6 +74,17 @@ urlpatterns = [
     path('property/<int:pk>/', views.PropertyDetailUpdateDeleteView.as_view(), name='property-detail'),
     path("propertydetail/<int:pk>/", views.PropertyDetailView.as_view(), name="property-detail"), 
     path('relatedproperties/', views.PropertyListView.as_view(), name='property-list'), 
+    path('bookings/', views.BookingCreateView.as_view(), name='create-booking'),
+    path('tour-requests/', views.TourRequestCreateView.as_view(), name='create-tour-request'),
+    path('owner-bookings/', views.BookingListView.as_view(), name='all-bookings'),
+    path('updatebookings/<int:booking_id>/', views.BookingListView.as_view()),  # for PATCH 
+    path('tenantdet/<int:tenant_id>/', views.TenantDetailView.as_view(), name='tenant-detail'), 
+    path('all-tours/', views.TourRequestListView.as_view(), name='tour-requests'),
+    path('updatetours/<int:tourrequest_id>/', views.TourRequestListView.as_view()),  # for PATCH 
+    path('ownerdet/<int:pk>/', views.PropertyDetailView.as_view(), name='property-detail'),
+
+
+
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

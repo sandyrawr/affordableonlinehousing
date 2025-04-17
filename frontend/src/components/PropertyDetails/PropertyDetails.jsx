@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./PropertyDetails.css";
-
-// Lucide icons
-import { Car, Trees, PawPrint, XCircle, Dumbbell, ArrowUpDown, WavesLadder } from "lucide-react";
+import {
+  Car, Trees, PawPrint, XCircle,
+  Dumbbell, ArrowUpDown, WavesLadder
+} from "lucide-react";
 
 const PropertyDetails = () => {
   const { id } = useParams();
@@ -12,14 +13,16 @@ const PropertyDetails = () => {
   const [property, setProperty] = useState(null);
   const [relatedProperties, setRelatedProperties] = useState([]);
   const [tourDate, setTourDate] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const token = localStorage.getItem("access");
 
   useEffect(() => {
     axios.get(`http://localhost:8000/propertydetail/${id}/`)
       .then((res) => {
         const prop = res.data;
         setProperty(prop);
-
-        axios.get(`http://localhost:8000/relatedproperties/?location=${prop.location_id}`)
+        axios.get(`http://localhost:8000/relatedproperties/?location=${prop.location}`)
           .then((relatedRes) => {
             const others = relatedRes.data.filter(p => p.id !== prop.id);
             setRelatedProperties(others);
@@ -29,8 +32,64 @@ const PropertyDetails = () => {
       .catch((err) => console.error("❌ Failed to fetch property:", err));
   }, [id]);
 
-  const handleTourRequest = () => {
-    alert(`Tour requested for ${tourDate}`);
+  const handleBooking = async () => {
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      alert("You must be logged in to book a property.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await axios.post("http://localhost:8000/bookings/", {
+        property: property.id,
+        message: "Booking requested from property detail page"
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        }
+      });
+      alert("✅ Booking request submitted!");
+    } catch (err) {
+      console.error("❌ Booking error:", err.response?.data || err.message);
+      alert("❌ Failed to submit booking. Please check your login status.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleTourRequest = async () => {
+    const token = localStorage.getItem("accessToken");
+
+    if (!tourDate) {
+      alert("Please select a tour date.");
+      return;
+    }
+
+    if (!token) {
+      alert("You must be logged in to request a tour.");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await axios.post("http://localhost:8000/tour-requests/", {
+        property: property.id,
+        requested_date: tourDate
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        }
+      });
+      alert("✅ Tour request submitted!");
+    } catch (err) {
+      console.error("❌ Tour request error:", err.response?.data || err.message);
+      alert("❌ Failed to request tour. Please check your login status.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (!property) return <div className="text-center mt-5">Loading...</div>;
@@ -41,7 +100,7 @@ const PropertyDetails = () => {
       <div className="d-flex flex-column flex-md-row border p-4 rounded shadow-lg property-detail-container">
         <div className="col-md-6">
           <img
-            src={property.property_image}
+            src={`http://localhost:8000${property.property_image}`}
             alt={property.title}
             className="img-fluid rounded"
           />
@@ -50,28 +109,13 @@ const PropertyDetails = () => {
         <div className="col-md-6 ps-md-4 pt-3 pt-md-0">
           <h2>{property.title}</h2>
 
-          {/* Feature icons row */}
           <div className="d-flex flex-wrap gap-3 align-items-center my-3">
-            {property.parking_space && (
-              <div className="d-flex align-items-center gap-1"><Car size={20} /> <span>Parking</span></div>
-            )}
-            {property.garden_yard && (
-              <div className="d-flex align-items-center gap-1"><Trees size={20} /> <span>Garden</span></div>
-            )}
-            {property.pet_friendly ? (
-              <div className="d-flex align-items-center gap-1"><PawPrint size={20} /> <span>Pet Friendly</span></div>
-            ) : (
-              <div className="d-flex align-items-center gap-1 text-danger"><XCircle size={20} /> <span>No Pets</span></div>
-            )}
-            {property.gym && (
-              <div className="d-flex align-items-center gap-1"><Dumbbell size={20} /> <span>Gym</span></div>
-            )}
-            {property.swimming_pool && (
-              <div className="d-flex align-items-center gap-1"><WavesLadder size={20} /> <span>Pool</span></div>
-            )}
-            {property.lift_elevator && (
-              <div className="d-flex align-items-center gap-1"><ArrowUpDown size={20} /> <span>Elevator</span></div>
-            )}
+            {property.parking_space && <div className="d-flex align-items-center gap-1"><Car size={20} /> <span>Parking</span></div>}
+            {property.garden_yard && <div className="d-flex align-items-center gap-1"><Trees size={20} /> <span>Garden</span></div>}
+            {property.pet_friendly ? <div className="d-flex align-items-center gap-1"><PawPrint size={20} /> <span>Pet Friendly</span></div> : <div className="d-flex align-items-center gap-1 text-danger"><XCircle size={20} /> <span>No Pets</span></div>}
+            {property.gym && <div className="d-flex align-items-center gap-1"><Dumbbell size={20} /> <span>Gym</span></div>}
+            {property.swimming_pool && <div className="d-flex align-items-center gap-1"><WavesLadder size={20} /> <span>Pool</span></div>}
+            {property.lift_elevator && <div className="d-flex align-items-center gap-1"><ArrowUpDown size={20} /> <span>Elevator</span></div>}
           </div>
 
           <p><strong>Type:</strong> {property.property_type}</p>
@@ -83,39 +127,38 @@ const PropertyDetails = () => {
           <p><strong>Floor Level:</strong> {property.floor_level} / {property.total_floors}</p>
           <p><strong>Size:</strong> {property.property_size} sqm</p>
 
+          {/* Booking & Tour Request */}
           <div className="d-flex flex-column flex-md-row gap-3 mt-4">
-          {/* Rent + Book */}
-          <div className="d-flex border rounded p-3 flex-grow-1" style={{ flex: 3 }}>
-            <div className="me-3 w-100">
-              <h5>Rent</h5>
-              <h3>${property.rent}</h3>
-              <p>{property.price_type}</p>
+            {/* Rent + Book Now */}
+            <div className="d-flex border rounded p-3 flex-grow-1" style={{ flex: 3 }}>
+              <div className="me-3 w-100">
+                <h5>Rent</h5>
+                <h3>${property.rent}</h3>
+                <p>{property.price_type}</p>
+              </div>
+              <div className="d-flex align-items-end w-100">
+                <button className="btn btn-primary w-100" onClick={handleBooking} disabled={isSubmitting}>
+                  {isSubmitting ? "Booking..." : "Book Now"}
+                </button>
+              </div>
             </div>
-            <div className="d-flex align-items-end w-100">
-              <button className="btn btn-primary w-100">Book Now</button>
-            </div>
-          </div>
 
-          {/* Request Tour */}
-          <div className="border rounded p-3" style={{ flex: 2, minWidth: "200px" }}>
-            <h5>Request Tour</h5>
-            <input
-              type="date"
-              value={tourDate}
-              onChange={(e) => setTourDate(e.target.value)}
-              className="form-control mb-2"
-            />
-            <button className="btn btn-secondary w-100" onClick={() => alert(`Tour requested for ${tourDate}`)}>
-              Request Tour
-            </button>
+            {/* Request Tour */}
+            <div className="border rounded p-3" style={{ flex: 2, minWidth: "200px" }}>
+              <h5>Request Tour</h5>
+              <input
+                type="date"
+                value={tourDate}
+                onChange={(e) => setTourDate(e.target.value)}
+                className="form-control mb-2"
+              />
+              <button className="btn btn-secondary w-100" onClick={handleTourRequest} disabled={isSubmitting}>
+                {isSubmitting ? "Requesting..." : "Request Tour"}
+              </button>
+            </div>
           </div>
         </div>
-        </div>
-        
       </div>
-
-      {/* Rent, Book Now, and Request Tour inside Property Detail Container */}
-      
 
       {/* Related Properties Section */}
       {relatedProperties.length > 0 && (
