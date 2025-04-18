@@ -50,119 +50,6 @@ def locationApi(request):
     locations = Location.objects.all()
     serializer = LocationSerializer(locations, many=True)
     return JsonResponse(serializer.data, safe=False)
-
-# class UserRegistrationView(APIView):
-#     def post(self, request):
-#         serializer = UserSerializer(data=request.data)
-#         if serializer.is_valid():
-#             user = serializer.save()
-#             return Response({'user_id': user.id}, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# class OwnerRegistrationView(APIView):
-#     def post(self, request):
-#         serializer = OwnerSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response({'message': 'Owner registered successfully'}, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# from rest_framework.response import Response
-# from rest_framework.views import APIView
-# from rest_framework import status
-# from .serializers import TenantSerializer
-
-# class TenantRegistrationView(APIView):
-#     def post(self, request):
-#         serializer = TenantSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response({'message': 'Tenant registered successfully'}, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# class AdminRegistrationView(APIView):
-#     def post(self, request):
-#         serializer = AdminSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response({'message': 'Admin registered successfully'}, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# class LoginView(APIView):
-#     def post(self, request):
-#         # permission_classes = [AllowAny]
-#         permission_classes = [IsAuthenticated]
-#         email = request.data.get('email')
-#         password = request.data.get('password')
-
-#         try:
-#             user = User.objects.get(email=email)
-#         except User.DoesNotExist:
-#             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
-#         if not check_password(password, user.password):
-#             return Response({'detail': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-
-#         refresh = RefreshToken.for_user(user)
-#         response_data = {
-#             'refresh': str(refresh),
-#             'access': str(refresh.access_token),
-#             'user_id': user.id,
-#             'role': user.role,
-#             'email': user.email
-#         }
-
-#         if user.role == 'owner':
-#             try:
-#                 owner = Owner.objects.get(user=user)
-#                 response_data['owner_id'] = owner.id
-#             except Owner.DoesNotExist:
-#                 response_data['owner_id'] = None
-
-#         elif user.role == 'tenant':
-#             try:
-#                 tenant = Tenant.objects.get(user=user)
-#                 response_data['tenant_id'] = tenant.id
-#             except Tenant.DoesNotExist:
-#                 response_data['tenant_id'] = None
-
-#         elif user.role == 'admin':
-#             try:
-#                 admin = Admin.objects.get(user=user)
-#                 response_data['admin_id'] = admin.id
-#             except Admin.DoesNotExist:
-#                 response_data['admin_id'] = None
-
-#         return Response(response_data, status=status.HTTP_200_OK)
-
-# class PropertyCreateView(APIView):
-#     authentication_classes = [JWTAuthentication]
-#     permission_classes = [IsAuthenticated]
-#     parser_classes = [MultiPartParser, FormParser]
-
-#     def post(self, request):
-#         # print("Authenticated User:", request.user)  # This should print a user object
-#         # print("User ID:", request.user.id)  # This should print the user ID
-#         # try:
-#         #     owner = Owner.objects.get(user=request.user)  # assuming Owner has FK to User
-#         # except Owner.DoesNotExist:
-#         #     return Response({"error": "You are not registered as an owner."}, status=403)
-        
-#         # # data = request.data.copy()
-#         # data['owner'] = owner.id  # Inject the owner ID
-
-#         # owner = Owner.objects.get(user=request.user)
-
-#         data = request.data.copy()
-
-        
-#         serializer = PropertySerializer(data=data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data, status=201)
-#         return Response(serializer.errors, status=400)
         
 class AddPropertyView(APIView):
     permission_classes = [IsAuthenticated]
@@ -182,20 +69,6 @@ class AddPropertyView(APIView):
             serializer.save()
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
-
-# class OwnerDetailView(APIView):
-#     # permission_classes = [IsAuthenticated]
-
-#     def get(self, request, user_id):
-#         try:
-#             owner = Owner.objects.get(user_id=user_id)
-#             return Response({
-#                 'id': owner.id,
-#                 'user_id': owner.user_id,
-#                 'additional_owner_details': owner.additional_field
-#             })
-#         except Owner.DoesNotExist:
-#             return Response({'error': 'Owner not found'}, status=404)
 
 class OwnerProfileView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = OwnerSerializer
@@ -296,6 +169,7 @@ class PropertyDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
             raise ValidationError("Owner profile not found for the current user.")
 
     def update(self, request, *args, **kwargs):
+       
         # Handle file uploads separately from other data
         if request.FILES:
             request.data.update(request.FILES)
@@ -364,19 +238,6 @@ class SearchPropertyView(generics.ListAPIView):
 from rest_framework.generics import RetrieveAPIView
 
 
-# class MyPropertiesView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request):
-#         try:
-#             owner = Owner.objects.get(user=request.user)
-#         except Owner.DoesNotExist:
-#             return Response({'error': 'Owner not found'}, status=status.HTTP_404_NOT_FOUND)
-
-#         properties = Property.objects.filter(owner=owner)
-#         serializer = PropertySerializer(properties, many=True)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-
 from rest_framework import generics
 from .models import User, Tenant, Owner, Admin
 from .serializers import UserSerializer, TenantSerializer, OwnerSerializer, AdminSerializer
@@ -400,79 +261,6 @@ class RegisterAdminView(generics.CreateAPIView):
     queryset = Admin.objects.all()
     serializer_class = AdminSerializer
 
-# class MyPropertiesListView(generics.ListAPIView):
-#     serializer_class = PropertySerializer
-#     permission_classes = [permissions.IsAuthenticated]
-
-#     def get_queryset(self):
-#         return Property.objects.filter(owner=self.request.user.owner)
-
-# class PropertyUpdateView(generics.RetrieveUpdateAPIView):
-#     queryset = Property.objects.all()
-#     serializer_class = PropertySerializer
-#     permission_classes = [permissions.IsAuthenticated]
-
-
-# @csrf_exempt
-# def propertyApi(request, id=0):
-#     if request.method == 'GET':
-#         properties = Property.objects.all()
-#         property_serializer = PropertySerializer(properties, many=True)
-#         return JsonResponse(property_serializer.data, safe=False)
-#     elif request.method == 'POST':
-#         property_data = JSONParser().parse(request)
-#         property_serializer = PropertySerializer(data=property_data)
-#         if property_serializer.is_valid():
-#             property_serializer.save()
-#             return JsonResponse("Added Successfully", safe=False)
-#         return JsonResponse("Failed to Add", safe=False)
-#     elif request.method == 'PUT':
-#         property_data = JSONParser().parse(request)
-#         property = Property.objects.get(id=id)
-#         property_serializer = PropertySerializer(property, data=property_data)
-#         if property_serializer.is_valid():
-#             property_serializer.save()
-#             return JsonResponse("Updated Successfully", safe=False)
-#         return JsonResponse("Failed to Update", safe=False)
-#     elif request.method == 'DELETE':
-#         property = Property.objects.get(id=id)
-#         property.delete()
-#         return JsonResponse("Deleted Successfully", safe=False)
-
-# @api_view(['POST'])
-# def register_tenant(request):
-#     serializer = TenantSerializer(data=request.data)
-#     if serializer.is_valid():
-#         serializer.save()
-#         return Response(serializer.data, status=status.HTTP_201_CREATED)
-#     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# @csrf_exempt
-# def tenant_login(request):
-#     if request.method == 'POST':
-#         try:
-#             data = json.loads(request.body)
-#             email = data.get('email')
-#             password = data.get('password')
-            
-#             try:
-#                 tenant = Tenant.objects.get(email=email)
-#                 # Just check if password matches (insecure - for demo only)
-#                 if tenant.password == password:
-#                     return JsonResponse({
-#                         'success': True,
-#                         'tenant': {
-#                             'id': tenant.id,
-#                             'name': tenant.name,
-#                             'email': tenant.email
-#                         }
-#                     })
-#                 return JsonResponse({'success': False, 'error': 'Invalid password'}, status=401)
-#             except Tenant.DoesNotExist:
-#                 return JsonResponse({'success': False, 'error': 'Tenant not found'}, status=404)
-#         except Exception as e:
-#             return JsonResponse({'success': False, 'error': str(e)}, status=400)
-#     return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
 
 class LocationCreateView(generics.CreateAPIView):
     queryset = Location.objects.all()
@@ -494,61 +282,6 @@ def location_detail(request, pk):
         })
     except Location.DoesNotExist:
         return Response({"error": "Location not found"}, status=404)
-
-
-
-# from rest_framework.decorators import api_view
-# from rest_framework.response import Response
-# from .models import Property, Location
-# from .serializers import PropertySerializer, LocationSerializer
-# from django.db.models import Q
-
-# @api_view(['GET'])
-# def property_list(request):
-#     # Get query parameters
-#     location_name = request.GET.get('location', '')
-#     bedroom = request.GET.get('bedroom', '')
-#     livingroom = request.GET.get('livingroom', '')
-#     washroom = request.GET.get('washroom', '')
-#     kitchen = request.GET.get('kitchen', '')
-#     min_rent = request.GET.get('minRent', '')
-#     max_rent = request.GET.get('maxRent', '')
-#     coliving = request.GET.get('coliving', 'false') == 'true'
-#     parking = request.GET.get('parking', 'false') == 'true'
-#     balcony = request.GET.get('balcony', 'false') == 'true'
-#     petfriendly = request.GET.get('petfriendly', 'false') == 'true'
-#     status = request.GET.get('status', 'true') == 'true'
-
-#     # Start with all active properties
-#     queryset = Property.objects.filter(status=status)
-
-#     # Apply filters
-#     if location_name:
-#         queryset = queryset.filter(location__name__icontains=location_name)
-#     if bedroom:
-#         queryset = queryset.filter(bedroom__gte=bedroom)
-#     if livingroom:
-#         queryset = queryset.filter(livingroom__gte=livingroom)
-#     if washroom:
-#         queryset = queryset.filter(washroom__gte=washroom)
-#     if kitchen:
-#         queryset = queryset.filter(kitchen__gte=kitchen)
-#     if min_rent:
-#         queryset = queryset.filter(rent__gte=min_rent)
-#     if max_rent:
-#         queryset = queryset.filter(rent__lte=max_rent)
-#     if coliving:
-#         queryset = queryset.filter(coliving=True)
-#     if parking:
-#         queryset = queryset.filter(parking=True)
-#     if balcony:
-#         queryset = queryset.filter(balcony=True)
-#     if petfriendly:
-#         queryset = queryset.filter(petfriendly=True)
-
-#     # Serialize and return the data
-#     serializer = PropertySerializer(queryset, many=True)
-#     return Response(serializer.data)
 
 # views.py
 from rest_framework import status, generics
@@ -649,3 +382,47 @@ def get_owner(request, id):
         return Response(serializer.data)
     except Owner.DoesNotExist:
         return Response({"error": "Owner not found"}, status=404)
+
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from .models import Booking, TourRequest, Property
+
+class CheckBookingStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, property_id):
+        try:
+            tenant = request.user.tenant  # Get the tenant object for the logged-in user
+            booking = Booking.objects.filter(property_id=property_id, tenant=tenant).first()
+
+            if not booking:
+                return Response({"status": "not_booked", "message": "You haven't booked this property yet."})
+            if booking.status == "pending":
+                return Response({"status": "pending", "message": "Your booking is pending."})
+            elif booking.status == "Accepted":
+                return Response({"status": "approved", "message": "You have already booked this property."})
+            elif booking.status == "Rejected":
+                return Response({"status": "rejected", "message": "Your previous booking was rejected. You can try again."})
+        except Exception as e:
+            return Response({"status": "error", "message": str(e)}, status=500)
+
+
+class CheckTourRequestStatusView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, property_id):
+        try:
+            tenant = request.user.tenant  # Get the tenant object for the logged-in user
+            tour = TourRequest.objects.filter(property_id=property_id, tenant=tenant).first()
+
+            if not tour:
+                return Response({"status": "not_requested", "message": "You haven't requested a tour yet."})
+            if tour.status == "pending":
+                return Response({"status": "pending", "message": "Your tour request is pending."})
+            elif tour.status == "confirmed":
+                return Response({"status": "confirmed", "message": "Your tour request was confirmed."})
+            elif tour.status == "declined":
+                return Response({"status": "declined", "message": "Your previous tour request was declined. You can try again."})
+        except Exception as e:
+            return Response({"status": "error", "message": str(e)}, status=500)

@@ -253,27 +253,27 @@ class PropertySerializer(serializers.ModelSerializer):
 
 #for returning  owner image for property details page
 
-class PropertySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Property
-        fields = [
-            'id', 'title', 'description', 'property_type', 'location', 'rent',
-            'bedrooms', 'bathrooms', 'property_size', 'property_image', 'owner', 'price_type', 
-        ]
+# class PropertySerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Property
+#         fields = '__all__'
+#             # 'id', 'title', 'description', 'property_type', 'location', 'rent', 'total_room'
+#             # 'bedrooms', 'bathrooms', 'property_size', 'property_image', 'owner', 'price_type',, 
+        
 
 #for returning owner details for displaying in property details page
-class PropertyOSerializer(serializers.ModelSerializer):
-    owner_id = serializers.IntegerField(source="owner.id", read_only=True)
-    owner_name = serializers.CharField(source="owner.name", read_only=True)
-    owner_image = serializers.ImageField(source="owner.user_image", read_only=True)
+# class PropertyOSerializer(serializers.ModelSerializer):
+#     owner_id = serializers.IntegerField(source="owner.id", read_only=True)
+#     owner_name = serializers.CharField(source="owner.name", read_only=True)
+#     owner_image = serializers.ImageField(source="owner.user_image", read_only=True)
 
-    class Meta:
-        model = Property
-        fields = [
-            'id', 'title', 'description', 'property_type', 'location', 'rent',
-            'bedrooms', 'bathrooms', 'property_size', 'property_image',
-            'owner_id', 'owner_name', 'owner_image'
-        ]
+#     class Meta:
+#         model = Property
+#         fields = [
+#             'id', 'title', 'description', 'property_type', 'location', 'rent',
+#             'bedrooms', 'bathrooms', 'property_size', 'property_image',
+#             'owner_id', 'owner_name', 'owner_image'
+        # ]
 #for extracting owner image for property details page
 class PropertyDetailSerializer(serializers.ModelSerializer):
     owner_image = serializers.SerializerMethodField()

@@ -83,6 +83,8 @@ urlpatterns = [
     path('updatetours/<int:tourrequest_id>/', views.TourRequestListView.as_view()),  # for PATCH 
     path('owner-detail/<int:owner_id>/', views.OwnerDetailView.as_view(), name='owner-detail'),
     path('owner/<int:id>/', views.get_owner), 
+    path('check-booking-status/<int:property_id>/', views.CheckBookingStatusView.as_view(), name='check_booking_status'),
+    path('check-tour-request-status/<int:property_id>/', views.CheckTourRequestStatusView.as_view(), name='check_tour_request_status'),
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

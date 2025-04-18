@@ -50,6 +50,7 @@ const MyProperties = () => {
       ...property,
       location_id: property.location.id,
       property_image: property.property_image,
+      image_updated: false, // 🔥 Important!
     };
     setSelectedProperty(prepared);
     setOriginalData(JSON.stringify(prepared));
@@ -116,10 +117,11 @@ const MyProperties = () => {
       if (selectedProperty.property_image instanceof File) {
         updatedFields.append('property_image', selectedProperty.property_image);
       }
-    } else {
-      // If not updated, include the original image PATH (not file)
-      updatedFields.append('keep_original_image', 'true'); // Special flag
-    }
+    } 
+    // else {
+    //   // If not updated, include the original image PATH (not file)
+    //   updatedFields.append('property_image', selectedProperty.property_image);
+    // }
   
     // 3. Ensure required fields
     if (!updatedFields.has('owner')) {

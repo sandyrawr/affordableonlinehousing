@@ -15,6 +15,8 @@ const PropertyDetails = () => {
   const [relatedProperties, setRelatedProperties] = useState([]);
   const [tourDate, setTourDate] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [owner, setOwner] = useState(null);
+  const [showOwnerModal, setShowOwnerModal] = useState(false);
 
   useEffect(() => {
     axios.get(`http://localhost:8000/propertydetail/${id}/`)
@@ -31,6 +33,46 @@ const PropertyDetails = () => {
       .catch((err) => console.error("❌ Failed to fetch property:", err));
   }, [id]);
 
+  const fetchOwner = async (ownerId) => {
+    const token = localStorage.getItem("accessToken");
+    try {
+      const res = await axios.get(`http://localhost:8000/owner-detail/${ownerId}/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+      setOwner(res.data);
+      setShowOwnerModal(true);
+    } catch (err) {
+      console.error("Failed to fetch owner:", err);
+    }
+  };
+
+  const checkBookingStatus = async () => {
+    const token = localStorage.getItem("accessToken");
+    try {
+      const res = await axios.get(`http://localhost:8000/check-booking-status/${id}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.data;
+    } catch (err) {
+      console.error("❌ Failed to check booking status:", err);
+      return { status: "error", message: "Failed to check booking status." };
+    }
+  };
+
+  const checkTourRequestStatus = async () => {
+    const token = localStorage.getItem("accessToken");
+    try {
+      const res = await axios.get(`http://localhost:8000/check-tour-request-status/${id}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.data;
+    } catch (err) {
+      console.error("❌ Failed to check tour request status:", err);
+      return { status: "error", message: "Failed to check tour request status." };
+    }
+  };
 
   const handleBooking = async () => {
     const token = localStorage.getItem("accessToken");
@@ -39,16 +81,25 @@ const PropertyDetails = () => {
       return;
     }
 
+    const bookingStatus = await checkBookingStatus();
+    if (bookingStatus.status === "approved") {
+      alert("You have already booked this property.");
+      return;
+    } else if (bookingStatus.status === "pending") {
+      alert("Your booking request is pending.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await axios.post("http://localhost:8000/bookings/", {
         property: property.id,
-        message: "Booking requested from property detail page"
+        message: "Booking requested from property detail page",
       }, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-        }
+        },
       });
       alert("✅ Booking request submitted!");
     } catch (err) {
@@ -61,6 +112,25 @@ const PropertyDetails = () => {
 
   const handleTourRequest = async () => {
     const token = localStorage.getItem("accessToken");
+    if (!token) {
+      alert("You must be logged in to request a tour.");
+      return;
+    }
+
+    const bookingStatus = await checkBookingStatus();
+    if (bookingStatus.status === "approved") {
+      alert("You have already booked this property. No need to request a tour.");
+      return;
+    }
+
+    const tourStatus = await checkTourRequestStatus();
+    if (tourStatus.status === "confirmed") {
+      alert("Your tour request has already been confirmed.");
+      return;
+    } else if (tourStatus.status === "pending") {
+      alert("Your tour request is pending.");
+      return;
+    }
 
     if (!tourDate) {
       alert("Please select a tour date.");
@@ -74,21 +144,16 @@ const PropertyDetails = () => {
       return;
     }
 
-    if (!token) {
-      alert("You must be logged in to request a tour.");
-      return;
-    }
-
     setIsSubmitting(true);
     try {
       await axios.post("http://localhost:8000/tour-requests/", {
         property: property.id,
-        requested_date: tourDate
+        requested_date: tourDate,
       }, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
-        }
+        },
       });
       alert("✅ Tour request submitted!");
     } catch (err) {
@@ -99,33 +164,10 @@ const PropertyDetails = () => {
     }
   };
 
-  const [owner, setOwner] = useState(null);
-const [showOwnerModal, setShowOwnerModal] = useState(false);
-
-const fetchOwner = async (ownerId) => {
-  const token = localStorage.getItem("accessToken");
-  console.log("Fetching owner with ID:", ownerId); // Log here to confirm ID is being passed.
-  try {
-    console.log("Owner ID:", property.owner);
-    const res = await axios.get(`http://localhost:8000/owner-detail/${ownerId}/`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        }
-      });
-    setOwner(res.data);
-    setShowOwnerModal(true);
-  } catch (err) {
-    console.error("Failed to fetch owner:", err);
-  }
-};
-
-
   if (!property) return <div className="text-center mt-5">Loading...</div>;
 
   return (
     <div className="container my-5">
-
       {/* Property Detail Section */}
       <div className="d-flex flex-column flex-md-row border p-4 rounded shadow-lg property-detail-container">
         <div className="col-md-6">
@@ -150,15 +192,11 @@ const fetchOwner = async (ownerId) => {
 
           {property.owner && (
             <div className="d-flex align-items-center gap-2 mt-3">
-              <span><strong>Owner:</strong></span>
               <img 
                 src={`http://localhost:8000${property.owner_image}`}
                 alt="Owner" 
-                onClick={() => {
-                  console.log("Clicked owner ID:", property.owner.id);  // Log the ID here
-                  fetchOwner(property.owner);
-                }}  
-                style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '50%', cursor: 'pointer', }} 
+                onClick={() => fetchOwner(property.owner)}  
+                style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '60%', cursor: 'pointer', }} 
               />
             </div>
           )}
@@ -172,33 +210,31 @@ const fetchOwner = async (ownerId) => {
           <p><strong>Floor Level:</strong> {property.floor_level} / {property.total_floors}</p>
           <p><strong>Size:</strong> {property.property_size} sqm</p>
 
-
           <Modal show={showOwnerModal} onHide={() => setShowOwnerModal(false)} centered>
-                <Modal.Header closeButton>
-                  <Modal.Title>Owner Details</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                  {owner ? (
-                    <div className="text-center">
-                      <img
-                        src={`http://localhost:8000${property.owner_image}`}
-                        alt={owner.name}
-                        style={{ width: "100px", height: "100px", borderRadius: "50%", objectFit: "cover", marginBottom: "10px" }}
-                      />
-                      <h5>{owner.name}</h5>
-                      <p><strong>Phone:</strong> {owner.phone_number}</p>
-                      <p><strong>Employed:</strong> {owner.employment_status ? "Yes" : "No"}</p>
-                      <p><strong>Criminal History:</strong> {owner.criminal_history ? "Yes" : "No"}</p>
-                    </div>
-                  ) : (
-                    <p>Loading...</p>
-                  )}
-                </Modal.Body>
-                <Modal.Footer>
-                  <Button variant="secondary" onClick={() => setShowOwnerModal(false)}>Close</Button>
-                </Modal.Footer>
-              </Modal>
-
+            <Modal.Header closeButton>
+              <Modal.Title>Owner Details</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              {owner ? (
+                <div className="text-center">
+                  <img
+                    src={`http://localhost:8000${property.owner_image}`}
+                    alt={owner.name}
+                    style={{ width: "100px", height: "100px", borderRadius: "50%", objectFit: "cover", marginBottom: "10px" }}
+                  />
+                  <h5>{owner.name}</h5>
+                  <p><strong>Phone:</strong> {owner.phone_number}</p>
+                  <p><strong>Employed:</strong> {owner.employment_status ? "Yes" : "No"}</p>
+                  <p><strong>Criminal History:</strong> {owner.criminal_history ? "Yes" : "No"}</p>
+                </div>
+              ) : (
+                <p>Loading...</p>
+              )}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={() => setShowOwnerModal(false)}>Close</Button>
+            </Modal.Footer>
+          </Modal>
 
           {/* Booking & Tour Request */}
           <div className="d-flex flex-column flex-md-row gap-3 mt-4">
