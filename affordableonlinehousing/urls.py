@@ -81,10 +81,8 @@ urlpatterns = [
     path('tenantdet/<int:tenant_id>/', views.TenantDetailView.as_view(), name='tenant-detail'), 
     path('all-tours/', views.TourRequestListView.as_view(), name='tour-requests'),
     path('updatetours/<int:tourrequest_id>/', views.TourRequestListView.as_view()),  # for PATCH 
-    path('ownerdet/<int:pk>/', views.PropertyDetailView.as_view(), name='property-detail'),
-
-
-
+    path('owner-detail/<int:owner_id>/', views.OwnerDetailView.as_view(), name='owner-detail'),
+    path('owner/<int:id>/', views.get_owner), 
 ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

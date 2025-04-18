@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./PropertyDetails.css";
+import { Modal, Button } from "react-bootstrap";
 import {
   Car, Trees, PawPrint, XCircle,
   Dumbbell, ArrowUpDown, WavesLadder
@@ -14,8 +15,6 @@ const PropertyDetails = () => {
   const [relatedProperties, setRelatedProperties] = useState([]);
   const [tourDate, setTourDate] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const token = localStorage.getItem("access");
 
   useEffect(() => {
     axios.get(`http://localhost:8000/propertydetail/${id}/`)
@@ -31,6 +30,7 @@ const PropertyDetails = () => {
       })
       .catch((err) => console.error("❌ Failed to fetch property:", err));
   }, [id]);
+
 
   const handleBooking = async () => {
     const token = localStorage.getItem("accessToken");
@@ -67,6 +67,13 @@ const PropertyDetails = () => {
       return;
     }
 
+    const selectedDate = new Date(tourDate);
+    const today = new Date();
+    if (selectedDate <= today) {
+      alert("Please select a date after today.");
+      return;
+    }
+
     if (!token) {
       alert("You must be logged in to request a tour.");
       return;
@@ -92,10 +99,33 @@ const PropertyDetails = () => {
     }
   };
 
+  const [owner, setOwner] = useState(null);
+const [showOwnerModal, setShowOwnerModal] = useState(false);
+
+const fetchOwner = async (ownerId) => {
+  const token = localStorage.getItem("accessToken");
+  console.log("Fetching owner with ID:", ownerId); // Log here to confirm ID is being passed.
+  try {
+    console.log("Owner ID:", property.owner);
+    const res = await axios.get(`http://localhost:8000/owner-detail/${ownerId}/`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        }
+      });
+    setOwner(res.data);
+    setShowOwnerModal(true);
+  } catch (err) {
+    console.error("Failed to fetch owner:", err);
+  }
+};
+
+
   if (!property) return <div className="text-center mt-5">Loading...</div>;
 
   return (
     <div className="container my-5">
+
       {/* Property Detail Section */}
       <div className="d-flex flex-column flex-md-row border p-4 rounded shadow-lg property-detail-container">
         <div className="col-md-6">
@@ -118,6 +148,21 @@ const PropertyDetails = () => {
             {property.lift_elevator && <div className="d-flex align-items-center gap-1"><ArrowUpDown size={20} /> <span>Elevator</span></div>}
           </div>
 
+          {property.owner && (
+            <div className="d-flex align-items-center gap-2 mt-3">
+              <span><strong>Owner:</strong></span>
+              <img 
+                src={`http://localhost:8000${property.owner_image}`}
+                alt="Owner" 
+                onClick={() => {
+                  console.log("Clicked owner ID:", property.owner.id);  // Log the ID here
+                  fetchOwner(property.owner);
+                }}  
+                style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '50%', cursor: 'pointer', }} 
+              />
+            </div>
+          )}
+
           <p><strong>Type:</strong> {property.property_type}</p>
           <p><strong>Description:</strong> {property.description}</p>
           <p><strong>Location:</strong> {property.location_name}</p>
@@ -127,9 +172,36 @@ const PropertyDetails = () => {
           <p><strong>Floor Level:</strong> {property.floor_level} / {property.total_floors}</p>
           <p><strong>Size:</strong> {property.property_size} sqm</p>
 
+
+          <Modal show={showOwnerModal} onHide={() => setShowOwnerModal(false)} centered>
+                <Modal.Header closeButton>
+                  <Modal.Title>Owner Details</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  {owner ? (
+                    <div className="text-center">
+                      <img
+                        src={`http://localhost:8000${property.owner_image}`}
+                        alt={owner.name}
+                        style={{ width: "100px", height: "100px", borderRadius: "50%", objectFit: "cover", marginBottom: "10px" }}
+                      />
+                      <h5>{owner.name}</h5>
+                      <p><strong>Phone:</strong> {owner.phone_number}</p>
+                      <p><strong>Employed:</strong> {owner.employment_status ? "Yes" : "No"}</p>
+                      <p><strong>Criminal History:</strong> {owner.criminal_history ? "Yes" : "No"}</p>
+                    </div>
+                  ) : (
+                    <p>Loading...</p>
+                  )}
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={() => setShowOwnerModal(false)}>Close</Button>
+                </Modal.Footer>
+              </Modal>
+
+
           {/* Booking & Tour Request */}
           <div className="d-flex flex-column flex-md-row gap-3 mt-4">
-            {/* Rent + Book Now */}
             <div className="d-flex border rounded p-3 flex-grow-1" style={{ flex: 3 }}>
               <div className="me-3 w-100">
                 <h5>Rent</h5>
@@ -143,7 +215,6 @@ const PropertyDetails = () => {
               </div>
             </div>
 
-            {/* Request Tour */}
             <div className="border rounded p-3" style={{ flex: 2, minWidth: "200px" }}>
               <h5>Request Tour</h5>
               <input
@@ -160,7 +231,7 @@ const PropertyDetails = () => {
         </div>
       </div>
 
-      {/* Related Properties Section */}
+      {/* Related Properties */}
       {relatedProperties.length > 0 && (
         <div className="mt-5">
           <h4>Other Properties in {property.location_name}</h4>

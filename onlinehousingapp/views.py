@@ -29,6 +29,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
 from django.db import connection
+from rest_framework.generics import RetrieveAPIView
 
 
 # def locationApi(request, id=0):
@@ -244,6 +245,20 @@ class TenantDetailView(generics.RetrieveAPIView):
             raise NotFound(detail="Tenant not found", code=404)
 
 
+#displaying owner detail in tenant side
+class OwnerDetailView(generics.RetrieveAPIView):
+    serializer_class = OwnerSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        # Get owner object based on the owner_id in the URL
+        owner_id = self.kwargs["owner_id"]
+        try:
+            return Owner.objects.get(id=owner_id)
+        except Owner.DoesNotExist:
+            raise NotFound(detail="Owner not found", code=404)
+
+
 class PropertyListView(APIView):
     def get(self, request):
         location_id = request.GET.get('location')
@@ -348,9 +363,6 @@ class SearchPropertyView(generics.ListAPIView):
 #displaying details of the clicked property
 from rest_framework.generics import RetrieveAPIView
 
-class PropertyDetailView(RetrieveAPIView):
-    queryset = Property.objects.all()
-    serializer_class = PropertySerializer
 
 # class MyPropertiesView(APIView):
 #     permission_classes = [IsAuthenticated]
@@ -628,3 +640,12 @@ class PropertyDetailView(APIView):
             return Response(serializer.data)
         except Property.DoesNotExist:
             return Response({"error": "Property not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+def get_owner(request, id):
+    try:
+        owner = Owner.objects.get(id=id)
+        serializer = OwnerSerializer(owner)
+        return Response(serializer.data)
+    except Owner.DoesNotExist:
+        return Response({"error": "Owner not found"}, status=404)

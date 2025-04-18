@@ -236,6 +236,9 @@ class AdminSerializer(serializers.ModelSerializer):
 
 
 class PropertySerializer(serializers.ModelSerializer):
+    owner_id = serializers.IntegerField(source="owner.id", read_only=True)
+    owner_name = serializers.CharField(source="owner.name", read_only=True)
+    owner_image = serializers.ImageField(source="owner.user_image", read_only=True)
     location_name = serializers.CharField(source='location.name', read_only=True)
     location_id = serializers.IntegerField(source='location.id', read_only=True)
 
@@ -248,6 +251,29 @@ class PropertySerializer(serializers.ModelSerializer):
             'property_image': {'required': False}  # Make image optional for updates
         }
 
+#for returning  owner image for property details page
+
+class PropertySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Property
+        fields = [
+            'id', 'title', 'description', 'property_type', 'location', 'rent',
+            'bedrooms', 'bathrooms', 'property_size', 'property_image', 'owner', 'price_type', 
+        ]
+
+#for returning owner details for displaying in property details page
+class PropertyOSerializer(serializers.ModelSerializer):
+    owner_id = serializers.IntegerField(source="owner.id", read_only=True)
+    owner_name = serializers.CharField(source="owner.name", read_only=True)
+    owner_image = serializers.ImageField(source="owner.user_image", read_only=True)
+
+    class Meta:
+        model = Property
+        fields = [
+            'id', 'title', 'description', 'property_type', 'location', 'rent',
+            'bedrooms', 'bathrooms', 'property_size', 'property_image',
+            'owner_id', 'owner_name', 'owner_image'
+        ]
 #for extracting owner image for property details page
 class PropertyDetailSerializer(serializers.ModelSerializer):
     owner_image = serializers.SerializerMethodField()
@@ -260,7 +286,7 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
     def get_owner_image(self, obj):
         return obj.owner.user_image.url if obj.owner.user_image else None
 
-        
+
     # def create(self, validated_data):
     #     # Extract user-related data
     #     user_data = validated_data.pop('user')
