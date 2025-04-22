@@ -176,18 +176,17 @@ REST_FRAMEWORK = {
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),  # Set to your desired duration
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),    # Refresh token expiration (typically longer)
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
 }
 
 AUTH_USER_MODEL = 'onlinehousingapp.User'
 # settings.py
 
 
-SIMPLE_JWT = {
-    'USER_ID_FIELD': 'id',  # Uses the default id field
-    'USER_ID_CLAIM': 'user_id',
-}
+
 

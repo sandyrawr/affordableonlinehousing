@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import styles from './RegisterTenant.module.css'; // Import the CSS Module
+import styles from './RegisterTenant.module.css';
+import {
+  Mail,
+  Lock,
+  User,
+  Phone,
+  FileImage,
+  CheckCircle,
+} from 'lucide-react';
 
 const RegisterTenant = () => {
   const [formData, setFormData] = useState({
@@ -64,6 +72,7 @@ const RegisterTenant = () => {
           </div>
 
           <div className={styles.inputGroup}>
+            <Mail className={styles.icon} />
             <input
               name="email"
               type="email"
@@ -75,6 +84,7 @@ const RegisterTenant = () => {
           </div>
 
           <div className={styles.inputGroup}>
+            <Lock className={styles.icon} />
             <input
               name="password"
               type="password"
@@ -86,6 +96,7 @@ const RegisterTenant = () => {
           </div>
 
           <div className={styles.inputGroup}>
+            <User className={styles.icon} />
             <input
               name="name"
               type="text"
@@ -97,6 +108,7 @@ const RegisterTenant = () => {
           </div>
 
           <div className={styles.inputGroup}>
+            <Phone className={styles.icon} />
             <input
               name="phone_number"
               type="text"
@@ -107,27 +119,32 @@ const RegisterTenant = () => {
             />
           </div>
 
-          <div className={styles.checkboxGroup}>
-            <input
-              name="criminal_history"
-              type="checkbox"
-              onChange={handleChange}
-              className={styles.checkbox}
-            />
-            <label>Criminal History</label>
-          </div>
+          <div className={styles.checkboxWrapper}>
+            <label className={styles.checkboxLabel}>
+              <input
+                name="criminal_history"
+                type="checkbox"
+                onChange={handleChange}
+                className={styles.checkbox}
+              />
+              <CheckCircle size={16} className={styles.checkIcon} />
+              Criminal History
+            </label>
 
-          <div className={styles.checkboxGroup}>
-            <input
-              name="employment_status"
-              type="checkbox"
-              onChange={handleChange}
-              className={styles.checkbox}
-            />
-            <label>Employed</label>
+            <label className={styles.checkboxLabel}>
+              <input
+                name="employment_status"
+                type="checkbox"
+                onChange={handleChange}
+                className={styles.checkbox}
+              />
+              <CheckCircle size={16} className={styles.checkIcon} />
+              Employed
+            </label>
           </div>
 
           <div className={styles.inputGroup}>
+            <FileImage className={styles.icon} />
             <input
               name="user_image"
               type="file"

@@ -63,6 +63,7 @@ class Owner(models.Model):
     criminal_history = models.BooleanField(default=False)
     employment_status = models.BooleanField(default=False)
     user_image = models.ImageField(upload_to='owner_images/', null=True, blank=True)
+    owner_created = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
@@ -75,6 +76,8 @@ class Tenant(models.Model):
     criminal_history = models.BooleanField(default=False)
     employment_status = models.BooleanField(default=False)
     user_image = models.ImageField(upload_to='tenant_images/', null=True, blank=True)
+    tenant_created = models.DateTimeField(auto_now_add=True)
+
 
     def __str__(self):
         return self.name
@@ -99,6 +102,13 @@ class Property(models.Model):
         ('Fixed', 'Fixed'),
         ('Negotiable', 'Negotiable'),
     ]
+    # STATUS_CHOICES = [
+    #     (True, 'Available'), 
+    #     (False, 'Not Available')
+    # ]
+    # # price_type = models.CharField(max_length=20, choices=PRICE_TYPE_CHOICES)
+
+    # status = models.BooleanField(choices=STATUS_CHOICES, default=True)  # Default to 'Available'
 
     title = models.CharField(max_length=255)
     property_type = models.CharField(max_length=50, choices=PROPERTY_TYPE_CHOICES)
@@ -119,8 +129,9 @@ class Property(models.Model):
     swimming_pool = models.BooleanField()
     lift_elevator = models.BooleanField()
     pet_friendly = models.BooleanField()
-    gym = models.BooleanField()
+    status = models.BooleanField()
     property_image = models.ImageField(upload_to='property_images/')
+    date_added = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
@@ -131,7 +142,7 @@ class Booking(models.Model):
     date_applied = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
         max_length=20,
-        choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')],
+        choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('rejected', 'Rejected')],
         default='pending'
     )
     message = models.TextField(blank=True, null=True)  # optional note from the tenant
@@ -146,9 +157,11 @@ class TourRequest(models.Model):
     time_submitted = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
         max_length=20,
-        choices=[('pending', 'Pending'), ('confirmed', 'Confirmed'), ('declined', 'Declined')],
+        choices=[('pending', 'Pending'), ('accepted', 'Accepted'), ('declined', 'Declined')],
         default='pending'
     )
 
     def __str__(self):
         return f"Tour for {self.property.title} by {self.tenant.user.email} on {self.requested_date}"
+
+

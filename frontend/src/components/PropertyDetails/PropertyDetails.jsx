@@ -2,11 +2,20 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./PropertyDetails.css";
+import { Link, useLocation, NavLink } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
 import {
-  Car, Trees, PawPrint, XCircle,
-  Dumbbell, ArrowUpDown, WavesLadder
+  Car, Trees, XCircle,
+  Dumbbell, ArrowUpDown, WavesLadder,
+  PawPrint,
+  User,
+  Home,
+  Search,
+  CalendarDays,
+  MapPin,
 } from "lucide-react";
+
+
 
 const PropertyDetails = () => {
   const { id } = useParams();
@@ -17,13 +26,37 @@ const PropertyDetails = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [owner, setOwner] = useState(null);
   const [showOwnerModal, setShowOwnerModal] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  
+  const toggleDropdown = () => {
+    setShowDropdown(!showDropdown);
+  };
+  
+    // useEffect(() => {
+    //   const handleClickOutside = (event) => {
+    //     if (!event.target.closest('.profile-dropdown')) {
+    //       setShowDropdown(false);
+    //     }
+    //   };
+  
+    //   document.addEventListener('mousedown', handleClickOutside);
+    //   return () => {
+    //     document.removeEventListener('mousedown', handleClickOutside);
+    //   };
+    // }, []);
+  
+  const handleLogout = () => {
+    localStorage.clear();
+    window.location.href = '/login';
+    setShowDropdown(false);
+  };
 
   useEffect(() => {
     axios.get(`http://localhost:8000/propertydetail/${id}/`)
       .then((res) => {
         const prop = res.data;
         setProperty(prop);
-        axios.get(`http://localhost:8000/relatedproperties/?location=${prop.location}`)
+        axios.get(`http://localhost:8000/relatedproperties/?location=${prop.location}&status=true`)
           .then((relatedRes) => {
             const others = relatedRes.data.filter(p => p.id !== prop.id);
             setRelatedProperties(others);
@@ -80,16 +113,21 @@ const PropertyDetails = () => {
       alert("You must be logged in to book a property.");
       return;
     }
-
+  
     const bookingStatus = await checkBookingStatus();
-    if (bookingStatus.status === "approved") {
+    
+    // Convert both to lowercase for case-insensitive comparison
+    const currentStatus = bookingStatus.status?.toLowerCase();
+    
+    // Check all statuses that should prevent re-booking
+    if (currentStatus === "accepted" || currentStatus === "approved") {
       alert("You have already booked this property.");
       return;
-    } else if (bookingStatus.status === "pending") {
-      alert("Your booking request is pending.");
+    } else if (currentStatus === "pending") {
+      alert("Your booking request is already pending.");
       return;
     }
-
+  
     setIsSubmitting(true);
     try {
       await axios.post("http://localhost:8000/bookings/", {
@@ -104,7 +142,7 @@ const PropertyDetails = () => {
       alert("✅ Booking request submitted!");
     } catch (err) {
       console.error("❌ Booking error:", err.response?.data || err.message);
-      alert("❌ Failed to submit booking. Please check your login status.");
+      alert(`❌ Failed to submit booking: ${err.response?.data?.detail || "Please try again"}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -168,6 +206,78 @@ const PropertyDetails = () => {
 
   return (
     <div className="container my-5">
+      <div className="top-section">
+        {/* Left side - Logo */}
+        <div className="logo-container">
+          <h1 className="logo-text">RENTABLE</h1>
+        </div>
+
+        {/* Right side - Navigation and Profile */}
+        <div className="nav-right">
+        <nav className="main-nav">
+          <NavLink to="/home" className={({ isActive }) => isActive ? 'active' : ''}>
+            <Home size={18} className="nav-icon" /> Home
+          </NavLink>
+          <NavLink to="/search" className={({ isActive }) => isActive ? 'active' : ''}>
+            <Search size={18} className="nav-icon" /> Search
+          </NavLink>
+          <NavLink to="/bookings" className={({ isActive }) => isActive ? 'active' : ''}>
+            <CalendarDays size={18} className="nav-icon" /> My Bookings
+          </NavLink>
+          <NavLink to="/tours" className={({ isActive }) => isActive ? 'active' : ''}>
+            <MapPin size={18} className="nav-icon" /> My Tours
+          </NavLink>
+        </nav>
+          
+          <div className="profile-dropdown">
+            <button className="profile-btn" onClick={toggleDropdown}>
+              <User size={24} />
+            </button>
+            {showDropdown && (
+              <div style={{
+                position: 'absolute',
+                right: 0,
+                top: 'calc(100% + 8px)',
+                minWidth: '180px',
+                backgroundColor: 'white',
+                borderRadius: '4px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                zIndex: 1000,
+                border: '1px solid #e5e7eb',
+                padding: '8px 0'
+              }}>
+                <Link 
+                  to="/tenantprofile" 
+                  style={{
+                    display: 'block',
+                    padding: '8px 16px',
+                    color: '#333',
+                    textDecoration: 'none'
+                  }}
+                  onClick={() => setShowDropdown(false)}
+                >
+                  Edit Profile
+                </Link>
+                <button 
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    textAlign: 'left',
+                    padding: '8px 16px',
+                    background: 'none',
+                    border: 'none',
+                    color: '#333',
+                    cursor: 'pointer'
+                  }}
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
       {/* Property Detail Section */}
       <div className="d-flex flex-column flex-md-row border p-4 rounded shadow-lg property-detail-container">
         <div className="col-md-6">
@@ -185,7 +295,7 @@ const PropertyDetails = () => {
             {property.parking_space && <div className="d-flex align-items-center gap-1"><Car size={20} /> <span>Parking</span></div>}
             {property.garden_yard && <div className="d-flex align-items-center gap-1"><Trees size={20} /> <span>Garden</span></div>}
             {property.pet_friendly ? <div className="d-flex align-items-center gap-1"><PawPrint size={20} /> <span>Pet Friendly</span></div> : <div className="d-flex align-items-center gap-1 text-danger"><XCircle size={20} /> <span>No Pets</span></div>}
-            {property.gym && <div className="d-flex align-items-center gap-1"><Dumbbell size={20} /> <span>Gym</span></div>}
+            {/* {property.gym && <div className="d-flex align-items-center gap-1"><Dumbbell size={20} /> <span>Gym</span></div>} */}
             {property.swimming_pool && <div className="d-flex align-items-center gap-1"><WavesLadder size={20} /> <span>Pool</span></div>}
             {property.lift_elevator && <div className="d-flex align-items-center gap-1"><ArrowUpDown size={20} /> <span>Elevator</span></div>}
           </div>

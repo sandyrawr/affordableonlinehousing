@@ -136,11 +136,22 @@ class PropertyListView(APIView):
     def get(self, request):
         location_id = request.GET.get('location')
         print(f"Filtering properties with location_id: {location_id}")  # Check location_id value
+        status_filter = request.GET.get('status')  # get the gym parameter (e.g., gym=true)
+
         
+        properties = Property.objects.filter(status=True)  # Only include available properties
+
         if location_id:
             properties = Property.objects.filter(location_id=location_id)
-        else:
-            properties = Property.objects.all()
+        # else:
+        #     properties = Property.objects.all()
+
+        if status_filter is not None:
+            # Convert query param to boolean
+            status_value = status_filter.lower() == 'true'
+            properties = properties.filter(status=status_value)
+
+        
 
         serializer = PropertySerializer(properties, many=True)
         return Response(serializer.data)
@@ -186,7 +197,9 @@ class FilteredPropertiesView(APIView):
         price_type = request.GET.get('price_type')
         title = request.GET.get('title') 
 
-        properties = Property.objects.all()
+        # properties = Property.objects.all()
+        properties = Property.objects.filter(status=True)  # Only include available properties
+
 
         if location:
             properties = properties.filter(location__name__icontains=location)
@@ -207,8 +220,8 @@ class FilteredPropertiesView(APIView):
             'swimming_pool',
             'lift_elevator',
             'pet_friendly',
-            'gym',
-        ]
+            # 'gym',
+            ]
 
         for field in boolean_fields:
             val = request.GET.get(field)
@@ -301,7 +314,7 @@ class BookingCreateView(generics.CreateAPIView):
     serializer_class = BookingCSerializer
     permission_classes = [IsAuthenticated]
 
-#displaying bookgings
+#displaying bookgings and changing property status when accepted
 class BookingListView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -323,11 +336,90 @@ class BookingListView(APIView):
             return Response({"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)
 
         new_status = request.data.get("status")
-        if new_status not in ["Accepted", "Rejected", "Pending"]:
+        if new_status not in ["accepted", "rejected", "pending"]:
+            return Response({"error": "Invalid status"}, status=status.HTTP_400_BAD_REQUEST)
+        if new_status == "accepted":
+            property = booking.property
+            property.status = False
+            property.save()
+
+        booking.status = new_status
+        booking.save()
+        return Response({"message": f"Booking status updated to {new_status}"}, status=status.HTTP_200_OK)
+
+
+#tenant side
+class BookingUpdateDeleteView(generics.UpdateAPIView, generics.DestroyAPIView):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
+    lookup_field = 'id'
+
+    def check_ownership(self, request):
+        """Helper method to verify the requesting user owns the booking"""
+        booking = self.get_object()
+        if not hasattr(booking.tenant, 'user'):
+            return False
+        return request.user.id == booking.tenant.user.id
+
+    def patch(self, request, *args, **kwargs):
+        if not self.check_ownership(request):
+            return Response(
+                {"error": "You can only update your own bookings"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        new_status = request.data.get('status')
+        valid_statuses = ['pending', 'accepted', 'rejected']
+        
+        if new_status not in valid_statuses:
+            return Response(
+                {"error": f"Invalid status. Must be one of: {', '.join(valid_statuses)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        booking = self.get_object()
+        booking.status = new_status
+        booking.save()
+        return Response(self.get_serializer(booking).data)
+
+    def delete(self, request, *args, **kwargs):
+        if not self.check_ownership(request):
+            return Response(
+                {"error": "You can only delete your own bookings"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return self.destroy(request, *args, **kwargs)
+
+
+class TenantBookingList(generics.ListAPIView):
+    serializer_class = BookingSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['status']
+
+    def get_queryset(self):
+        return Booking.objects.filter(tenant=self.request.user.tenant).select_related('property__owner', 'tenant')
+
+    def patch(self, request, booking_id):
+        try:
+            booking = Booking.objects.get(id=booking_id)
+        except Booking.DoesNotExist:
+            return Response({"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        new_status = request.data.get("status")
+        if new_status not in ["accepted", "rejected", "pending"]:
             return Response({"error": "Invalid status"}, status=status.HTTP_400_BAD_REQUEST)
 
         booking.status = new_status
         booking.save()
+
+        # If the booking is accepted, set the property's status to False (Unavailable)
+        if new_status == "accepted":
+            property = booking.property
+            property.status = False
+            property.save()
+
         return Response({"message": f"Booking status updated to {new_status}"}, status=status.HTTP_200_OK)
 
 class TourRequestListView(APIView):
@@ -351,7 +443,7 @@ class TourRequestListView(APIView):
             return Response({"error": "Tour not found"}, status=404)
 
         new_status = request.data.get("status")
-        if new_status not in ["confirmed", "declined", "pending"]:
+        if new_status not in ["accepted", "declined", "pending"]:
             return Response({"error": "Invalid status"}, status=400)
 
         tour.status = new_status
@@ -400,9 +492,9 @@ class CheckBookingStatusView(APIView):
                 return Response({"status": "not_booked", "message": "You haven't booked this property yet."})
             if booking.status == "pending":
                 return Response({"status": "pending", "message": "Your booking is pending."})
-            elif booking.status == "Accepted":
+            elif booking.status == "accepted":
                 return Response({"status": "approved", "message": "You have already booked this property."})
-            elif booking.status == "Rejected":
+            elif booking.status == "rejected":
                 return Response({"status": "rejected", "message": "Your previous booking was rejected. You can try again."})
         except Exception as e:
             return Response({"status": "error", "message": str(e)}, status=500)
@@ -426,3 +518,91 @@ class CheckTourRequestStatusView(APIView):
                 return Response({"status": "declined", "message": "Your previous tour request was declined. You can try again."})
         except Exception as e:
             return Response({"status": "error", "message": str(e)}, status=500)
+
+
+class TourRequestViewSet(viewsets.ModelViewSet):
+    serializer_class = TourRequestSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = TourRequest.objects.filter(tenant__user=self.request.user)
+        
+        # Filter by status if provided
+        status_param = self.request.query_params.get('status', None)
+        if status_param:
+            queryset = queryset.filter(status=status_param.lower())
+            
+        return queryset.select_related(
+            'property', 
+            'property__owner',
+            'tenant',
+            'tenant__user'
+        )
+
+    def perform_create(self, serializer):
+        # Automatically assign the tenant based on the requesting user
+        tenant = self.request.user.tenant_profile
+        serializer.save(tenant=tenant)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.tenant.user != request.user:
+            return Response(
+                {"error": "You can only delete your own tour requests"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+#fisplaying and canceling tour rests in tenants
+
+class TenantTourRequestList(generics.ListAPIView):
+    serializer_class = TourRequestSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['status']
+
+    def get_queryset(self):
+        return TourRequest.objects.filter(tenant=self.request.user.tenant).select_related('property', 'tenant')
+
+class TourRequestUpdateDeleteView(generics.UpdateAPIView, generics.DestroyAPIView):
+    queryset = TourRequest.objects.all()
+    serializer_class = TourRequestSerializer
+    lookup_field = 'id'
+
+    def check_ownership(self, request):
+        """Helper method to verify the requesting user owns the tour request"""
+        tour_request = self.get_object()
+        if not hasattr(tour_request.tenant, 'user'):
+            return False
+        return request.user.id == tour_request.tenant.user.id
+
+    def patch(self, request, *args, **kwargs):
+        if not self.check_ownership(request):
+            return Response(
+                {"error": "You can only update your own tour requests"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        new_status = request.data.get('status')
+        valid_statuses = ['pending', 'accepted', 'declined']
+        
+        if new_status not in valid_statuses:
+            return Response(
+                {"error": f"Invalid status. Must be one of: {', '.join(valid_statuses)}"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        tour_request = self.get_object()
+        tour_request.status = new_status
+        tour_request.save()
+        return Response(self.get_serializer(tour_request).data)
+
+    def delete(self, request, *args, **kwargs):
+        if not self.check_ownership(request):
+            return Response(
+                {"error": "You can only delete your own tour requests"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return self.destroy(request, *args, **kwargs)

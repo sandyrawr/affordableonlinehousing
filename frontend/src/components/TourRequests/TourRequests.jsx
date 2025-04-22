@@ -135,11 +135,11 @@ const TourRequests = () => {
 
             {/* Right: Action Buttons */}
             <div className="d-flex flex-column align-items-end">
-              {tour.status !== "confirmed" && tour.status !== "declined" && (
+              {tour.status !== "accepted" && tour.status !== "declined" && (
                 <>
                   <button
                     className="btn btn-success mb-2"
-                    onClick={() => handleStatusUpdate(tour.id, "confirmed")}
+                    onClick={() => handleStatusUpdate(tour.id, "accepted")}
                   >
                     ✅ Accept
                   </button>

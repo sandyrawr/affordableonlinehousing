@@ -4,11 +4,9 @@ import AddProperty from '../AddProperty/AddProperty';
 import MyProperties from '../MyProperties/MyProperties';
 import Bookings from '../Bookings/Bookings';
 import TourRequests from '../TourRequests/TourRequests';
-// import TourRequests from '../Unused/TourRequests';
-// import BookingRequests from '../Unused/BookingRequests';
 import styles from './ProfilePage.module.css';
 import axios from 'axios';
-import { Save, Trash2 } from 'lucide-react';
+import { Save, Trash2, User, Home, Key, LogOut, Plus,Mail, List, LockKeyhole, Phone } from 'lucide-react';
 
 function ProfilePage() {
   const [activeSection, setActiveSection] = useState('profile');
@@ -71,10 +69,6 @@ function ProfilePage() {
       formData.user_image !== ownerData.user_image
     );
 
-    // Object.keys(formData).forEach(key => {
-    //   form.append(key, formData[key]);
-    // });
-
     const hasChanges =
     formData.name !== ownerData.name ||
     formData.phone_number !== ownerData.phone_number ||
@@ -83,14 +77,12 @@ function ProfilePage() {
     formData.criminal_history !== ownerData.criminal_history ||
     hasImageChanged ||
     formData.new_password;
-    // Compare current formData with ownerData to check if anything changed
-    // const hasChanges = JSON.stringify(formData) !== JSON.stringify(ownerData);
+
     if (!hasChanges) {
       setMessage('No changes to update.');
       return;
     }
 
-    // Append fields to FormData
     form.append('name', formData.name);
     form.append('phone_number', formData.phone_number);
     form.append('employment_status', formData.employment_status);
@@ -125,6 +117,7 @@ function ProfilePage() {
         }));
       })
       .catch(err => {
+        setMessage('Password incorrect');
         console.error('Error saving changes:', err);
         setMessage(err.response?.data?.password?.[0] || 'Failed to update profile.');
       });
@@ -143,17 +136,63 @@ function ProfilePage() {
   };
 
   return (
-    <div className={styles.profilePageContainer}>
+    <div className={styles.profileContainer}>
       <div className={styles.sidebar}>
-        <ul>
-          <li><button onClick={() => setActiveSection('profile')}>Profile</button></li>
-          <li><button onClick={() => setActiveSection('addproperty')}>Add Property</button></li>
-          <li><button onClick={() => setActiveSection('myProperties')}>My Properties</button></li>
-          <li><button onClick={() => setActiveSection('tourRequests')}>Tour Requests</button></li>
-          <li><button onClick={() => setActiveSection('bookingRequests')}>Booking Requests</button></li>
-          <li><button onClick={() => setActiveSection('logout')}>Log Out</button></li>
+        <div className={styles.sidebarHeader}>
+          <h1>RENTABLE</h1>
+        </div>
+        <ul className={styles.sidebarMenu}>
+          <li>
+            <button 
+              onClick={() => setActiveSection('profile')}
+              className={`${styles.sidebarButton} ${activeSection === 'profile' ? styles.active : ''}`}
+            >
+              <User className={styles.buttonIcon} /> Profile
+            </button>
+          </li>
+          <li>
+            <button 
+              onClick={() => setActiveSection('addproperty')}
+              className={`${styles.sidebarButton} ${activeSection === 'addproperty' ? styles.active : ''}`}
+            >
+              <Plus className={styles.buttonIcon} /> Add Property
+            </button>
+          </li>
+          <li>
+            <button 
+              onClick={() => setActiveSection('myProperties')}
+              className={`${styles.sidebarButton} ${activeSection === 'myProperties' ? styles.active : ''}`}
+            >
+              <Home className={styles.buttonIcon} /> My Properties
+            </button>
+          </li>
+          <li>
+            <button 
+              onClick={() => setActiveSection('tourRequests')}
+              className={`${styles.sidebarButton} ${activeSection === 'tourRequests' ? styles.active : ''}`}
+            >
+              <List className={styles.buttonIcon} /> Tour Requests
+            </button>
+          </li>
+          <li>
+            <button 
+              onClick={() => setActiveSection('bookingRequests')}
+              className={`${styles.sidebarButton} ${activeSection === 'bookingRequests' ? styles.active : ''}`}
+            >
+              <List className={styles.buttonIcon} /> Booking Requests
+            </button>
+          </li>
+          <li>
+            <button 
+              onClick={() => setActiveSection('logout')}
+              className={`${styles.sidebarButton} ${activeSection === 'logout' ? styles.active : ''}`}
+            >
+              <LogOut className={styles.buttonIcon} /> Log Out
+            </button>
+          </li>
         </ul>
       </div>
+
       <div className={styles.mainContent}>
         <Routes>
           <Route path="/add-property" element={<AddProperty />} />
@@ -163,94 +202,132 @@ function ProfilePage() {
         </Routes>
 
         {activeSection === 'profile' && (
-          <div>
+          <div className={styles.profileSection}>
             <h2>Welcome to your profile!</h2>
-            <p>Here you can manage your account settings, view your info, etc.</p>
-            {message && <p>{message}</p>}
+            {message && <p className={`${styles.message} ${message.includes('success') ? styles.success : styles.error}`}>{message}</p>}
             {ownerData && (
-              <div style={{ maxWidth: '400px' }}>
-                <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                  <label htmlFor="imageUpload" style={{ cursor: 'pointer' }}>
-                    <img
-                      src={imagePreview}
-                      alt="Profile"
-                      className={styles.profileImage}
-                      // style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover' }}
-                    />
-                  </label>
-                  <input id="imageUpload" type="file" hidden onChange={handleImageChange} />
+              <div className={styles.profileFormContainer}>
+                <div className={styles.profileForm}>
+                  <div className={styles.leftColumn}>
+                    <div className={styles.profileImageContainer}>
+                      <label htmlFor="imageUpload" className={styles.imageUploadLabel}>
+                        <img
+                          src={imagePreview}
+                          alt="Profile"
+                          className={styles.profileImage}
+                        />
+                      </label>
+                      <input id="imageUpload" type="file" hidden onChange={handleImageChange} />
+                      <label htmlFor="imageUpload" className={styles.changePhotoText}>
+                        Click to change photo
+                      </label>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label>Name</label>
+                      <div className={styles.inputWithIcon}>
+                        <User className={styles.inputIcon} />
+                        <input
+                          type="text"
+                          name="name"
+                          value={formData.name || ''}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label>Phone Number</label>
+                      <div className={styles.inputWithIcon}>
+                        <Phone className={styles.inputIcon} /> {/* 👈 replaces the SVG */}
+                        <input
+                          type="text"
+                          name="phone_number"
+                          value={formData.phone_number || ''}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={styles.rightColumn}>
+                  <div className={styles.formGroup}>
+                      <label>Email</label>
+                      <div className={styles.inputWithIcon}>
+                        <Mail className={styles.inputIcon} size={20} strokeWidth={1.5} />
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email || ''}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label>Current Password</label>
+                      <div className={styles.inputWithIcon}>
+                        <LockKeyhole className={styles.inputIcon} />
+                        <input
+                          type="password"
+                          name="password"
+                          value={formData.password || ''}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label>New Password</label>
+                      <div className={styles.inputWithIcon}>
+                        <LockKeyhole className={styles.inputIcon} />
+                        <input
+                          type="password"
+                          name="new_password"
+                          value={formData.new_password || ''}
+                          onChange={handleChange}
+                        />
+                      </div>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label>Employment Status</label>
+                      <select
+                        name="employment_status"
+                        value={formData.employment_status ? 'true' : 'false'}
+                        onChange={(e) => handleChange({ target: { name: 'employment_status', value: e.target.value === 'true' } })}
+                      >
+                        <option value="true">Employed</option>
+                        <option value="false">Unemployed</option>
+                      </select>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                      <label>Criminal History</label>
+                      <select
+                        name="criminal_history"
+                        value={formData.criminal_history ? 'true' : 'false'}
+                        onChange={(e) => handleChange({ target: { name: 'criminal_history', value: e.target.value === 'true' } })}
+                      >
+                        <option value="true">Committed Felony</option>
+                        <option value="false">Not Committed Felony</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label>Name:</label>
-                  <input
-                    type="text"
-                    name="name"
-                    value={formData.name || ''}
-                    onChange={handleChange}
-                    className="form-control mb-2"
-                  />
 
-                  <label>Email:</label>
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email || ''}
-                    onChange={handleChange}
-                    className="form-control mb-2"
-                  />
-
-                  <label>Current Password:</label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={formData.password || ''}
-                    onChange={handleChange}
-                    className="form-control mb-2"
-                  />
-
-                  <label>New Password:</label>
-                  <input
-                    type="password"
-                    name="new_password"
-                    value={formData.new_password || ''}
-                    onChange={handleChange}
-                    className="form-control mb-2"
-                  />
-
-                  <label>Phone Number:</label>
-                  <input
-                    type="text"
-                    name="phone_number"
-                    value={formData.phone_number || ''}
-                    onChange={handleChange}
-                    className="form-control mb-2"
-                  />
-
-                  <label>Employment Status:</label>
-                  <input
-                    type="checkbox"
-                    name="employment_status"
-                    checked={formData.employment_status || false}
-                    onChange={handleChange}
-                    className="form-check-input mb-2"
-                  /> Employed
-                  <br />
-
-                  <label>Criminal History:</label>
-                  <input
-                    type="checkbox"
-                    name="criminal_history"
-                    checked={formData.criminal_history || false}
-                    onChange={handleChange}
-                    className="form-check-input mb-2"
-                  /> Has Criminal Record
-                </div>
-                <div className="d-flex justify-content-between mt-3">
-                  <button className="btn btn-success" onClick={handleSaveChanges}>
-                    <Save size={16} className="me-1" /> Save Changes
+                <div className={styles.actionButtons}>
+                  <button 
+                    onClick={handleSaveChanges}
+                    className={styles.saveButton}
+                  >
+                    <Save className={styles.buttonIcon} /> Save Changes
                   </button>
-                  <button className="btn btn-danger" onClick={handleDeleteAccount}>
-                    <Trash2 size={16} className="me-1" /> Delete Account
+                  <button 
+                    onClick={handleDeleteAccount}
+                    className={styles.deleteButton}
+                  >
+                    <Trash2 className={styles.buttonIcon} /> Delete Account
                   </button>
                 </div>
               </div>

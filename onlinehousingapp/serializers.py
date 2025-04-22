@@ -276,6 +276,7 @@ class PropertySerializer(serializers.ModelSerializer):
         # ]
 #for extracting owner image for property details page
 class PropertyDetailSerializer(serializers.ModelSerializer):
+    location_name = serializers.CharField(source='location.name', read_only=True)
     owner_image = serializers.SerializerMethodField()
 
     class Meta:
@@ -390,10 +391,13 @@ class BookingSerializer(serializers.ModelSerializer):
     tenant_image = serializers.SerializerMethodField()
     property_title = serializers.CharField(source='property.title', read_only=True)
     property_image = serializers.ImageField(source='property.property_image', read_only=True)
+    property_title = serializers.CharField(source='property.title', read_only=True)
+    property_rooms = serializers.IntegerField(source='property.total_rooms', read_only=True)
+    owner_name = serializers.CharField(source='property.owner.name', read_only=True)
 
     class Meta:
         model = Booking
-        fields = ['id', 'tenant', 'tenant_name', 'tenant_image', 'property', 'property_title', 'property_image', 'message', 'status', 'date_applied']
+        fields = ['id', 'tenant', 'tenant_name', 'tenant_image', 'property', 'property_title', 'property_image', 'message', 'status', 'date_applied', 'property_rooms', 'owner_name']
 
     def get_tenant_name(self, obj):
         return obj.tenant.name  # Assumes user model has full_name field
@@ -404,6 +408,7 @@ class BookingSerializer(serializers.ModelSerializer):
 class TourRequestSerializer(serializers.ModelSerializer):
     tenant_name = serializers.SerializerMethodField()
     tenant_image = serializers.SerializerMethodField()
+    owner_name = serializers.CharField(source='property.owner.name', read_only=True)
     property_title = serializers.CharField(source='property.title', read_only=True)
     property_type = serializers.CharField(source='property.property_type', read_only=True)
     property_image = serializers.ImageField(source='property.property_image', read_only=True)
@@ -411,10 +416,11 @@ class TourRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = TourRequest
         fields = ['id', 'tenant', 'tenant_name', 'tenant_image', 'property', 'property_title',
-                  'property_type', 'property_image', 'requested_date', 'status', 'time_submitted']
+                  'property_type', 'property_image', 'requested_date', 'status', 'time_submitted', 'owner_name']
 
     def get_tenant_name(self, obj):
         return obj.tenant.name
 
     def get_tenant_image(self, obj):
-        return obj.tenant.user_image.url if obj.tenant.user_image else None
+        return obj.tenant.user_image.url if obj.tenant.user_image else None    
+

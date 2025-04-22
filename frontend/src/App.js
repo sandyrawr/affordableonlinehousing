@@ -23,6 +23,8 @@ import RegisterAdmin from './components/RegisterAdmin/RegisterAdmin';
 import property from './components/Unused/Property';
 import TenantPage from './components/TenantPage/TenantPage';
 import PropertyDetails from './components/PropertyDetails/PropertyDetails';
+import Startpage from './components/Startpage';
+import Footer from './components/Footer/Footer';
 // import Login from './components/Login';
 function App() {
   return (
@@ -47,6 +49,8 @@ function App() {
             <Route path="/addproperty" element={<AddProperty/>} />    
             <Route path="/tenantprofile" element={<TenantPage/>} />  
             <Route path="/propertydetails/:id" element={<PropertyDetails />} /> 
+            <Route path="/landing" element={<Startpage />} /> 
+            <Route path="/footer" element={<Footer />} /> 
           </Routes>
       
   );

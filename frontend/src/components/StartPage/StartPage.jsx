@@ -1,37 +1,43 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import styles from './StartPage.module.css'; // Import CSS Module
+import styles from './StartPage.module.css';
+import { LogIn, UserPlus } from 'lucide-react'; // Lucide icons
 
 function StartPage() {
   return (
-    <div className={styles['page-wrapper']}>
-      <div className={styles['signup-container']}>
-        <div className={styles['left-box']}>
-          <div className={styles['image-container']}>
-            <img src="locations/house.png" alt="House" className={styles['signup-image']} />
+    <div className={styles.pageWrapper}>
+      <div className={styles.signupContainer}>
+        {/* Left side with image */}
+        <div className={styles.leftBox}>
+          <div className={styles.imageContainer}>
+            <img
+              src="locations/house.png"
+              alt="House"
+              className={styles.signupImage}
+            />
           </div>
         </div>
 
-        <div className={styles['right-box']}>
-            <div className={styles['form-header']}>
-                <h2>Welcome to Rentable</h2>
-                <p>Select an option to continue</p>
-            </div>
+        {/* Right side with header and buttons */}
+        <div className={styles.rightBox}>
+          <div className={styles.formHeader}>
+            <h2>
+              Welcome to <span className={styles.brand}>Rentable</span>
+            </h2>
+            <p>Select an option to continue</p>
+          </div>
 
-            <div className={styles['button-group']}>
-                <Link to="/startregister">
-                    <button type="button" className="btn btn-success w-100">
-                        Register
-                    </button>
-                </Link>
-                <Link to="/login">
-                    <button type="button" className="btn btn-success w-100">
-                        Log in
-                    </button>
-                </Link>
-            </div>
+          <div className={styles.buttonGroup}>
+            <Link to="/startregister" className={styles.linkButton}>
+              <UserPlus size={20} className={styles.icon} />
+              Register
+            </Link>
+            <Link to="/login" className={styles.linkButton}>
+              <LogIn size={20} className={styles.icon} />
+              Log In
+            </Link>
+          </div>
         </div>
-
       </div>
     </div>
   );

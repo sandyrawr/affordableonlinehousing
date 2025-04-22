@@ -1,130 +1,117 @@
-/* Wrapper to center the container */
-.page-wrapper {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 100vw;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem;
-    background-color: #f2f2f2;
-    box-sizing: border-box;
-    overflow: auto;
-  }
-  
-  /* Signup container box */
-  .signup-container {
-    display: flex;
-    flex-direction: row;
-    background-color: #fff;
-    border: 2px solid #4CAF50;
-    border-radius: 12px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    max-width: 850px;
-    width: 100%;
-    height: 500px;
-    overflow: hidden;
-  }
-  
-  /* Left side image box */
-  .left-box {
-    flex: 1;
-    background-color: #f9f9f9;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
-  }
-  
-  .image-container {
-    max-width: 100%;
-  }
-  
-  .signup-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-  }
-  
-  /* Right side form box */
-  .right-box {
-    flex: 1;
-    padding: 2rem;
-    background-color: #fff;
-  }
-  
-  /* Form header */
-  .form-header {
-    text-align: center;
-    margin-top: 2em;
-    margin-bottom: 0;
-  }
-  
-  .form-header h2 {
-    font-size: 1.6rem;
-    margin-bottom: 0.25rem;
-  }
-  
-  .form-header p {
-    font-size: 0.9rem;
-    color: #555;
-  }
-  
-  /* Button group */
-  .button-group {
-    display: flex;
+.pageWrapper {
+  min-height: 100vh;
+  background: linear-gradient(to right, #e8f5e9, #f1f8e9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.signupContainer {
+  display: flex;
+  max-width: 960px;
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  border: 2px solid #4caf50;
+}
+
+.leftBox {
+  flex: 1;
+  background-color: #e0f2f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.imageContainer {
+  width: 100%;
+  max-width: 300px;
+}
+
+.signupImage {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+.rightBox {
+  flex: 1;
+  padding: 3rem 2rem;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.formHeader {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.formHeader h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2e7d32;
+  margin-bottom: 0.5rem;
+}
+
+.formHeader p {
+  font-size: 1rem;
+  color: #555;
+}
+
+.brand {
+  color: #388e3c;
+}
+
+.buttonGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.linkButton {
+  background-color: #4caf50;
+  color: white;
+  text-decoration: none;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.linkButton:hover {
+  background-color: #388e3c;
+}
+
+.icon {
+  margin-right: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .signupContainer {
     flex-direction: column;
-    gap: 1rem;
-    margin-top: 6rem;
   }
-  
-  .button-group .btn-success {
+
+  .leftBox,
+  .rightBox {
     width: 100%;
-    padding: 0.6rem;
-    font-size: 1rem;
   }
-  
-  /* Button styling */
-  .btn-success {
-    background-color: #4CAF50;
-    border: none;
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-    border-radius: 6px;
+
+  .formHeader h2 {
+    font-size: 1.75rem;
   }
-  
-  .btn-success:hover {
-    background-color: #3e8e41;
+
+  .signupImage {
+    max-width: 80%;
+    margin: 0 auto;
   }
-  
-  /* Mobile responsiveness */
-  @media (max-width: 768px) {
-    .signup-container {
-      flex-direction: column;
-    }
-  
-    .left-box,
-    .right-box {
-      width: 100%;
-    }
-  
-    .signup-image {
-      width: 80%;
-    }
-  }
-  
-  .horizontal-button-group {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin-top: 4rem;
-  }
-  
-  .horizontal-button-group .btn {
-    padding: 0.6rem 1.2rem;
-    font-size: 1rem;
-    min-width: 150px;
-  }
-  
+}

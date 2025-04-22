@@ -130,3 +130,53 @@
     width: 80%;
   }
 }
+
+
+.inputGroup {
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+
+.formControl {
+  width: 100%;
+  padding: 0.45rem 0.75rem 0.45rem 2.5rem;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+}
+
+.icon {
+  position: absolute;
+  top: 50%;
+  left: 0.75rem;
+  transform: translateY(-50%);
+  color: #888;
+  pointer-events: none;
+}
+
+.checkboxWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #333;
+}
+
+.checkbox {
+  accent-color: #4CAF50;
+  width: 16px;
+  height: 16px;
+}
+
+.checkIcon {
+  color: #4CAF50;
+}
+

@@ -131,19 +131,19 @@ const Bookings = () => {
             {/* Right: Action Buttons */}
             <div className="d-flex flex-column align-items-end">
               {/* Conditionally render buttons based on booking status */}
-              {booking.status !== "Accepted" && booking.status !== "Rejected" && (
+              {booking.status !== "accepted" && booking.status !== "rejected" && (
                 <>
                   <button
                     className="btn btn-success mb-2"
-                    onClick={() => handleStatusUpdate(booking.id, "Accepted")}
-                    disabled={booking.status === "Accepted"}
+                    onClick={() => handleStatusUpdate(booking.id, "accepted")}
+                    disabled={booking.status === "accepted"}
                   >
                     ✅ Accept
                   </button>
                   <button
                     className="btn btn-danger"
-                    onClick={() => handleStatusUpdate(booking.id, "Rejected")}
-                    disabled={booking.status === "Rejected"}
+                    onClick={() => handleStatusUpdate(booking.id, "rejected")}
+                    disabled={booking.status === "rejected"}
                   >
                     ❌ Reject
                   </button>

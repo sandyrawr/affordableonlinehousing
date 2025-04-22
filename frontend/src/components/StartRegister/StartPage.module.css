@@ -128,3 +128,22 @@
     min-width: 150px;
   }
   
+  .brand {
+    color: #388e3c;
+    font-weight: bold;
+  }
+  
+  /* Add this if not present for button consistency */
+  .button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+  }
+  
+  .button:hover {
+    transform: scale(1.05);
+  }
+  

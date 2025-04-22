@@ -1,13 +1,38 @@
+// SearchPage.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useLocation } from "react-router-dom";  // Hook to read query parameters
-import { Link } from "react-router-dom";  // Add this import
-import "./SearchPage.module.css";
+import { Link, useLocation, NavLink } from "react-router-dom";
+import {
+  Building2,
+  DollarSign,
+  Sun,
+  Car,
+  TreePine,
+  Waves,
+  ArrowUpDown,
+  PawPrint,
+  User,
+  Home,
+  Search,
+  CalendarDays,
+  MapPin,
+  BedSingle,
+  Users,
+  
+  Bath,
+} from "lucide-react";
+import Modal from "../Modal/Modal";
+import BookingsPopup from "../BookingsPopup/BookingsPopup";
+import ToursPopup from "../ToursPopup/ToursPopup";
+
+
+import "./SearchPage.css";
+import Footer from "../Footer/Footer";
 
 const SearchPage = () => {
   const [properties, setProperties] = useState([]);
   const [filters, setFilters] = useState({
-    title: "",  
+    title: "",
     property_type: "",
     price_type: "",
     balcony_terrace: false,
@@ -16,12 +41,47 @@ const SearchPage = () => {
     swimming_pool: false,
     lift_elevator: false,
     pet_friendly: false,
-    gym: false,
   });
 
-  const location = useLocation();  // Get the current location from the URL
-  const searchParams = new URLSearchParams(location.search);  // Extract query parameters
-  const locationName = searchParams.get("location");  // Get the 'location' param
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const locationName = searchParams.get("location");
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [modalContent, setModalContent] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = (content) => {
+    setModalContent(content);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setModalContent(null);
+  };
+
+const toggleDropdown = () => {
+  setShowDropdown(!showDropdown);
+};
+
+  // useEffect(() => {
+  //   const handleClickOutside = (event) => {
+  //     if (!event.target.closest('.profile-dropdown')) {
+  //       setShowDropdown(false);
+  //     }
+  //   };
+
+  //   document.addEventListener('mousedown', handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener('mousedown', handleClickOutside);
+  //   };
+  // }, []);
+
+const handleLogout = () => {
+  localStorage.clear();
+  window.location.href = '/login';
+  setShowDropdown(false);
+};
 
   useEffect(() => {
     if (locationName) {
@@ -29,34 +89,116 @@ const SearchPage = () => {
         location: locationName,
         ...filters,
       };
-      axios.get(`http://localhost:8000/properties/`, { params })
-        .then(response => setProperties(response.data))
-        .catch(error => console.error("Error fetching properties:", error));
+      axios
+        .get("http://localhost:8000/properties/", { params })
+        .then((response) => setProperties(response.data))
+        .catch((error) =>
+          console.error("Error fetching properties:", error)
+        );
     }
-  }, [locationName, filters]);  // Re-run effect if location or filters change
+  }, [locationName, filters]);
 
   const handleFilterChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value,
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
   return (
-    <div className="container py-5">
-      <div className="d-flex">
-        {/* Sidebar Filter */}
-        <div className="sidebar col-md-3 p-3">
+    <div className="search-container">
+      <div className="top-bar">
+        {/* Left side - Logo */}
+        <div className="logo-container">
+          <h1 className="logo-text">RENTABLE</h1>
+        </div>
+
+        {/* Right side - Navigation and Profile */}
+        <div className="nav-right">
+        <nav className="main-nav">
+          <NavLink to="/home" className={({ isActive }) => isActive ? 'active' : ''}>
+            <Home size={18} className="nav-icon" /> Home
+          </NavLink>
+          <NavLink to="/search" className={({ isActive }) => isActive ? 'active' : ''}>
+            <Search size={18} className="nav-icon" /> Search
+          </NavLink>
+          <button 
+            className="nav-link" 
+            onClick={() => openModal(<BookingsPopup />)}
+          >
+            <CalendarDays size={18} className="nav-icon" /> My Bookings
+          </button>
+          <button 
+            className="nav-link" 
+            onClick={() => openModal(<ToursPopup />)}
+          >
+            <MapPin size={18} className="nav-icon" /> My Tours
+          </button>
+        </nav>
+          
+          <div className="profile-dropdown">
+            <button className="profile-btn" onClick={toggleDropdown}>
+              <User size={24} />
+            </button>
+            {showDropdown && (
+              <div style={{
+                position: 'absolute',
+                right: 0,
+                top: 'calc(100% + 8px)',
+                minWidth: '180px',
+                backgroundColor: 'white',
+                borderRadius: '4px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                zIndex: 1000,
+                border: '1px solid #e5e7eb',
+                padding: '8px 0'
+              }}>
+                <Link 
+                  to="/tenantprofile" 
+                  style={{
+                    display: 'block',
+                    padding: '8px 16px',
+                    color: '#333',
+                    textDecoration: 'none'
+                  }}
+                  onClick={() => setShowDropdown(false)}
+                >
+                  Edit Profile
+                </Link>
+                <button 
+                  style={{
+                    display: 'block',
+                    width: '100%',
+                    textAlign: 'left',
+                    padding: '8px 16px',
+                    background: 'none',
+                    border: 'none',
+                    color: '#333',
+                    cursor: 'pointer'
+                  }}
+                  onClick={handleLogout}
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      {/* Modal */}
+      <Modal isOpen={isModalOpen} onClose={closeModal}>
+        {modalContent}
+      </Modal>
+      <div className="content-wrapper">
+        <aside className="filter-sidebar">
           <h4>Filters</h4>
+
           <div className="form-group">
-            <label>Property Type</label>
-            <select
-              name="property_type"
-              value={filters.property_type}
-              onChange={handleFilterChange}
-              className="form-control"
-            >
+            <label>
+              <Building2 size={16} className="filter-icon" /> Property Type
+            </label>
+            <select name="property_type" value={filters.property_type} onChange={handleFilterChange}>
               <option value="">Select</option>
               <option value="Apartment">Apartment</option>
               <option value="House">House</option>
@@ -68,137 +210,118 @@ const SearchPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Price Type</label>
-            <select
-              name="price_type"
-              value={filters.price_type}
-              onChange={handleFilterChange}
-              className="form-control"
-            >
+            <label>
+              <DollarSign size={16} className="filter-icon" /> Price Type
+            </label>
+            <select name="price_type" value={filters.price_type} onChange={handleFilterChange}>
               <option value="">Select</option>
               <option value="Fixed">Fixed</option>
               <option value="Negotiable">Negotiable</option>
             </select>
           </div>
 
-          {/* Checkbox Filters */}
-          <div className="form-group">
-            <label>Balcony/Terrace</label>
+          {[
+            { label: "Balcony/Terrace", name: "balcony_terrace", icon: <Sun size={16} /> },
+            { label: "Parking Space", name: "parking_space", icon: <Car size={16} /> },
+            { label: "Garden/Yard", name: "garden_yard", icon: <TreePine size={16} /> },
+            { label: "Swimming Pool", name: "swimming_pool", icon: <Waves size={16} /> },
+            { label: "Lift/Elevator", name: "lift_elevator", icon: <ArrowUpDown size={16} /> },
+            { label: "Pet Friendly", name: "pet_friendly", icon: <PawPrint size={16} /> }
+          ].map((item) => (
+            <div key={item.name} className="checkbox-container">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  name={item.name}
+                  checked={filters[item.name]}
+                  onChange={handleFilterChange}
+                  className="checkbox-input"
+                />
+                <span className="checkbox-custom"></span>
+                {item.icon}
+                <span className="checkbox-text">{item.label}</span>
+              </label>
+            </div>
+          ))}
+        </aside>
+
+        <main className="main-content">
+          <div className="search-input">
             <input
-              type="checkbox"
-              name="balcony_terrace"
-              checked={filters.balcony_terrace}
+              type="text"
+              placeholder="Search by title..."
+              name="title"
+              value={filters.title}
               onChange={handleFilterChange}
             />
           </div>
-          <div className="form-group">
-            <label>Parking Space</label>
-            <input
-              type="checkbox"
-              name="parking_space"
-              checked={filters.parking_space}
-              onChange={handleFilterChange}
-            />
-          </div>
-          <div className="form-group">
-            <label>Garden/Yard</label>
-            <input
-              type="checkbox"
-              name="garden_yard"
-              checked={filters.garden_yard}
-              onChange={handleFilterChange}
-            />
-          </div>
-          <div className="form-group">
-            <label>Swimming Pool</label>
-            <input
-              type="checkbox"
-              name="swimming_pool"
-              checked={filters.swimming_pool}
-              onChange={handleFilterChange}
-            />
-          </div>
-          <div className="form-group">
-            <label>Lift/Elevator</label>
-            <input
-              type="checkbox"
-              name="lift_elevator"
-              checked={filters.lift_elevator}
-              onChange={handleFilterChange}
-            />
-          </div>
-          <div className="form-group">
-            <label>Pet Friendly</label>
-            <input
-              type="checkbox"
-              name="pet_friendly"
-              checked={filters.pet_friendly}
-              onChange={handleFilterChange}
-            />
-          </div>
-          <div className="form-group">
-            <label>Gym</label>
-            <input
-              type="checkbox"
-              name="gym"
-              checked={filters.gym}
-              onChange={handleFilterChange}
-            />
-          </div>
+
+          <div className="property-type-nav">
+          {[
+            { value: "", label: "All Properties" },
+            { value: "Apartment", label: "Apartments" },
+            { value: "House", label: "Houses" },
+            { value: "Studio", label: "Studios" },
+            { value: "Villa", label: "Villas" },
+            { value: "Commercial", label: "Commercial" },
+            { value: "Flat", label: "Flats" }
+          ].map((type) => (
+            <button
+              key={type.value}
+              className={`property-type-link ${filters.property_type === type.value ? 'active' : ''}`}
+              onClick={() => setFilters({...filters, property_type: type.value})}
+            >
+              {type.label}
+            </button>
+          ))}
         </div>
 
-        {/* Property Gallery Grid */}
-        <div className="main-content col-md-9">
-          <div className="top-section d-flex justify-content-between">
-            <img src="./locations/logo.png" alt="Logo" className="logo" />
-            <Link to="/tenantprofile" className="btn btn-outline-primary profile-btn">Profile</Link> 
-          </div>
+          <h2>Search Properties in {locationName}</h2>
+          <p className="dream-text">Find your dream home or office here in {locationName}.</p>
 
-          <div className="text-center mb-4">
-            <div className="form-group mb-3">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search by title..."
-                name="title"
-                value={filters.title}
-                onChange={handleFilterChange}
-              />
-            </div>
-            <h2 className="top-title">Search Properties in {locationName}</h2>
-            <p className="top-subtext">Find your dream home or office here in {locationName}.</p>
-
-            {properties.length === 0 && (
-              <p className="no-properties-found">No properties found in {locationName}.</p>
-            )}
-          </div>
-
-          <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
-            {properties.map(property => (
-              <div key={property.id} className="col d-flex align-items-stretch">
-                <Link
-                  to={`/propertydetails/${property.id}`}
-                  className="w-100 text-decoration-none"
-                >
-                  <div className="card property-card shadow-sm w-100 overflow-hidden">
-                    <div className="img-container">
-                      <img
-                        src={`http://localhost:8000${property.property_image}`}
-                        alt={property.title}
-                        className="card-img-top property-img"
+          {properties.length === 0 ? (
+              <p className="no-properties">No properties found in {locationName}.</p>
+            ) : (
+              <div className="property-grid">
+                {properties.map((property) => (
+                  <Link key={property.id} to={`/propertydetails/${property.id}`} className="property-card">
+                    {/* Image container with padding */}
+                    <div className="property-image-container">
+                      <img 
+                        src={`http://localhost:8000${property.property_image}`} 
+                        alt={property.title} 
+                        className="property-image"
                       />
                     </div>
-                    <div className="card-img-overlay d-flex flex-column justify-content-center align-items-center text-center text-white property-overlay">
-                      <h5 className="property-title">{property.title}</h5>
-                      <span className="property-subtext">{property.property_type}</span>
-                      <span className="property-price">${property.rent}</span>
+                    
+                    {/* Property details */}
+                    <div className="property-details">
+                      <h3 className="property-title">{property.title}</h3>
+                      
+                      {/* Amenities container */}
+                      <div className="amenities-container">
+                        <div className="amenity-item">
+                          <BedSingle size={16} className="amenity-icon" />
+                          <span>{property.bedrooms} beds</span>
+                        </div>
+                        <div className="amenity-item">
+                          <Users size={16} className="amenity-icon" />
+                          <span>{property.total_rooms} guests</span>
+                        </div>
+                        <div className="amenity-item">
+                          <Bath size={16} className="amenity-icon" />
+                          <span>{property.bathrooms} baths</span>
+                        </div>
+                      </div>
+                      
+                      <p className="property-type">{property.property_type}</p>
+                      <p className="property-price">${property.rent}/month</p>
                     </div>
-                  </div>
-                </Link>
+                  </Link>
+                ))}
               </div>
-            ))}
-          </div>
-        </div>
+            )}
+        </main>
       </div>
     </div>
   );

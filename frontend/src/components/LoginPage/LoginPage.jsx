@@ -9,6 +9,8 @@ function LoginPage() {
     email: '',
     password: ''
   });
+  const [error, setError] = useState('');
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -43,7 +45,13 @@ function LoginPage() {
       }
     } catch (error) {
       console.error('Login failed:', error);
-      alert('Invalid credentials');
+      if (error.response && error.response.data && error.response.data.non_field_errors) {
+        setError(error.response.data.non_field_errors[0]);
+      } else if (error.response && error.response.data && typeof error.response.data === 'string') {
+        setError(error.response.data);
+      } else {
+        setError('Invalid credentials');
+      }
     }
   };
 
@@ -61,6 +69,12 @@ function LoginPage() {
             <h2>Log In</h2>
             <p>Welcome back! Please log in to continue.</p>
           </div>
+          
+          {error && (
+            <div className={styles.errorMessage}>
+              {error}
+            </div>
+          )}
 
           <div className={styles.inputGroup}>
             <input
@@ -87,7 +101,7 @@ function LoginPage() {
           </div>
 
           <div className={styles.submitGroup}>
-            <button type="submit" className={styles.btnSuccess}>
+            <button type="submit" className={styles.btnSucess}>
               Log In
             </button>
           </div>
