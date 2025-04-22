@@ -1,0 +1,312 @@
+.tourRequestsContainer {
+    width: 100%;
+    background-color: #f5f7fa;
+    min-height: 100vh;
+    padding: 2rem 0;
+  }
+  
+  .contentWrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+  
+  .filterButtons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+  
+  .filterButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.2rem;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    background-color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+  }
+  
+  .filterButton:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .filterButton.active {
+    background-color: #4a6baf;
+    color: white;
+    border-color: #4a6baf;
+  }
+  
+  .filterButton.active .icon {
+    color: white;
+  }
+  
+  .pageTitle {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .noRequests {
+    text-align: center;
+    color: #666;
+    font-size: 1.1rem;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .tourCardsContainer {
+    display: grid;
+    gap: 1.5rem;
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  }
+  
+  .tourCard {
+    display: flex;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .tourCard:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .tourLeft {
+    flex: 1;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .tourRight {
+    width: 250px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  
+  .propertyTitle {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .tenantInfo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  
+  .tenantInfo:hover {
+    opacity: 0.8;
+  }
+  
+  .tenantImage {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #eee;
+  }
+  
+  .tenantName {
+    font-weight: 500;
+    color: #444;
+  }
+  
+  .tourDate, .submittedDate {
+    color: #555;
+    font-size: 0.95rem;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  
+  .statusImageWrapper {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .statusIndicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    background-color: #f5f5f5;
+    border-radius: 20px;
+  }
+  
+  .propertyImageContainer {
+    width: 150px;
+    height: 120px;
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  
+  .propertyImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  .propertyImage:hover {
+    transform: scale(1.05);
+  }
+  
+  .actionButtons {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .acceptButton {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s;
+  }
+  
+  .acceptButton:hover {
+    background-color: #3e8e41;
+  }
+  
+  .rejectButton {
+    background-color: #F44336;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.2s;
+  }
+  
+  .rejectButton:hover {
+    background-color: #d32f2f;
+  }
+  
+  .icon {
+    color: #666;
+  }
+  
+  /* Modal Styles */
+  .modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  
+  .modalContent {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    padding: 2rem;
+    position: relative;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  }
+  
+  .closeButton {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #666;
+  }
+  
+  .modalTenantImage {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto 1.5rem;
+    border: 3px solid #eee;
+  }
+  
+  .tenantModalContent {
+    text-align: center;
+  }
+  
+  .tenantDetails {
+    margin-top: 1.5rem;
+    text-align: left;
+  }
+  
+  .detailItem {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .badgeSuccess {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+  }
+  
+  .badgeWarning {
+    background-color: #fff8e1;
+    color: #ff8f00;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+  }
+  
+  .badgeDanger {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+  }

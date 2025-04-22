@@ -54,7 +54,7 @@ const MyProperties = () => {
   const handleOpenModal = (property) => {
     const prepared = {
       ...property,
-      location_id: property.location?.id || property.location_id,
+      location_id: property.location?.id || property.location_id || '',
       property_image: property.property_image,
       image_updated: false,
     };
@@ -101,58 +101,60 @@ const MyProperties = () => {
   const handleSave = async () => {
     setIsLoading(true);
     const updatedFields = new FormData();
-    const originalDataObj = JSON.parse(originalData);
     
-    // Prepare all fields for update
-    for (const key in originalDataObj) {
-      if (key === 'id' || key === 'property_image') continue;
+    updatedFields.append('location', selectedProperty.location_id);
   
-      const currentValue = selectedProperty[key] ?? originalDataObj[key];
-  
-      if (key === 'location_id') {
-        console.log("Selected Property:", currentValue);
-        updatedFields.append('location', currentValue);
-        continue;
-      }
-  
+    for (const key in selectedProperty) {
+      if (key === 'id' || key === 'property_image' || key === 'location' || key === 'image_updated') continue;
+      
       if ([
         'balcony_terrace', 'parking_space', 'garden_yard',
         'swimming_pool', 'lift_elevator', 'pet_friendly', 'status'
       ].includes(key)) {
-        updatedFields.append(key, currentValue ? 'true' : 'false');
+        updatedFields.append(key, selectedProperty[key] ? 'true' : 'false');
         continue;
       }
-  
-      updatedFields.append(key, currentValue);
+      
+      updatedFields.append(key, selectedProperty[key]);
     }
   
-    // Handle image update
     if (selectedProperty.image_updated && selectedProperty.property_image instanceof File) {
       updatedFields.append('property_image', selectedProperty.property_image);
     }
   
-    // Ensure owner is included
-    if (!updatedFields.has('owner')) {
-      updatedFields.append('owner', originalDataObj.owner);
-    }
-  
     try {
-      await axios.put(`http://localhost:8000/property/${selectedProperty.id}/`, updatedFields, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      
+      const response = await axios.put(
+        `http://localhost:8000/property/${selectedProperty.id}/`,
+        updatedFields,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+  
+      // Update the properties state with the new data
+      setProperties(properties.map(prop => {
+        if (prop.id === selectedProperty.id) {
+          // If we uploaded a new image, use the response data
+          if (selectedProperty.image_updated) {
+            return {
+              ...response.data,
+              property_image: response.data.property_image // Use the new image URL from response
+            };
+          }
+          // Otherwise merge the existing image with other updates
+          return {
+            ...response.data,
+            property_image: prop.property_image // Keep the existing image URL
+          };
+        }
+        return prop;
+      }));
+  
       setShowModal(false);
       setShowSuccess(true);
-      
-      // Refresh properties without full page reload
-      const res = await axios.get("http://localhost:8000/my-properties/", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setProperties(res.data);
-      
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
       console.error("Update failed:", err.response?.data || err.message);
@@ -199,7 +201,11 @@ const MyProperties = () => {
             <div key={property.id} className={styles.propertyCard} onClick={() => handleOpenModal(property)}>
               <div className={styles.imageContainer}>
                 <img
-                  src={`http://localhost:8000${property.property_image}`}
+                  src={
+                    property.property_image instanceof File
+                      ? URL.createObjectURL(property.property_image)
+                      : `http://localhost:8000${property.property_image}`
+                  }
                   alt={property.title}
                   className={styles.propertyImage}
                 />
@@ -244,7 +250,7 @@ const MyProperties = () => {
             {selectedProperty && (
               <div className={styles.modalContent}>
                 <div className={styles.modalLeftColumn}>
-                  <div className={styles.imageUploadContainer}>
+                <div className={styles.imageUploadContainer}>
                     <img
                       src={
                         selectedProperty.property_image instanceof File
@@ -308,6 +314,39 @@ const MyProperties = () => {
                       </select>
                     </div>
                   </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.inputLabel}>Price Type</label>
+                    <div className={styles.inputWithIcon}>
+                      <DollarSign className={styles.inputIcon} />
+                      <select
+                        name="price_type"
+                        value={selectedProperty.price_type}
+                        onChange={handleChange}
+                        className={styles.selectField}
+                      >
+                        <option>Fixed</option>
+                        <option>Negotiable</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label className={styles.inputLabel}>Availability</label>
+                    <div className={styles.inputWithIcon}>
+                      <Check className={styles.inputIcon} />
+                      <select
+                        name="status"
+                        onChange={handleStatusChange}
+                        value={selectedProperty.status}
+                        className={styles.selectField}
+                      >
+                        <option value={true}>Available</option>
+                        <option value={false}>Not Available</option>
+                      </select>
+                    </div>
+                  </div>
+                  
                 </div>
 
                 <div className={styles.modalRightColumn}>
@@ -429,38 +468,6 @@ const MyProperties = () => {
                         onChange={handleChange}
                         className={styles.inputField}
                       />
-                    </div>
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label className={styles.inputLabel}>Price Type</label>
-                    <div className={styles.inputWithIcon}>
-                      <DollarSign className={styles.inputIcon} />
-                      <select
-                        name="price_type"
-                        value={selectedProperty.price_type}
-                        onChange={handleChange}
-                        className={styles.selectField}
-                      >
-                        <option>Fixed</option>
-                        <option>Negotiable</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label className={styles.inputLabel}>Availability</label>
-                    <div className={styles.inputWithIcon}>
-                      <Check className={styles.inputIcon} />
-                      <select
-                        name="status"
-                        onChange={handleStatusChange}
-                        value={selectedProperty.status}
-                        className={styles.selectField}
-                      >
-                        <option value={true}>Available</option>
-                        <option value={false}>Not Available</option>
-                      </select>
                     </div>
                   </div>
 
