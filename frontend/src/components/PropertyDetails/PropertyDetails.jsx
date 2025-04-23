@@ -15,8 +15,6 @@ import {
   MapPin,
 } from "lucide-react";
 
-
-
 const PropertyDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -27,44 +25,81 @@ const PropertyDetails = () => {
   const [owner, setOwner] = useState(null);
   const [showOwnerModal, setShowOwnerModal] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [currentOccupants, setCurrentOccupants] = useState([]);
+  const [showTenantModal, setShowTenantModal] = useState(false);
+  const [selectedTenant, setSelectedTenant] = useState(null);
+
+  useEffect(() => {
+    const fetchPropertyData = async () => {
+      try {
+        // Fetch property details
+        const propRes = await axios.get(`http://localhost:8000/propertydetail/${id}/`);
+        const prop = propRes.data;
+        setProperty(prop);
+        
+        // Fetch related properties
+        const relatedRes = await axios.get(
+          `http://localhost:8000/relatedproperties/?location=${prop.location}&status=true`
+        );
+        setRelatedProperties(relatedRes.data.filter(p => p.id !== prop.id));
+        
+        // Fetch current occupants if co-living
+        if (prop.co_living) {
+          const tenantsRes = await axios.get(
+            `http://localhost:8000/api/property-tenants/${prop.id}/`
+          );
+          setCurrentOccupants(tenantsRes.data);
+        }
+      } catch (err) {
+        console.error("Error fetching data:", err);
+      }
+    };
   
+    fetchPropertyData();
+  }, [id]);
+
   const toggleDropdown = () => {
     setShowDropdown(!showDropdown);
   };
-  
-    // useEffect(() => {
-    //   const handleClickOutside = (event) => {
-    //     if (!event.target.closest('.profile-dropdown')) {
-    //       setShowDropdown(false);
-    //     }
-    //   };
-  
-    //   document.addEventListener('mousedown', handleClickOutside);
-    //   return () => {
-    //     document.removeEventListener('mousedown', handleClickOutside);
-    //   };
-    // }, []);
-  
+
   const handleLogout = () => {
     localStorage.clear();
     window.location.href = '/login';
     setShowDropdown(false);
   };
 
-  useEffect(() => {
-    axios.get(`http://localhost:8000/propertydetail/${id}/`)
-      .then((res) => {
-        const prop = res.data;
-        setProperty(prop);
-        axios.get(`http://localhost:8000/relatedproperties/?location=${prop.location}&status=true`)
-          .then((relatedRes) => {
-            const others = relatedRes.data.filter(p => p.id !== prop.id);
-            setRelatedProperties(others);
-          })
-          .catch(err => console.error("❌ Failed to fetch related properties:", err));
-      })
-      .catch((err) => console.error("❌ Failed to fetch property:", err));
-  }, [id]);
+  // useEffect(() => {
+  //   // Fetch property details
+  //   axios.get(`http://localhost:8000/propertydetail/${id}/`)
+  //     .then((res) => {
+  //       const prop = res.data;
+  //       setProperty(prop);
+        
+  //       // Fetch related properties
+  //       axios.get(`http://localhost:8000/relatedproperties/?location=${prop.location}&status=true`)
+  //         .then((relatedRes) => {
+  //           const others = relatedRes.data.filter(p => p.id !== prop.id);
+  //           setRelatedProperties(others);
+  //         })
+  //         .catch(err => console.error("❌ Failed to fetch related properties:", err));
+        
+  //       // Fetch current occupants if property is co-living
+  //       if (prop.co_living) {
+  //         axios.get(`http://localhost:8000/occupancy/?property=${prop.id}`)
+  //           .then(occupancyRes => {
+  //             const tenantIds = occupancyRes.data.map(occ => occ.tenant);
+  //             if (tenantIds.length > 0) {
+  //               axios.get(`http://localhost:8000/tenants/?ids=${tenantIds.join(',')}`)
+  //                 .then(tenantsRes => {
+  //                   setCurrentOccupants(tenantsRes.data);
+  //                 });
+  //             }
+  //           })
+  //           .catch(err => console.error("❌ Failed to fetch occupancy:", err));
+  //       }
+  //     })
+  //     .catch((err) => console.error("❌ Failed to fetch property:", err));
+  // }, [id]);
 
   const fetchOwner = async (ownerId) => {
     const token = localStorage.getItem("accessToken");
@@ -81,6 +116,12 @@ const PropertyDetails = () => {
     }
   };
 
+  const showTenantDetails = (tenant) => {
+    setSelectedTenant(tenant);
+    setShowTenantModal(true);
+  };
+
+  // ... (keep all other existing functions unchanged) ...
   const checkBookingStatus = async () => {
     const token = localStorage.getItem("accessToken");
     try {
@@ -204,81 +245,12 @@ const PropertyDetails = () => {
 
   if (!property) return <div className="text-center mt-5">Loading...</div>;
 
+
   return (
     <div className="container my-5">
-      <div className="top-section">
-        {/* Left side - Logo */}
-        <div className="logo-container">
-          <h1 className="logo-text">RENTABLE</h1>
-        </div>
+      {/* Header and Navigation - keep this part exactly as is */}
 
-        {/* Right side - Navigation and Profile */}
-        <div className="nav-right">
-        <nav className="main-nav">
-          <NavLink to="/home" className={({ isActive }) => isActive ? 'active' : ''}>
-            <Home size={18} className="nav-icon" /> Home
-          </NavLink>
-          <NavLink to="/search" className={({ isActive }) => isActive ? 'active' : ''}>
-            <Search size={18} className="nav-icon" /> Search
-          </NavLink>
-          <NavLink to="/bookings" className={({ isActive }) => isActive ? 'active' : ''}>
-            <CalendarDays size={18} className="nav-icon" /> My Bookings
-          </NavLink>
-          <NavLink to="/tours" className={({ isActive }) => isActive ? 'active' : ''}>
-            <MapPin size={18} className="nav-icon" /> My Tours
-          </NavLink>
-        </nav>
-          
-          <div className="profile-dropdown">
-            <button className="profile-btn" onClick={toggleDropdown}>
-              <User size={24} />
-            </button>
-            {showDropdown && (
-              <div style={{
-                position: 'absolute',
-                right: 0,
-                top: 'calc(100% + 8px)',
-                minWidth: '180px',
-                backgroundColor: 'white',
-                borderRadius: '4px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                zIndex: 1000,
-                border: '1px solid #e5e7eb',
-                padding: '8px 0'
-              }}>
-                <Link 
-                  to="/tenantprofile" 
-                  style={{
-                    display: 'block',
-                    padding: '8px 16px',
-                    color: '#333',
-                    textDecoration: 'none'
-                  }}
-                  onClick={() => setShowDropdown(false)}
-                >
-                  Edit Profile
-                </Link>
-                <button 
-                  style={{
-                    display: 'block',
-                    width: '100%',
-                    textAlign: 'left',
-                    padding: '8px 16px',
-                    background: 'none',
-                    border: 'none',
-                    color: '#333',
-                    cursor: 'pointer'
-                  }}
-                  onClick={handleLogout}
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-      {/* Property Detail Section */}
+      {/* Property Detail Section - FIXED: Removed duplicate section */}
       <div className="d-flex flex-column flex-md-row border p-4 rounded shadow-lg property-detail-container">
         <div className="col-md-6">
           <img
@@ -295,58 +267,64 @@ const PropertyDetails = () => {
             {property.parking_space && <div className="d-flex align-items-center gap-1"><Car size={20} /> <span>Parking</span></div>}
             {property.co_living && <div className="d-flex align-items-center gap-1"><Trees size={20} /> <span>Co-living</span></div>}
             {property.pet_friendly ? <div className="d-flex align-items-center gap-1"><PawPrint size={20} /> <span>Pet Friendly</span></div> : <div className="d-flex align-items-center gap-1 text-danger"><XCircle size={20} /> <span>No Pets</span></div>}
-            {/* {property.gym && <div className="d-flex align-items-center gap-1"><Dumbbell size={20} /> <span>Gym</span></div>} */}
             {property.swimming_pool && <div className="d-flex align-items-center gap-1"><WavesLadder size={20} /> <span>Pool</span></div>}
             {property.lift_elevator && <div className="d-flex align-items-center gap-1"><ArrowUpDown size={20} /> <span>Elevator</span></div>}
           </div>
 
+          {/* Property Details */}
           {property.owner && (
             <div className="d-flex align-items-center gap-2 mt-3">
               <img 
                 src={`http://localhost:8000${property.owner_image}`}
                 alt="Owner" 
                 onClick={() => fetchOwner(property.owner)}  
-                style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '60%', cursor: 'pointer', }} 
+                style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '60%', cursor: 'pointer' }} 
               />
             </div>
           )}
-
+          
           <p><strong>Type:</strong> {property.property_type}</p>
           <p><strong>Description:</strong> {property.description}</p>
           <p><strong>Location:</strong> {property.location_name}</p>
           <p><strong>Bedrooms:</strong> {property.bedrooms}</p>
           <p><strong>Bathrooms:</strong> {property.bathrooms}</p>
           <p><strong>Max occupants:</strong> {property.max_occupants}</p>
-          <p><strong>Floor Level:</strong> {property.floor_level} / {property.max_occupants}</p>
+          <p><strong>Floor Level:</strong> {property.floor_level}</p>
           <p><strong>Size:</strong> {property.property_size} sqm</p>
 
-          <Modal show={showOwnerModal} onHide={() => setShowOwnerModal(false)} centered>
-            <Modal.Header closeButton>
-              <Modal.Title>Owner Details</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              {owner ? (
-                <div className="text-center">
-                  <img
-                    src={`http://localhost:8000${property.owner_image}`}
-                    alt={owner.name}
-                    style={{ width: "100px", height: "100px", borderRadius: "50%", objectFit: "cover", marginBottom: "10px" }}
-                  />
-                  <h5>{owner.name}</h5>
-                  <p><strong>Phone:</strong> {owner.phone_number}</p>
-                  <p><strong>Employed:</strong> {owner.employment_status ? "Yes" : "No"}</p>
-                  <p><strong>Criminal History:</strong> {owner.criminal_history ? "Yes" : "No"}</p>
-                </div>
-              ) : (
-                <p>Loading...</p>
-              )}
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={() => setShowOwnerModal(false)}>Close</Button>
-            </Modal.Footer>
-          </Modal>
+          {/* Tenants Living Section */}
+          {property?.co_living && currentOccupants.length > 0 && (
+            <div className="mt-4">
+              <div className="d-flex flex-wrap gap-3">
+                {currentOccupants.map(tenant => (
+                  <div 
+                    key={tenant.id} 
+                    className="tenant-card"
+                    onClick={() => setSelectedTenant(tenant)}
+                  >
+                    <img
+                      src={`http://localhost:8000${tenant.user_image}`}
+                      alt={tenant.name}
+                      className="rounded-circle"
+                      style={{
+                        width: '60px',
+                        height: '60px',
+                        objectFit: 'cover',
+                        cursor: 'pointer'
+                      }}
+                    />
+                    {/* <div className="tenant-info">
+                      <strong>{tenant.name}</strong>
+                      <small>Since {new Date(tenant.check_in).toLocaleDateString()}</small>
+                    </div> */}
+                  </div>
+                ))}
+              </div>
+              <h5>Tenants Living ({currentOccupants.length}/{property.max_occupants})</h5>
+            </div>
+          )}
 
-          {/* Booking & Tour Request */}
+          {/* Booking & Tour Section */}
           <div className="d-flex flex-column flex-md-row gap-3 mt-4">
             <div className="d-flex border rounded p-3 flex-grow-1" style={{ flex: 3 }}>
               <div className="me-3 w-100">
@@ -376,6 +354,56 @@ const PropertyDetails = () => {
           </div>
         </div>
       </div>
+
+      {/* Modals */}
+      {selectedTenant && (
+          <Modal show={!!selectedTenant} onHide={() => setSelectedTenant(null)}>
+            <Modal.Header closeButton>
+              <Modal.Title>Tenant Details</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+              <div className="text-center">
+                <img
+                  src={`http://localhost:8000${selectedTenant.user_image}`}
+                  alt={selectedTenant.name}
+                  className="rounded-circle mb-3"
+                  style={{ width: '100px', height: '100px' }}
+                />
+                <h4>{selectedTenant.name}</h4>
+                <p><strong>Phone:</strong> {selectedTenant.phone_number}</p>
+                <p><strong>Move-in Date:</strong> {new Date(selectedTenant.check_in).toLocaleDateString()}</p>
+                <p><strong>Employment Status:</strong> {selectedTenant.employment_status ? 'Employed' : 'Not Employed'}</p>
+                <p><strong>Criminal History:</strong> {selectedTenant.criminal_history ? 'Yes' : 'No'}</p>
+              </div>
+            </Modal.Body>
+          </Modal>
+        )}
+
+      <Modal show={showOwnerModal} onHide={() => setShowOwnerModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Owner Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {owner ? (
+            <div className="text-center">
+              <img
+                src={`http://localhost:8000${property.owner_image}`}
+                alt={owner.name}
+                style={{ width: "100px", height: "100px", borderRadius: "50%", objectFit: "cover", marginBottom: "10px" }}
+              />
+              <h5>{owner.name}</h5>
+              <p><strong>Phone:</strong> {owner.phone_number}</p>
+              <p><strong>Employed:</strong> {owner.employment_status ? "Yes" : "No"}</p>
+              <p><strong>Criminal History:</strong> {owner.criminal_history ? "Yes" : "No"}</p>
+            </div>
+          ) : (
+            <p>Loading...</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowOwnerModal(false)}>Close</Button>
+        </Modal.Footer>
+      </Modal>
 
       {/* Related Properties */}
       {relatedProperties.length > 0 && (

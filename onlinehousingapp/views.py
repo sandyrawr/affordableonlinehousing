@@ -641,3 +641,73 @@ class TourRequestUpdateDeleteView(generics.UpdateAPIView, generics.DestroyAPIVie
             )
 
         return self.destroy(request, *args, **kwargs)
+
+class PropertyTenantsAPIView(APIView):
+    """
+    Get all tenants for a specific property
+    Example: /api/property-tenants/<property_id>/
+    """
+    def get(self, request, property_id):
+        try:
+            # Get all occupancy records for this property
+            occupancies = Occupancy.objects.filter(
+                property_id=property_id
+            ).select_related('tenant')
+            
+            # Extract tenant details
+            tenants_data = []
+            for occ in occupancies:
+                tenant = occ.tenant
+                tenants_data.append({
+                    'id': tenant.id,
+                    'name': tenant.name,
+                    'phone_number': tenant.phone_number,
+                    'employment_status': tenant.employment_status,
+                    'criminal_history': tenant.criminal_history,
+                    'user_image': tenant.user_image.url if tenant.user_image else None,
+                    'check_in': occ.check_in
+                })
+            
+            return Response(tenants_data)
+            
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+class TenantListAPIView(APIView):
+    """
+    Get multiple tenants by IDs
+    Example: /api/tenants/?ids=1,2,3
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        ids_param = request.query_params.get('ids', '')
+        if not ids_param:
+            return Response(
+                {"error": "Tenant IDs are required"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            tenant_ids = [int(id) for id in ids_param.split(',')]
+        except ValueError:
+            return Response(
+                {"error": "Invalid tenant IDs format"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        tenants = Tenant.objects.filter(id__in=tenant_ids)
+        
+        data = [{
+            'id': tenant.id,
+            'name': tenant.name,
+            'phone_number': tenant.phone_number,
+            'employment_status': tenant.employment_status,
+            'criminal_history': tenant.criminal_history,
+            'user_image': tenant.user_image.url if tenant.user_image else None
+        } for tenant in tenants]
+        
+        return Response(data)

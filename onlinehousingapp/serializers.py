@@ -2,7 +2,7 @@
 from rest_framework import serializers
 # from .models import Property
 from .models import Location
-from .models import User, Owner, Tenant, Admin, Property, Booking, TourRequest
+from .models import User, Owner, Tenant, Admin, Property, Booking, TourRequest, Occupancy
 from django.contrib.auth.hashers import make_password
 
 # class PropertySerializer(serializers.ModelSerializer):
@@ -423,3 +423,8 @@ class TourRequestSerializer(serializers.ModelSerializer):
     def get_tenant_image(self, obj):
         return obj.tenant.user_image.url if obj.tenant.user_image else None    
 
+class OccupancySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Occupancy
+        fields = ['id', 'property', 'tenant', 'check_in', 'check_out']
+        depth = 1  

@@ -88,6 +88,9 @@ urlpatterns = [
     path('tenant-bookings/', views.TenantBookingList.as_view(), name='tenant-bookings'),
     path('bookings/<int:id>/', views.BookingUpdateDeleteView.as_view(), name='booking-update-delete'),
     path('tenant-tour-requests/', views.TenantTourRequestList.as_view(), name='tenant-tour-requests'),  
-    path('tour-requests/<int:id>/', views.TourRequestUpdateDeleteView.as_view(), name='tour-request-update-delete'),]
+    path('tour-requests/<int:id>/', views.TourRequestUpdateDeleteView.as_view(), name='tour-request-update-delete'),
+    path('api/property-tenants/<int:property_id>/', views.PropertyTenantsAPIView.as_view(), name='property-tenants'),
+    # path('api/tenants/', views.TenantListAPIView.as_view(), name='tenants-by-ids'),
+    ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
