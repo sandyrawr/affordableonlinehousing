@@ -391,13 +391,12 @@ class BookingSerializer(serializers.ModelSerializer):
     tenant_image = serializers.SerializerMethodField()
     property_title = serializers.CharField(source='property.title', read_only=True)
     property_image = serializers.ImageField(source='property.property_image', read_only=True)
-    property_title = serializers.CharField(source='property.title', read_only=True)
-    property_rooms = serializers.IntegerField(source='property.total_rooms', read_only=True)
+    max_occupants = serializers.IntegerField(source='property.max_occupants', read_only=True)
     owner_name = serializers.CharField(source='property.owner.name', read_only=True)
 
     class Meta:
         model = Booking
-        fields = ['id', 'tenant', 'tenant_name', 'tenant_image', 'property', 'property_title', 'property_image', 'message', 'status', 'date_applied', 'property_rooms', 'owner_name']
+        fields = ['id', 'tenant', 'tenant_name', 'tenant_image', 'property', 'property_title', 'property_image', 'message', 'status', 'date_applied', 'max_occupants', 'owner_name',]
 
     def get_tenant_name(self, obj):
         return obj.tenant.name  # Assumes user model has full_name field

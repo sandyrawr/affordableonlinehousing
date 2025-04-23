@@ -108,7 +108,7 @@ const MyProperties = () => {
       if (key === 'id' || key === 'property_image' || key === 'location' || key === 'image_updated') continue;
       
       if ([
-        'balcony_terrace', 'parking_space', 'garden_yard',
+        'balcony_terrace', 'parking_space', 'co_living',
         'swimming_pool', 'lift_elevator', 'pet_friendly', 'status'
       ].includes(key)) {
         updatedFields.append(key, selectedProperty[key] ? 'true' : 'false');
@@ -400,13 +400,13 @@ const MyProperties = () => {
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label className={styles.inputLabel}>Total Rooms</label>
+                    <label className={styles.inputLabel}>Max Occupants</label>
                     <div className={styles.inputWithIcon}>
                       <Users className={styles.inputIcon} />
                       <input
                         type="number"
-                        name="total_rooms"
-                        value={selectedProperty.total_rooms}
+                        name="max_occupants"
+                        value={selectedProperty.max_occupants}
                         onChange={handleChange}
                         className={styles.inputField}
                       />
@@ -477,7 +477,7 @@ const MyProperties = () => {
                       {[
                         { name: 'balcony_terrace', icon: Waves, label: 'Balcony/Terrace' },
                         { name: 'parking_space', icon: Car, label: 'Parking Space' },
-                        { name: 'garden_yard', icon: Trees, label: 'Garden/Yard' },
+                        { name: 'co_living', icon: Trees, label: 'Co-living' },
                         { name: 'swimming_pool', icon: Waves, label: 'Swimming Pool' },
                         { name: 'lift_elevator', icon: ArrowUp, label: 'Lift/Elevator' },
                         { name: 'pet_friendly', icon: PawPrint, label: 'Pet Friendly' },

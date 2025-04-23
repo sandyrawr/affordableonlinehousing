@@ -22,7 +22,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import check_password
 from rest_framework_simplejwt.tokens import RefreshToken
-from .models import User, Admin, Owner, Property, Booking, TourRequest
+from .models import User, Admin, Owner, Property, Booking, TourRequest, Occupancy
 from .serializers import OwnerSerializer, TenantSerializer, UserSerializer, AdminSerializer, PropertySerializer, BookingSerializer, TourRequestSerializer, PropertyDetailSerializer
 from .serializers import OwnerCSerializer, TenantCSerializer, UserSerializer, AdminSerializer, BookingCSerializer, TourRequestCSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -216,7 +216,7 @@ class FilteredPropertiesView(APIView):
         boolean_fields = [
             'balcony_terrace',
             'parking_space',
-            'garden_yard',
+            'co_living',
             'swimming_pool',
             'lift_elevator',
             'pet_friendly',
@@ -242,7 +242,7 @@ class SearchPropertyView(generics.ListAPIView):
     filter_backends = [DjangoFilterBackend, SearchFilter]
     filterset_fields = [
         'location__name', 'property_type', 'price_type',
-        'balcony_terrace', 'parking_space', 'garden_yard', 'swimming_pool',
+        'balcony_terrace', 'parking_space', 'co_living', 'swimming_pool',
         'lift_elevator', 'pet_friendly', 'gym',
     ]
     search_fields = ['title']
@@ -335,16 +335,51 @@ class BookingListView(APIView):
         except Booking.DoesNotExist:
             return Response({"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)
 
+        # new_status = request.data.get("status")
+        # if new_status not in ["accepted", "rejected", "pending"]:
+        #     return Response({"error": "Invalid status"}, status=status.HTTP_400_BAD_REQUEST)
+        # if new_status == "accepted":
+        #     property = booking.property
+        #     property.status = False
+        #     property.save()
+
+        # booking.status = new_status
+        # booking.save()
+        # return Response({"message": f"Booking status updated to {new_status}"}, status=status.HTTP_200_OK)
+
         new_status = request.data.get("status")
         if new_status not in ["accepted", "rejected", "pending"]:
             return Response({"error": "Invalid status"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        property = booking.property
+        
         if new_status == "accepted":
-            property = booking.property
-            property.status = False
-            property.save()
+            # Create occupancy record
+            Occupancy.objects.create(
+                property=property,
+                tenant=booking.tenant,
+                booking=booking,
+                # check_in=timezone.now()  # or use booking dates if you have them
+            )
+            
+            # Check if property should be marked unavailable
+            if not property.co_living:
+                property.status = False
+                property.save()
+            else:
+                # Check current occupancy count
+                current_occupants = Occupancy.objects.filter(
+                    property=property,
+                    # check_out_date__isnull=True  # assuming they're still checked in
+                ).count()
+                
+                if current_occupants >= property.max_occupants:  # or max_occupants if different
+                    property.status = False
+                    property.save()
 
         booking.status = new_status
         booking.save()
+        
         return Response({"message": f"Booking status updated to {new_status}"}, status=status.HTTP_200_OK)
 
 

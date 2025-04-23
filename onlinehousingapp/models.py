@@ -95,8 +95,8 @@ class Property(models.Model):
         ('House', 'House'),
         ('Studio', 'Studio'),
         ('Villa', 'Villa'),
-        ('Commercial', 'Commercial'),
-        ('Flat', 'Flat'),
+        # ('Commercial', 'Commercial'),
+        # ('Flat', 'Flat'),
     ]
     PRICE_TYPE_CHOICES = [
         ('Fixed', 'Fixed'),
@@ -116,7 +116,7 @@ class Property(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='properties')  # Mandatory location
     bedrooms = models.IntegerField()
     bathrooms = models.IntegerField()
-    total_rooms = models.IntegerField()
+    max_occupants = models.IntegerField()
     floor_level = models.CharField(max_length=50)
     total_floors = models.IntegerField()
     owner = models.ForeignKey(Owner, on_delete=models.CASCADE, related_name='properties')  # Mandatory owner
@@ -125,7 +125,7 @@ class Property(models.Model):
     price_type = models.CharField(max_length=20, choices=PRICE_TYPE_CHOICES)
     balcony_terrace = models.BooleanField()
     parking_space = models.BooleanField()
-    garden_yard = models.BooleanField()
+    co_living = models.BooleanField()
     swimming_pool = models.BooleanField()
     lift_elevator = models.BooleanField()
     pet_friendly = models.BooleanField()
@@ -165,3 +165,11 @@ class TourRequest(models.Model):
         return f"Tour for {self.property.title} by {self.tenant.user.email} on {self.requested_date}"
 
 
+class Occupancy(models.Model):
+    property = models.ForeignKey(Property, on_delete=models.CASCADE)
+    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE)
+    booking = models.ForeignKey(Booking, on_delete=models.CASCADE)
+    check_in = models.DateTimeField(auto_now_add=True)  # No check_out field
+
+    def __str__(self):
+        return f"{self.tenant.name} at {self.property.title}"

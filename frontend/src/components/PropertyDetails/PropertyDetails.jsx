@@ -293,7 +293,7 @@ const PropertyDetails = () => {
 
           <div className="d-flex flex-wrap gap-3 align-items-center my-3">
             {property.parking_space && <div className="d-flex align-items-center gap-1"><Car size={20} /> <span>Parking</span></div>}
-            {property.garden_yard && <div className="d-flex align-items-center gap-1"><Trees size={20} /> <span>Garden</span></div>}
+            {property.co_living && <div className="d-flex align-items-center gap-1"><Trees size={20} /> <span>Co-living</span></div>}
             {property.pet_friendly ? <div className="d-flex align-items-center gap-1"><PawPrint size={20} /> <span>Pet Friendly</span></div> : <div className="d-flex align-items-center gap-1 text-danger"><XCircle size={20} /> <span>No Pets</span></div>}
             {/* {property.gym && <div className="d-flex align-items-center gap-1"><Dumbbell size={20} /> <span>Gym</span></div>} */}
             {property.swimming_pool && <div className="d-flex align-items-center gap-1"><WavesLadder size={20} /> <span>Pool</span></div>}
@@ -316,8 +316,8 @@ const PropertyDetails = () => {
           <p><strong>Location:</strong> {property.location_name}</p>
           <p><strong>Bedrooms:</strong> {property.bedrooms}</p>
           <p><strong>Bathrooms:</strong> {property.bathrooms}</p>
-          <p><strong>Total Rooms:</strong> {property.total_rooms}</p>
-          <p><strong>Floor Level:</strong> {property.floor_level} / {property.total_floors}</p>
+          <p><strong>Max occupants:</strong> {property.max_occupants}</p>
+          <p><strong>Floor Level:</strong> {property.floor_level} / {property.max_occupants}</p>
           <p><strong>Size:</strong> {property.property_size} sqm</p>
 
           <Modal show={showOwnerModal} onHide={() => setShowOwnerModal(false)} centered>

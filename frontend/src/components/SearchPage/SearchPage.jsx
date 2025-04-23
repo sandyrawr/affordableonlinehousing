@@ -37,7 +37,7 @@ const SearchPage = () => {
     price_type: "",
     balcony_terrace: false,
     parking_space: false,
-    garden_yard: false,
+    co_living: false,
     swimming_pool: false,
     lift_elevator: false,
     pet_friendly: false,
@@ -223,7 +223,7 @@ const handleLogout = () => {
           {[
             { label: "Balcony/Terrace", name: "balcony_terrace", icon: <Sun size={16} /> },
             { label: "Parking Space", name: "parking_space", icon: <Car size={16} /> },
-            { label: "Garden/Yard", name: "garden_yard", icon: <TreePine size={16} /> },
+            { label: "Co-living", name: "co_living", icon: <TreePine size={16} /> },
             { label: "Swimming Pool", name: "swimming_pool", icon: <Waves size={16} /> },
             { label: "Lift/Elevator", name: "lift_elevator", icon: <ArrowUpDown size={16} /> },
             { label: "Pet Friendly", name: "pet_friendly", icon: <PawPrint size={16} /> }
@@ -306,7 +306,7 @@ const handleLogout = () => {
                         </div>
                         <div className="amenity-item">
                           <Users size={16} className="amenity-icon" />
-                          <span>{property.total_rooms} guests</span>
+                          <span>{property.max_occupants} Max Occupant</span>
                         </div>
                         <div className="amenity-item">
                           <Bath size={16} className="amenity-icon" />

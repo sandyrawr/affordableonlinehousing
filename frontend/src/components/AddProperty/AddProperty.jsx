@@ -15,7 +15,7 @@ function AddProperty() {
     location: '',
     bedrooms: 1,
     bathrooms: 1,
-    total_rooms: 1,
+    max_occupants: 1,
     floor_level: '',
     total_floors: 1,
     property_size: '',
@@ -23,7 +23,7 @@ function AddProperty() {
     price_type: 'Fixed',
     balcony_terrace: false,
     parking_space: false,
-    garden_yard: false,
+    co_living: false,
     swimming_pool: false,
     lift_elevator: false,
     pet_friendly: false,
@@ -177,16 +177,16 @@ function AddProperty() {
             </div>
 
             <div className={styles.formGroup}>
-              <label className={styles.inputLabel}>Total Rooms</label>
+              <label className={styles.inputLabel}>Max Occupants(Enter one if you dont want co-living)</label>
               <div className={styles.inputWithIcon}>
                 <Users className={styles.inputIcon} />
                 <input 
-                  name="total_rooms" 
+                  name="max_occupants" 
                   type="number" 
-                  value={formData.total_rooms}
+                  value={formData.max_occupants}
                   onChange={handleChange} 
                   className={styles.inputField}
-                  placeholder="Total number of rooms"
+                  placeholder="Max occupants"
                 />
               </div>
             </div>
@@ -325,12 +325,12 @@ function AddProperty() {
             <label className={styles.amenityCheckbox}>
               <input 
                 type="checkbox" 
-                name="garden_yard" 
-                checked={formData.garden_yard}
+                name="co_living" 
+                checked={formData.co_living}
                 onChange={handleChange} 
               />
               <span className={styles.checkboxLabel}>
-                <Trees className={styles.amenityIcon} /> Garden/Yard
+                <Trees className={styles.amenityIcon} /> Co-living
               </span>
             </label>
             <label className={styles.amenityCheckbox}>
