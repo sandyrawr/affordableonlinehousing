@@ -9,7 +9,12 @@ class Location(models.Model):
     transportcost = models.PositiveIntegerField()
     utilitycost = models.PositiveIntegerField()
     foodcost = models.PositiveIntegerField()
+    entertainmentcost = models.PositiveIntegerField()
+    healthcarecost = models.PositiveIntegerField()
+    clothingcost = models.PositiveIntegerField()
+    clothingcost = models.PositiveIntegerField()
     safetyrating = models.PositiveIntegerField()
+
     image = models.ImageField(upload_to='location_images/', blank=True, null=True)
 
     def __str__(self):

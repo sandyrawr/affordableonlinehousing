@@ -121,8 +121,8 @@ function AddProperty() {
                   <option>House</option>
                   <option>Studio</option>
                   <option>Villa</option>
-                  <option>Commercial</option>
-                  <option>Flat</option>
+                  {/* <option>Commercial</option> */}
+                  {/* <option>Flat</option> */}
                 </select>
               </div>
             </div>
@@ -330,7 +330,7 @@ function AddProperty() {
                 onChange={handleChange} 
               />
               <span className={styles.checkboxLabel}>
-                <Trees className={styles.amenityIcon} /> Co-living
+                <Users className={styles.amenityIcon} /> Co-living
               </span>
             </label>
             <label className={styles.amenityCheckbox}>

@@ -278,11 +278,16 @@ class PropertySerializer(serializers.ModelSerializer):
 class PropertyDetailSerializer(serializers.ModelSerializer):
     location_name = serializers.CharField(source='location.name', read_only=True)
     owner_image = serializers.SerializerMethodField()
+    safety_rating = serializers.IntegerField(
+        source='location.safety_rating', 
+        read_only=True,
+        required=False  # Makes it optional
+    )
 
     class Meta:
         model = Property
         fields = '__all__'  # or list the fields manually
-        extra_fields = ['owner_image']
+        extra_fields = ['owner_image', 'safety_rating']
 
     def get_owner_image(self, obj):
         return obj.owner.user_image.url if obj.owner.user_image else None
@@ -428,3 +433,23 @@ class OccupancySerializer(serializers.ModelSerializer):
         model = Occupancy
         fields = ['id', 'property', 'tenant', 'check_in', 'check_out']
         depth = 1  
+
+class PropertySafetySerializer(serializers.ModelSerializer):
+    # Add these fields (won't affect other endpoints)
+    location_name = serializers.CharField(source='location.name', read_only=True)
+    safety_rating = serializers.IntegerField(
+        source='location.safety_rating', 
+        read_only=True,
+        required=False  # Makes it optional
+    )
+    
+    class Meta:
+        model = Property
+        fields = [
+            'id', 'title', 'description', 'property_type', 
+            'bedrooms', 'bathrooms', 'max_occupants', 'floor_level',
+            'total_floors', 'property_size', 'rent', 'price_type',
+            'property_image', 'date_added', 'co_living',
+            'location_name', 'safety_rating'  # New fields
+        ]
+

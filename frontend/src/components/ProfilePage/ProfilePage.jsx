@@ -4,9 +4,10 @@ import AddProperty from '../AddProperty/AddProperty';
 import MyProperties from '../MyProperties/MyProperties';
 import Bookings from '../Bookings/Bookings';
 import TourRequests from '../TourRequests/TourRequests';
+import MyRentedSpaces from '../MyRentedSpace/MyRentedSpaces';
 import styles from './ProfilePage.module.css';
 import axios from 'axios';
-import { Save, Trash2, User, Home, Key, LogOut, Plus,Mail, List, LockKeyhole, Phone } from 'lucide-react';
+import { Save, Trash2, User, Home, Key, LogOut, Plus,Mail, List, LockKeyhole, Phone, DoorOpen, Building } from 'lucide-react';
 
 function ProfilePage() {
   const [activeSection, setActiveSection] = useState('profile');
@@ -184,6 +185,14 @@ function ProfilePage() {
           </li>
           <li>
             <button 
+              onClick={() => setActiveSection('myrentedspaces')}
+              className={`${styles.sidebarButton} ${activeSection === 'myrentedspaces' ? styles.active : ''}`}
+            >
+              <Building className={styles.buttonIcon} /> My Rented Spaces
+            </button>
+          </li>
+          <li>
+            <button 
               onClick={() => setActiveSection('logout')}
               className={`${styles.sidebarButton} ${activeSection === 'logout' ? styles.active : ''}`}
             >
@@ -199,6 +208,7 @@ function ProfilePage() {
           <Route path="/my-properties" element={<MyProperties />} />
           <Route path="/tour-requests" element={<TourRequests />} />
           <Route path="/booking-requests" element={<Bookings />} />
+          <Route path="/my-rented-spaces" element={<MyRentedSpaces />} />
         </Routes>
 
         {activeSection === 'profile' && (
@@ -339,6 +349,7 @@ function ProfilePage() {
         {activeSection === 'myProperties' && <MyProperties />}
         {activeSection === 'tourRequests' && <TourRequests />}
         {activeSection === 'bookingRequests' && <Bookings />}
+        {activeSection === 'myrentedspaces' && <MyRentedSpaces />}
         {activeSection === 'logout' && <div>Logging out...</div>}
       </div>
     </div>

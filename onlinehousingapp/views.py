@@ -495,7 +495,7 @@ class TourRequestCreateView(generics.CreateAPIView):
 class PropertyDetailView(APIView):
     def get(self, request, pk):
         try:
-            prop = Property.objects.get(pk=pk)
+            prop = get_object_or_404(Property.objects.select_related('location'), pk=pk)            
             serializer = PropertyDetailSerializer(prop)
             return Response(serializer.data)
         except Property.DoesNotExist:
@@ -711,3 +711,69 @@ class TenantListAPIView(APIView):
         } for tenant in tenants]
         
         return Response(data)
+
+
+# Returns properties that have at least one occupancy record
+
+from django.db.models import Count  # Add this import
+from django.shortcuts import get_object_or_404
+
+class OwnerRentedPropertiesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        owner = request.user.owner
+        properties = Property.objects.filter(
+            owner=owner,
+            occupancy__isnull=False
+        ).distinct().annotate(
+            current_occupants=Count('occupancy')
+        )
+        serializer = PropertySerializer(properties, many=True)
+        return Response(serializer.data)
+
+class PropertyOccupantsAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, property_id):
+        occupancies = Occupancy.objects.filter(
+            property_id=property_id
+        ).select_related('tenant')
+        data = [{
+            'id': occ.id,
+            'tenant': {
+                'id': occ.tenant.id,
+                'name': occ.tenant.name,
+                'phone_number': occ.tenant.phone_number,
+                'user_image': occ.tenant.user_image.url if occ.tenant.user_image else None
+            },
+            'check_in': occ.check_in
+        } for occ in occupancies]
+        return Response(data)
+
+class OccupancyDeleteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, occupancy_id):
+        occupancy = get_object_or_404(Occupancy, id=occupancy_id)
+        if occupancy.property.owner.user != request.user:
+            return Response(
+                {"error": "You don't have permission to remove this tenant"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        occupancy.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+# class PropertySafetyView(APIView):
+#     def get(self, request, pk):
+#         # Fetch property with location in a single query
+#         property = get_object_or_404(
+#             Property.objects.select_related('location'),
+#             pk=pk
+#         )
+#         serializer = PropertySafetySerializer(property, context={'request': request})
+#         return Response(serializer.data)
+
+class LocationDetailView(RetrieveAPIView):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer

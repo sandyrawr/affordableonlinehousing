@@ -365,8 +365,8 @@ const MyProperties = () => {
                         <option>House</option>
                         <option>Studio</option>
                         <option>Villa</option>
-                        <option>Commercial</option>
-                        <option>Flat</option>
+                        {/* <option>Commercial</option> */}
+                        {/* <option>Flat</option> */}
                       </select>
                     </div>
                   </div>
@@ -477,7 +477,7 @@ const MyProperties = () => {
                       {[
                         { name: 'balcony_terrace', icon: Waves, label: 'Balcony/Terrace' },
                         { name: 'parking_space', icon: Car, label: 'Parking Space' },
-                        { name: 'co_living', icon: Trees, label: 'Co-living' },
+                        { name: 'co_living', icon: Users, label: 'Co-living' },
                         { name: 'swimming_pool', icon: Waves, label: 'Swimming Pool' },
                         { name: 'lift_elevator', icon: ArrowUp, label: 'Lift/Elevator' },
                         { name: 'pet_friendly', icon: PawPrint, label: 'Pet Friendly' },

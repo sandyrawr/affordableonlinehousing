@@ -4,15 +4,16 @@ import axios from "axios";
 import "./PropertyDetails.css";
 import { Link, useLocation, NavLink } from "react-router-dom";
 import { Modal, Button } from "react-bootstrap";
+import SafetyScaleBar from "../SafetyScaleBar/SafetyScaleBar";
 import {
-  Car, Trees, XCircle,
+  Car, XCircle,
   Dumbbell, ArrowUpDown, WavesLadder,
   PawPrint,
-  User,
   Home,
   Search,
   CalendarDays,
   MapPin,
+  Users,
 } from "lucide-react";
 
 const PropertyDetails = () => {
@@ -36,6 +37,16 @@ const PropertyDetails = () => {
         const propRes = await axios.get(`http://localhost:8000/propertydetail/${id}/`);
         const prop = propRes.data;
         setProperty(prop);
+
+        const locationRes = await axios.get(
+          `http://localhost:8000/api/locationdetail/${prop.location}/`  // Updated URL
+        );
+        
+        // 3. Merge safety_rating into property state
+        setProperty(prev => ({
+          ...prev,
+          safetyrating: locationRes.data.safetyrating,
+        }));
         
         // Fetch related properties
         const relatedRes = await axios.get(
@@ -265,7 +276,7 @@ const PropertyDetails = () => {
 
           <div className="d-flex flex-wrap gap-3 align-items-center my-3">
             {property.parking_space && <div className="d-flex align-items-center gap-1"><Car size={20} /> <span>Parking</span></div>}
-            {property.co_living && <div className="d-flex align-items-center gap-1"><Trees size={20} /> <span>Co-living</span></div>}
+            {property.co_living && <div className="d-flex align-items-center gap-1"><Users size={20} /> <span>Co-living</span></div>}
             {property.pet_friendly ? <div className="d-flex align-items-center gap-1"><PawPrint size={20} /> <span>Pet Friendly</span></div> : <div className="d-flex align-items-center gap-1 text-danger"><XCircle size={20} /> <span>No Pets</span></div>}
             {property.swimming_pool && <div className="d-flex align-items-center gap-1"><WavesLadder size={20} /> <span>Pool</span></div>}
             {property.lift_elevator && <div className="d-flex align-items-center gap-1"><ArrowUpDown size={20} /> <span>Elevator</span></div>}
@@ -282,7 +293,44 @@ const PropertyDetails = () => {
               />
             </div>
           )}
-          
+
+          {/* Safety Rating Scale - Add this new component */}
+          <div className="safety-rating-container">
+            <h5>Neighborhood Safety</h5>
+            <div className="safety-scale" style={{
+              height: '25px',
+              backgroundColor: '#f0f0f0',
+              borderRadius: '5px',
+              overflow: 'hidden',
+              position: 'relative',
+              margin: '10px 0'
+            }}>
+              <div 
+                className="safety-level" 
+                style={{
+                  width: `${((property.safetyrating || 0) / 10) * 100}%`,
+                  backgroundColor: property.safetyrating 
+                    ? `hsl(${property.safetyrating * 12}, 80%, 50%)`
+                    : '#cccccc',
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'width 0.3s ease'
+                }}
+              >
+                <span className="rating-text" style={{
+                  color: 'white',
+                  fontWeight: 'bold',
+                  fontSize: '0.8rem',
+                  textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
+                }}>
+                  {property.safetyrating ? `${property.safetyrating.toFixed(1)}/10` : 'N/A'}
+                </span>
+              </div>
+            </div>
+          </div>         
+           
           <p><strong>Type:</strong> {property.property_type}</p>
           <p><strong>Description:</strong> {property.description}</p>
           <p><strong>Location:</strong> {property.location_name}</p>

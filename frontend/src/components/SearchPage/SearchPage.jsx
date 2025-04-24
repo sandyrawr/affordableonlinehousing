@@ -204,8 +204,8 @@ const handleLogout = () => {
               <option value="House">House</option>
               <option value="Studio">Studio</option>
               <option value="Villa">Villa</option>
-              <option value="Commercial">Commercial</option>
-              <option value="Flat">Flat</option>
+              {/* <option value="Commercial">Commercial</option> */}
+              {/* <option value="Flat">Flat</option> */}
             </select>
           </div>
 
@@ -223,7 +223,7 @@ const handleLogout = () => {
           {[
             { label: "Balcony/Terrace", name: "balcony_terrace", icon: <Sun size={16} /> },
             { label: "Parking Space", name: "parking_space", icon: <Car size={16} /> },
-            { label: "Co-living", name: "co_living", icon: <TreePine size={16} /> },
+            { label: "Co-living", name: "co_living", icon: <Users size={16} /> },
             { label: "Swimming Pool", name: "swimming_pool", icon: <Waves size={16} /> },
             { label: "Lift/Elevator", name: "lift_elevator", icon: <ArrowUpDown size={16} /> },
             { label: "Pet Friendly", name: "pet_friendly", icon: <PawPrint size={16} /> }
@@ -258,13 +258,13 @@ const handleLogout = () => {
 
           <div className="property-type-nav">
           {[
-            { value: "", label: "All Properties" },
             { value: "Apartment", label: "Apartments" },
             { value: "House", label: "Houses" },
+            { value: "", label: "All Properties" },
             { value: "Studio", label: "Studios" },
             { value: "Villa", label: "Villas" },
-            { value: "Commercial", label: "Commercial" },
-            { value: "Flat", label: "Flats" }
+            // { value: "Commercial", label: "Commercial" },
+            // { value: "Flat", label: "Flats" }
           ].map((type) => (
             <button
               key={type.value}
@@ -302,7 +302,7 @@ const handleLogout = () => {
                       <div className="amenities-container">
                         <div className="amenity-item">
                           <BedSingle size={16} className="amenity-icon" />
-                          <span>{property.bedrooms} beds</span>
+                          <span>{property.bedrooms} Bedroom</span>
                         </div>
                         <div className="amenity-item">
                           <Users size={16} className="amenity-icon" />
@@ -310,7 +310,7 @@ const handleLogout = () => {
                         </div>
                         <div className="amenity-item">
                           <Bath size={16} className="amenity-icon" />
-                          <span>{property.bathrooms} baths</span>
+                          <span>{property.bathrooms} bathroom</span>
                         </div>
                       </div>
                       

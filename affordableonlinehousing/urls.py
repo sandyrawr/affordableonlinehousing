@@ -90,7 +90,11 @@ urlpatterns = [
     path('tenant-tour-requests/', views.TenantTourRequestList.as_view(), name='tenant-tour-requests'),  
     path('tour-requests/<int:id>/', views.TourRequestUpdateDeleteView.as_view(), name='tour-request-update-delete'),
     path('api/property-tenants/<int:property_id>/', views.PropertyTenantsAPIView.as_view(), name='property-tenants'),
+    path('owner-rented-properties/', views.OwnerRentedPropertiesAPIView.as_view(), name='owner-rented-properties'),
+    path('property-occupants/<int:property_id>/', views.PropertyOccupantsAPIView.as_view(), name='property-occupants'),
+    path('occupancy/<int:occupancy_id>/', views.OccupancyDeleteAPIView.as_view(), name='delete-occupancy'),
     # path('api/tenants/', views.TenantListAPIView.as_view(), name='tenants-by-ids'),
+    path('api/locationdetail/<int:pk>/', views.LocationDetailView.as_view(), name='location-detail'),
     ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
