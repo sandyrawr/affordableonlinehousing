@@ -453,3 +453,23 @@ class PropertySafetySerializer(serializers.ModelSerializer):
             'location_name', 'safety_rating'  # New fields
         ]
 
+class UserASerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'role']
+
+class TenantASerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Tenant
+        fields = '__all__'
+
+class OwnerASerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Owner
+        fields = '__all__'
+
+

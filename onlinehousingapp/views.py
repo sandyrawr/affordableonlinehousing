@@ -25,11 +25,14 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, Admin, Owner, Property, Booking, TourRequest, Occupancy
 from .serializers import OwnerSerializer, TenantSerializer, UserSerializer, AdminSerializer, PropertySerializer, BookingSerializer, TourRequestSerializer, PropertyDetailSerializer
 from .serializers import OwnerCSerializer, TenantCSerializer, UserSerializer, AdminSerializer, BookingCSerializer, TourRequestCSerializer
+from .serializers import TenantASerializer, UserASerializer, OwnerASerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
 from django.db import connection
 from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIView, ListAPIView, RetrieveDestroyAPIView
+
 
 
 # def locationApi(request, id=0):
@@ -284,17 +287,6 @@ class LocationCreateView(generics.CreateAPIView):
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Location
-
-@api_view(['GET'])
-def location_detail(request, pk):
-    try:
-        location = Location.objects.get(pk=pk)
-        return Response({
-            "id": location.id,
-            "name": location.name
-        })
-    except Location.DoesNotExist:
-        return Response({"error": "Location not found"}, status=404)
 
 # views.py
 from rest_framework import status, generics
@@ -777,3 +769,144 @@ class OccupancyDeleteAPIView(APIView):
 class LocationDetailView(RetrieveAPIView):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
+
+# For individual location operations (GET, PUT, PATCH, DELETE)
+class LocationDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+    parser_classes = [MultiPartParser, FormParser]
+
+# For listing and creating locations (GET list, POST)
+class LocationListView(ListCreateAPIView):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+    parser_classes = [MultiPartParser, FormParser]
+
+class AllTenantsView(generics.ListAPIView):
+    queryset = Tenant.objects.all()
+    serializer_class = TenantASerializer
+
+class TenantAdminView(generics.DestroyAPIView):
+    queryset = Tenant.objects.all()
+    serializer_class = TenantASerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        user = instance.user
+        self.perform_destroy(instance)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+class AllOwnersView(generics.ListAPIView):
+    queryset = Owner.objects.all()
+    serializer_class = OwnerASerializer
+
+class OwnerAdminView(generics.DestroyAPIView):
+    queryset = Owner.objects.all()
+    serializer_class = OwnerASerializer
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        user = instance.user
+        self.perform_destroy(instance)
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+from django.db.models import Count
+from django.db.models.functions import TruncMonth  # Add this import
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from .models import Location, Owner, Tenant, Property
+from datetime import datetime  # Needed for date formatting
+
+class DashboardView(APIView):
+    def get(self, request, format=None):
+        # Tenant location distribution
+        tenant_location_data = list(
+            Tenant.objects.values('user_image')
+            .annotate(count=Count('id'))
+            .order_by('-count')
+        )
+        
+        # Owner location distribution
+        owner_location_data = list(
+            Owner.objects.values('user_image')
+            .annotate(count=Count('id'))
+            .order_by('-count')
+        )
+        
+        # Property location distribution
+        property_location_data = list(
+            Property.objects.values('location__name')
+            .annotate(count=Count('id'))
+            .order_by('-count')
+        )
+        
+        # Utility cost data
+        utility_cost_data = list(
+            Location.objects.all().values(
+                'name',
+                'transportcost',
+                'utilitycost',
+                'foodcost',
+                'entertainmentcost',
+                'healthcarecost',
+                'clothingcost',
+                'pethealthcost'
+            )
+        )
+        
+        # Monthly registrations with proper TruncMonth usage
+        owner_registrations = list(
+            Owner.objects.annotate(month=TruncMonth('owner_created'))
+            .values('month')
+            .annotate(count=Count('id'))
+            .order_by('month')
+        )
+        
+        tenant_registrations = list(
+            Tenant.objects.annotate(month=TruncMonth('tenant_created'))
+            .values('month')
+            .annotate(count=Count('id'))
+            .order_by('month')
+        )
+        
+        # Prepare monthly labels
+        all_months = sorted(set(
+            [item['month'].strftime('%b %Y') for item in owner_registrations] +
+            [item['month'].strftime('%b %Y') for item in tenant_registrations]
+        ), key=lambda x: datetime.strptime(x, '%b %Y'))
+        
+        # Prepare the response data
+        data = {
+            'tenant_location_data': {
+                'labels': [item['user_image'] for item in tenant_location_data],
+                'data': [item['count'] for item in tenant_location_data]
+            },
+            'owner_location_data': {
+                'labels': [item['user_image'] for item in owner_location_data],
+                'data': [item['count'] for item in owner_location_data]
+            },
+            'property_location_data': {
+                'labels': [item['location__name'] for item in property_location_data],
+                'data': [item['count'] for item in property_location_data]
+            },
+            'utility_cost_data': {
+                'labels': [item['name'] for item in utility_cost_data],
+                'transport': [item['transportcost'] for item in utility_cost_data],
+                'utility': [item['utilitycost'] for item in utility_cost_data],
+                'food': [item['foodcost'] for item in utility_cost_data],
+                'entertainment': [item['entertainmentcost'] for item in utility_cost_data],
+                'healthcare': [item['healthcarecost'] for item in utility_cost_data],
+                'clothing': [item['clothingcost'] for item in utility_cost_data],
+                'pethealth': [item['pethealthcost'] for item in utility_cost_data]
+            },
+            'monthly_registrations': {
+                'labels': all_months,
+                'owners': [item['count'] for item in owner_registrations],
+                'tenants': [item['count'] for item in tenant_registrations]
+            }
+        }
+        
+        return Response(data)

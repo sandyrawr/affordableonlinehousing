@@ -35,7 +35,7 @@ function LoginPage() {
       localStorage.setItem('refreshToken', refresh);
 
       if (role === 'admin') {
-        navigate('/addlocation');
+        navigate('/adminpage');
       } else if (role === 'owner') {
         navigate('/profile');
       } else if (role === 'tenant') {

@@ -37,26 +37,11 @@ from django.conf.urls.static import static
 
 
 urlpatterns = [
-    # path('property/', views.propertyApi),  # Add trailing slash
-    # path('property/<int:id>/', views.propertyApi),  # Add trailing slash
-    # path('admin/', admin.site.urls),
-    # path('location/', views.locationApi),  # Add this new endpoint
-    # path('location/<int:id>/', views.locationApi),  # Add this new endpoint
-    # path('api/properties/', views.property_list, name='property-list'),
-    # path('api/tenants/register/', views.register_tenant, name='register_tenant'),
-    # path('api/tenant/login/', views.tenant_login, name='tenant-login'),
     path('add-location/', views.LocationCreateView.as_view(), name='add-location'),
-    path('locations/', views.locationApi, name='location-list'),  
-    path('locations/<int:pk>/', views.location_detail),
-    # path('api/register/user/', views.UserRegistrationView.as_view(), name='user_register'),
-    # path('api/register/owner/', views.OwnerRegistrationView.as_view(), name='owner_register'),
-    # path('api/register/tenant/', views.TenantRegistrationView.as_view(), name='tenant_register'),
-    # path('api/register/admin/', views.AdminRegistrationView.as_view(), name='admin_register'),
-    # path('api/login/', views.LoginView.as_view(), name='login'),
-    # path('properties/', views.PropertyCreateView.as_view(), name='create-property'),
-    # path('ownerdetail/<int:user_id>/', views.OwnerDetailView.as_view(), name='owner-detail'),
-    # path('add-property/', views.PropertyCreateView.as_view(), name='add-property'),
-    # path('properties/', views.PropertyListView.as_view(), name='property-list'),
+    # path('locations/', views.locationApi, name='location-list'),  
+    # path('locations/<int:pk>/', views.location_detail),
+    path('locations/', views.LocationListView.as_view(), name='location-list'),
+    path('locations/<int:pk>/', views.LocationDetailView.as_view(), name='location-detail'),
     path('my-properties/', views.MyPropertiesView.as_view(), name='my-properties'),
     path('api/register/user/', views.RegisterUserView.as_view(), name='register-user'),
     path('api/register/tenant/', views.RegisterTenantView.as_view(), name='register-tenant'),
@@ -93,8 +78,13 @@ urlpatterns = [
     path('owner-rented-properties/', views.OwnerRentedPropertiesAPIView.as_view(), name='owner-rented-properties'),
     path('property-occupants/<int:property_id>/', views.PropertyOccupantsAPIView.as_view(), name='property-occupants'),
     path('occupancy/<int:occupancy_id>/', views.OccupancyDeleteAPIView.as_view(), name='delete-occupancy'),
-    # path('api/tenants/', views.TenantListAPIView.as_view(), name='tenants-by-ids'),
     path('api/locationdetail/<int:pk>/', views.LocationDetailView.as_view(), name='location-detail'),
+    path('tenants/', views.AllTenantsView.as_view(), name='tenant-list'),
+    path('tenants/<int:pk>/delete/', views.TenantAdminView.as_view(), name='tenant-delete'),
+    path('owners/', views.AllOwnersView.as_view(), name='owner-list'),
+    path('owners/<int:pk>/delete/', views.OwnerAdminView.as_view(), name='owner-delete'),
+    path('dashboard/', views.DashboardView.as_view(), name='dashboard-data'),
+
     ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

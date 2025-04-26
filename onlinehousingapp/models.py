@@ -12,7 +12,7 @@ class Location(models.Model):
     entertainmentcost = models.PositiveIntegerField()
     healthcarecost = models.PositiveIntegerField()
     clothingcost = models.PositiveIntegerField()
-    clothingcost = models.PositiveIntegerField()
+    pethealthcost = models.PositiveIntegerField(default=0)
     safetyrating = models.PositiveIntegerField()
 
     image = models.ImageField(upload_to='location_images/', blank=True, null=True)

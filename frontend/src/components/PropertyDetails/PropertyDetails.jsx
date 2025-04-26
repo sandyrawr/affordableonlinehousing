@@ -29,6 +29,10 @@ const PropertyDetails = () => {
   const [currentOccupants, setCurrentOccupants] = useState([]);
   const [showTenantModal, setShowTenantModal] = useState(false);
   const [selectedTenant, setSelectedTenant] = useState(null);
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [selectedExpenses, setSelectedExpenses] = useState([]);
+  const [locationExpenses, setLocationExpenses] = useState(null);
+  const [calculatedTotal, setCalculatedTotal] = useState(0);
 
   useEffect(() => {
     const fetchPropertyData = async () => {
@@ -78,39 +82,6 @@ const PropertyDetails = () => {
     window.location.href = '/login';
     setShowDropdown(false);
   };
-
-  // useEffect(() => {
-  //   // Fetch property details
-  //   axios.get(`http://localhost:8000/propertydetail/${id}/`)
-  //     .then((res) => {
-  //       const prop = res.data;
-  //       setProperty(prop);
-        
-  //       // Fetch related properties
-  //       axios.get(`http://localhost:8000/relatedproperties/?location=${prop.location}&status=true`)
-  //         .then((relatedRes) => {
-  //           const others = relatedRes.data.filter(p => p.id !== prop.id);
-  //           setRelatedProperties(others);
-  //         })
-  //         .catch(err => console.error("❌ Failed to fetch related properties:", err));
-        
-  //       // Fetch current occupants if property is co-living
-  //       if (prop.co_living) {
-  //         axios.get(`http://localhost:8000/occupancy/?property=${prop.id}`)
-  //           .then(occupancyRes => {
-  //             const tenantIds = occupancyRes.data.map(occ => occ.tenant);
-  //             if (tenantIds.length > 0) {
-  //               axios.get(`http://localhost:8000/tenants/?ids=${tenantIds.join(',')}`)
-  //                 .then(tenantsRes => {
-  //                   setCurrentOccupants(tenantsRes.data);
-  //                 });
-  //             }
-  //           })
-  //           .catch(err => console.error("❌ Failed to fetch occupancy:", err));
-  //       }
-  //     })
-  //     .catch((err) => console.error("❌ Failed to fetch property:", err));
-  // }, [id]);
 
   const fetchOwner = async (ownerId) => {
     const token = localStorage.getItem("accessToken");
@@ -254,6 +225,47 @@ const PropertyDetails = () => {
     }
   };
 
+  useEffect(() => {
+    if (property?.location) {
+      const fetchLocationExpenses = async () => {
+        try {
+          const res = await axios.get(`http://localhost:8000/api/locationdetail/${property.location}/`);
+          setLocationExpenses(res.data);
+        } catch (err) {
+          console.error("Error fetching location expenses:", err);
+        }
+      };
+      fetchLocationExpenses();
+    }
+  }, [property]);
+
+  // Toggle expense selection
+  const toggleExpense = (expenseType) => {
+    setSelectedExpenses(prev =>
+      prev.includes(expenseType)
+        ? prev.filter(item => item !== expenseType)
+        : [...prev, expenseType]
+    );
+  };
+
+  // Calculate total expenses
+  const calculateTotal = () => {
+    if (!locationExpenses) return 0;
+    
+    let total = 0;
+    selectedExpenses.forEach(expense => {
+      total += locationExpenses[expense] || 0;
+    });
+    setCalculatedTotal(total);
+  };
+
+  // Reset calculator when modal closes
+  const handleCloseExpenseModal = () => {
+    setShowExpenseModal(false);
+    setSelectedExpenses([]);
+    setCalculatedTotal(0);
+  };
+
   if (!property) return <div className="text-center mt-5">Loading...</div>;
 
 
@@ -272,6 +284,7 @@ const PropertyDetails = () => {
         </div>
 
         <div className="col-md-6 ps-md-4 pt-3 pt-md-0">
+        
           <h2>{property.title}</h2>
 
           <div className="d-flex flex-wrap gap-3 align-items-center my-3">
@@ -282,6 +295,7 @@ const PropertyDetails = () => {
             {property.lift_elevator && <div className="d-flex align-items-center gap-1"><ArrowUpDown size={20} /> <span>Elevator</span></div>}
           </div>
 
+          
           {/* Property Details */}
           {property.owner && (
             <div className="d-flex align-items-center gap-2 mt-3">
@@ -340,6 +354,14 @@ const PropertyDetails = () => {
           <p><strong>Floor Level:</strong> {property.floor_level}</p>
           <p><strong>Size:</strong> {property.property_size} sqm</p>
 
+          <button 
+          className="btn btn-primary ms-3"
+          onClick={() => setShowExpenseModal(true)}
+          style={{ whiteSpace: 'nowrap' }}
+        >
+          Calculate Expenses
+        </button>
+
           {/* Tenants Living Section */}
           {property?.co_living && currentOccupants.length > 0 && (
             <div className="mt-4">
@@ -376,9 +398,9 @@ const PropertyDetails = () => {
           <div className="d-flex flex-column flex-md-row gap-3 mt-4">
             <div className="d-flex border rounded p-3 flex-grow-1" style={{ flex: 3 }}>
               <div className="me-3 w-100">
-                <h5>Rent</h5>
+                <h5>Rent({property.price_type})</h5>
                 <h3>${property.rent}</h3>
-                <p>{property.price_type}</p>
+                {/* <p>{property.price_type}</p> */}
               </div>
               <div className="d-flex align-items-end w-100">
                 <button className="btn btn-primary w-100" onClick={handleBooking} disabled={isSubmitting}>
@@ -452,6 +474,80 @@ const PropertyDetails = () => {
           <Button variant="secondary" onClick={() => setShowOwnerModal(false)}>Close</Button>
         </Modal.Footer>
       </Modal>
+
+
+      {/* Expense Calculation Modal */}
+      {showExpenseModal && (
+            <div className="modal-backdrop" style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: 'rgba(0,0,0,0.5)',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 1000
+            }}>
+              <div className="modal-content bg-white p-4 rounded" style={{
+                width: '90%',
+                maxWidth: '500px'
+              }}>
+                <h4>Monthly Expense Calculator</h4>
+                <p>Select all expenses that apply to you:</p>
+                
+                {locationExpenses && (
+                  <div className="mb-3">
+                    {[
+                      { key: 'transportcost', label: 'Transportation' },
+                      { key: 'utilitycost', label: 'Utilities' },
+                      { key: 'foodcost', label: 'Food' },
+                      { key: 'entertainmentcost', label: 'Entertainment' },
+                      { key: 'healthcarecost', label: 'Healthcare' },
+                      { key: 'clothingcost', label: 'Clothing' },
+                      { key: 'pethealthcost', label: 'Pet Care' }
+                    ].map(item => (
+                      <div key={item.key} className="form-check mb-2">
+                        <input
+                          type="checkbox"
+                          id={item.key}
+                          className="form-check-input"
+                          checked={selectedExpenses.includes(item.key)}
+                          onChange={() => toggleExpense(item.key)}
+                        />
+                        <label htmlFor={item.key} className="form-check-label">
+                          {item.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <button 
+                  className="btn btn-primary me-2"
+                  onClick={calculateTotal}
+                  disabled={selectedExpenses.length === 0}
+                >
+                  Calculate Total
+                </button>
+
+                {calculatedTotal > 0 && (
+                  <div className="mt-3 p-3 bg-light rounded">
+                    <h5>Your estimated monthly expenses:</h5>
+                    <p className="fs-4">Rs {calculatedTotal}</p>
+                  </div>
+                )}
+
+                <button 
+                  className="btn btn-secondary mt-3"
+                  onClick={handleCloseExpenseModal}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
 
       {/* Related Properties */}
       {relatedProperties.length > 0 && (

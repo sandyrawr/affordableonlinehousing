@@ -196,7 +196,7 @@ const Home = () => {
               <div className="card location-card shadow-sm w-100 overflow-hidden">
                 <div className="img-container">
                   <img
-                    src={`http://localhost:8000${location.image}`}
+                    src={location.image}
                     alt={location.name}
                     className="card-img-top location-img"
                   />
