@@ -1,33 +1,3 @@
-# """
-# URL configuration for affordableonlinehousing project.
-
-# The `urlpatterns` list routes URLs to views. For more information please see:
-#     https://docs.djangoproject.com/en/5.1/topics/http/urls/
-# Examples:
-# Function views
-#     1. Add an import:  from my_app import views
-#     2. Add a URL to urlpatterns:  path('', views.home, name='home')
-# Class-based views
-#     1. Add an import:  from other_app.views import Home
-#     2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-# Including another URLconf
-#     1. Import the include() function: from django.urls import include, path
-#     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-# """
-# from django.contrib import admin
-# from django.urls import path
-
-# urlpatterns = [
-#     path('admin/', admin.site.urls),
-# ]
-
-
-# urlpatterns = [
-#     url(r'^student$',views.studentApi),
-#     url(r'^student$',views.studentApi),
-#     url(r'^student/([0-9]+)$',views.studentApi),
-#     path('admin/', admin.site.urls),
-# ]
 
 from django.contrib import admin
 from django.urls import path, re_path
@@ -45,6 +15,8 @@ urlpatterns = [
     path('my-properties/', views.MyPropertiesView.as_view(), name='my-properties'),
     path('api/register/user/', views.RegisterUserView.as_view(), name='register-user'),
     path('api/register/tenant/', views.RegisterTenantView.as_view(), name='register-tenant'),
+    path('send-otp/', views.SendOTPView.as_view(), name='send-otp'),
+    path('verify-email/', views.VerifyEmailView.as_view(), name='verify-email'),
     path('api/register/owner/', views.RegisterOwnerView.as_view(), name='register-owner'),
     path('api/register/admin/', views.RegisterAdminView.as_view(), name='register-admin'),
     path('api/login/', views.LoginView.as_view(), name='login'),
@@ -84,7 +56,6 @@ urlpatterns = [
     path('owners/', views.AllOwnersView.as_view(), name='owner-list'),
     path('owners/<int:pk>/delete/', views.OwnerAdminView.as_view(), name='owner-delete'),
     path('dashboard/', views.DashboardView.as_view(), name='dashboard-data'),
-
     ]
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

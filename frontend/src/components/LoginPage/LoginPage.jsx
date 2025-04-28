@@ -22,18 +22,18 @@ function LoginPage() {
     try {
       const res = await axios.post('http://localhost:8000/api/login/', formData);
       const { access, refresh, user_id, role } = res.data;
-
+  
       const userData = {
         accessToken: access,
         refreshToken: refresh,
         userId: user_id,
         role: role,
       };
-
+  
       localStorage.setItem('userData', JSON.stringify(userData));
       localStorage.setItem('accessToken', access);
       localStorage.setItem('refreshToken', refresh);
-
+  
       if (role === 'admin') {
         navigate('/adminpage');
       } else if (role === 'owner') {
@@ -45,7 +45,11 @@ function LoginPage() {
       }
     } catch (error) {
       console.error('Login failed:', error);
-      if (error.response && error.response.data && error.response.data.non_field_errors) {
+  
+      if (error.response && error.response.status === 403) {
+        // Redirect to email verification page
+        navigate('/verify-email', { state: { email: formData.email } });
+      } else if (error.response && error.response.data && error.response.data.non_field_errors) {
         setError(error.response.data.non_field_errors[0]);
       } else if (error.response && error.response.data && typeof error.response.data === 'string') {
         setError(error.response.data);

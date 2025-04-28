@@ -76,7 +76,7 @@ const ManageProperties = () => {
               </div>
               <div className={styles.detailRow}>
                 <User size={16} />
-                <span>{property.owner.username}</span>
+                <span>{property.owner_name}</span>
               </div>
               <div className={styles.detailRow}>
                 <DollarSign size={16} />
@@ -125,7 +125,7 @@ const ManageProperties = () => {
                 <div className={styles.detailGrid}>
                   <div className={styles.detailItem}>
                     <span className={styles.detailLabel}><User /> Owner:</span>
-                    <span>{selectedProperty.owner.username}</span>
+                    <span>{selectedProperty.owner_name}</span>
                   </div>
                   <div className={styles.detailItem}>
                     <span className={styles.detailLabel}><MapPin /> Location:</span>

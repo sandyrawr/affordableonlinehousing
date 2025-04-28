@@ -1,0 +1,122 @@
+.pageWrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+  }
+  
+  .verificationContainer {
+    width: 100%;
+    max-width: 500px;
+    padding: 2rem;
+  }
+  
+  .verificationBox {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .formHeader {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .formHeader h2 {
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+  
+  .formHeader p {
+    color: #666;
+  }
+  
+  .verificationForm {
+    margin-top: 1.5rem;
+  }
+  
+  .inputGroup {
+    margin-bottom: 1.5rem;
+    position: relative;
+  }
+  
+  .icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+  }
+  
+  .formControl {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 3rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  .btnPrimary {
+    background-color: #4a6bff;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+  }
+  
+  .btnPrimary:hover {
+    background-color: #3a5bef;
+  }
+  
+  .btnPrimary:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  .resendLink {
+    margin-top: 1rem;
+    text-align: center;
+    color: #666;
+  }
+  
+  .resendButton {
+    background: none;
+    border: none;
+    color: #4a6bff;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: underline;
+  }
+  
+  .resendButton:hover {
+    color: #3a5bef;
+  }
+  
+  .resendButton:disabled {
+    color: #cccccc;
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+  
+  .successMessage {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    background-color: #d4edda;
+    color: #155724;
+    text-align: center;
+  }
+  
+  .errorMessage {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    background-color: #f8d7da;
+    color: #721c24;
+    text-align: center;
+  }

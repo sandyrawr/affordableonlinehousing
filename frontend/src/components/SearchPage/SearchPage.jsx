@@ -27,7 +27,6 @@ import ToursPopup from "../ToursPopup/ToursPopup";
 
 
 import "./SearchPage.css";
-import Footer from "../Footer/Footer";
 
 const SearchPage = () => {
   const [properties, setProperties] = useState([]);

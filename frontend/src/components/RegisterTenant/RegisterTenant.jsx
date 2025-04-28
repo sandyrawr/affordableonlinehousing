@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import styles from './RegisterTenant.module.css';
 import {
   Mail,
@@ -21,6 +22,9 @@ const RegisterTenant = () => {
     employment_status: false,
     user_image: null,
   });
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
 
   const handleChange = e => {
     const { name, value, type, checked } = e.target;
@@ -34,12 +38,15 @@ const RegisterTenant = () => {
     setFormData({ ...formData, user_image: e.target.files[0] });
   };
 
-  const handleSubmit = async e => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage('');
+  
     const data = new FormData();
-    data.append('user.email', formData.email);
-    data.append('user.password', formData.password);
-    data.append('user.role', formData.role);
+    data.append('email', formData.email);
+    data.append('password', formData.password);
+    data.append('role', formData.role);
     data.append('name', formData.name);
     data.append('phone_number', formData.phone_number);
     data.append('criminal_history', formData.criminal_history);
@@ -47,13 +54,18 @@ const RegisterTenant = () => {
     if (formData.user_image) {
       data.append('user_image', formData.user_image);
     }
-
+  
     try {
+      // Send tenant data to the backend to register the tenant and send OTP
       await axios.post('http://localhost:8000/api/register/tenant/', data);
-      alert('Tenant registered successfully!');
+  
+      // Redirect to the email verification page
+      navigate('/verify-email', { state: { email: formData.email } });
     } catch (err) {
       console.error(err);
-      alert('Registration failed.');
+      setMessage('Failed to register tenant: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,6 +82,12 @@ const RegisterTenant = () => {
             <h2>Tenant Sign Up</h2>
             <p>Create your account as a tenant.</p>
           </div>
+
+          {message && (
+            <div className={message.includes('success') ? styles.successMessage : styles.errorMessage}>
+              {message}
+            </div>
+          )}
 
           <div className={styles.inputGroup}>
             <Mail className={styles.icon} />
@@ -154,8 +172,12 @@ const RegisterTenant = () => {
           </div>
 
           <div className={styles.submitGroup}>
-            <button type="submit" className={`${styles.btnSuccess} ${styles.formControl}`}>
-              Register as Tenant
+            <button 
+              type="submit" 
+              className={`${styles.btnSuccess} ${styles.formControl}`}
+              disabled={loading}
+            >
+              {loading ? 'Registering...' : 'Register as Tenant'}
             </button>
           </div>
         </form>

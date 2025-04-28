@@ -1,5 +1,9 @@
 # models.py
+import random  # Add this import at the top of your models.py
+import string
 from django.db import models
+from django.utils import timezone
+from django.core.mail import send_mail  # Add this import
 # from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
@@ -52,6 +56,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    is_verified = models.BooleanField(default=False)  # Add this field
+    otp = models.CharField(max_length=6, null=True, blank=True)
+    otp_created_at = models.DateTimeField(null=True, blank=True)  # Add this field
 
     objects = CustomUserManager()
 
@@ -60,6 +67,26 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f"{self.role.capitalize()} - {self.email}"
+
+    def generate_otp(self):
+        """Generate a 6-digit OTP and save it with timestamp"""
+        self.otp = ''.join(random.choices(string.digits, k=6))
+        self.otp_created_at = timezone.now()
+        self.save()
+        return self.otp
+
+    def send_verification_email(self):
+        """Send verification email with OTP"""
+        otp = self.generate_otp()
+        subject = 'Verify your email address'
+        message = f'Your OTP for email verification is: {otp}'
+        send_mail(
+            subject,
+            message,
+            'noreply@yourdomain.com',  # Replace with your sender email
+            [self.email],
+            fail_silently=False,
+        )
 
 class Owner(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)

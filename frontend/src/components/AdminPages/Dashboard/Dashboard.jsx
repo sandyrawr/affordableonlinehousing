@@ -40,6 +40,13 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+
+  const statsItems = [
+    { title: 'Current Owners', count: dashboardData?.counts?.owners || 0, color: themeColors.primary },
+    { title: 'Current Tenants', count: dashboardData?.counts?.tenants || 0, color: themeColors.secondary },
+    { title: 'Current Properties', count: dashboardData?.counts?.properties || 0, color: themeColors.tertiary },
+    { title: 'Current Locations', count: dashboardData?.counts?.locations || 0, color: themeColors.quaternary }
+  ];
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -58,42 +65,18 @@ const Dashboard = () => {
   if (loading) return <div className={styles.loading}>Loading...</div>;
   if (error) return <div className={styles.error}>Error: {error}</div>;
 
-  // Tenant by Location Pie Chart
-  const tenantPieData = {
-    labels: dashboardData?.tenant_location_data?.labels || [],
-    datasets: [
-      {
-        data: dashboardData?.tenant_location_data?.data || [],
-        backgroundColor: [
-          themeColors.primary,
-          themeColors.secondary,
-          themeColors.tertiary,
-          themeColors.quaternary,
-          themeColors.light
-        ],
-        borderColor: themeColors.primary,
-        borderWidth: 1
-      }
-    ]
-  };
-
-  // Owner by Location Pie Chart
-  const ownerPieData = {
-    labels: dashboardData?.owner_location_data?.labels || [],
-    datasets: [
-      {
-        data: dashboardData?.owner_location_data?.data || [],
-        backgroundColor: [
-          themeColors.primary,
-          themeColors.secondary,
-          themeColors.tertiary,
-          themeColors.quaternary,
-          themeColors.light
-        ],
-        borderColor: themeColors.primary,
-        borderWidth: 1
-      }
-    ]
+  const userTypePieData = {
+    labels: dashboardData?.user_type_data?.labels || ['Admin', 'Owner', 'Tenant'],
+    datasets: [{
+      data: dashboardData?.user_type_data?.data || [1, 1, 1], // Fallback data
+      backgroundColor: [
+        themeColors.primary,    // Admin
+        themeColors.secondary,  // Owner
+        themeColors.tertiary    // Tenant
+      ],
+      borderColor: themeColors.primary,
+      borderWidth: 1
+    }]
   };
 
   // Property by Location Bar Chart
@@ -177,42 +160,54 @@ const Dashboard = () => {
     <div className={styles.dashboard}>
       <h1 className={styles.title}>Property Management Dashboard</h1>
       
-      <div className={styles.grid}>
-        {/* Tenant Distribution by Location */}
-        <div className={styles.card}>
-          <h2>Tenant Distribution by Location</h2>
-          <div className={styles.chartContainer}>
-            <Pie 
-              data={tenantPieData} 
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: {
-                    position: 'right',
-                  }
-                }
-              }}
-            />
+      <div className={styles.statsContainer}>
+        {statsItems.map((item, index) => (
+          <div 
+            key={index} 
+            className={styles.statsBox} 
+            style={{ backgroundColor: item.color }}
+          >
+            <div className={styles.boxHeader}>{item.title}</div>
+            <div className={styles.boxCount}>{item.count}</div>
           </div>
-        </div>
+        ))}
+      </div>
 
-        {/* Owner Distribution by Location */}
-        <div className={styles.card}>
-          <h2>Owner Distribution by Location</h2>
-          <div className={styles.chartContainer}>
-            <Pie 
-              data={ownerPieData} 
-              options={{
-                responsive: true,
-                plugins: {
-                  legend: {
-                    position: 'right',
+      <div className={styles.grid}>
+      <div className={styles.card}>
+        <h2>User Type Distribution</h2>
+        <div className={`${styles.chartContainer} ${styles.pieChartContainer}`}>
+          <Pie 
+            data={userTypePieData} 
+            options={{
+              responsive: true,
+              maintainAspectRatio: false, // Important for container control
+              plugins: {
+                legend: { 
+                  position: 'right',
+                  labels: {
+                    padding: 20,
+                    font: {
+                      size: 14
+                    }
+                  }
+                },
+                tooltip: {
+                  callbacks: {
+                    label: (context) => {
+                      const label = context.label || '';
+                      const value = context.raw || 0;
+                      const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                      const percentage = Math.round((value / total) * 100);
+                      return `${label}: ${value} (${percentage}%)`;
+                    }
                   }
                 }
-              }}
-            />
-          </div>
+              }
+            }}
+          />
         </div>
+      </div>
 
         {/* Property Distribution by Location */}
         <div className={styles.card}>
@@ -234,7 +229,7 @@ const Dashboard = () => {
 
         {/* Utility Costs by Location */}
         <div className={styles.card}>
-          <h2>Utility Costs by Location</h2>
+          <h2>Expense level of Locations</h2>
           <div className={styles.chartContainer}>
             <Bar 
               data={utilityCostData} 
@@ -255,7 +250,7 @@ const Dashboard = () => {
 
         {/* Monthly Registrations */}
         <div className={`${styles.card} ${styles.fullWidth}`}>
-          <h2>Monthly User Registrations</h2>
+          <h2>User Registrations This Month</h2>
           <div className={styles.chartContainer}>
             <Line 
               data={monthlyRegistrationsData} 

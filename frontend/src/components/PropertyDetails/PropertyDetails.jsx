@@ -307,6 +307,9 @@ const PropertyDetails = () => {
               />
             </div>
           )}
+          <div>
+            <h6>Owner</h6>
+          </div>
 
           {/* Safety Rating Scale - Add this new component */}
           <div className="safety-rating-container">

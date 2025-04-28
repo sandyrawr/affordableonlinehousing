@@ -20,11 +20,10 @@ import RegisterTenant from './components/RegisterTenant/RegisterTenant';
 import LoginPage from './components/LoginPage/LoginPage';
 import ProfilePage from './components/ProfilePage/ProfilePage';
 import RegisterAdmin from './components/AdminPages/RegisterAdmin/RegisterAdmin';
-import property from './components/Unused/Property';
 import TenantPage from './components/TenantPage/TenantPage';
 import PropertyDetails from './components/PropertyDetails/PropertyDetails';
-import Footer from './components/Footer/Footer';
 import AdminPage from './components/AdminPages/AdminPage/AdminPage';
+import EmailVerification from './components/EmailVerification/EmailVerification';
 // import Login from './components/Login';
 function App() {
   return (
@@ -50,8 +49,8 @@ function App() {
             <Route path="/tenantprofile" element={<TenantPage/>} />  
             <Route path="/propertydetails/:id" element={<PropertyDetails />} /> 
             {/* <Route path="/landing" element={<Startpage />} />  */}
-            <Route path="/footer" element={<Footer />} /> 
             <Route path="/adminpage" element={<AdminPage />} /> 
+            <Route path="/verify-email" element={<EmailVerification />} />
           </Routes>
       
   );

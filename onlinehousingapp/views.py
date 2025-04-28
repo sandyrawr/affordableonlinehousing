@@ -32,6 +32,13 @@ from rest_framework import status
 from django.db import connection
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.generics import RetrieveUpdateDestroyAPIView, ListCreateAPIView, ListAPIView, RetrieveDestroyAPIView
+from django.db.models.functions import TruncMonth  # Add this import
+import random
+import string
+from django.utils import timezone
+from django.core.mail import send_mail
+from datetime import timedelta
+
 
 
 
@@ -263,19 +270,144 @@ class RegisterUserView(generics.CreateAPIView):
     serializer_class = UserSerializer
 
 
-class RegisterTenantView(generics.CreateAPIView):
-    queryset = Tenant.objects.all()
-    serializer_class = TenantCSerializer
+class RegisterTenantView(APIView):
+    def post(self, request):
+        data = request.data
+        email = data.get('email')
+        password = data.get('password')  # Extract the password from the request data
+        tenant_data = {
+            'name': data.get('name'),
+            'phone_number': data.get('phone_number'),
+            'criminal_history': data.get('criminal_history', 'false').lower() == 'true',  # Convert to boolean
+            'employment_status': data.get('employment_status', 'false').lower() == 'true',  # Convert to boolean
+            'user_image': data.get('user_image'),
+        }
+
+        # Check if email already exists
+        if User.objects.filter(email=email).exists():
+            return Response({'error': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Create the user with inactive status
+            user = User.objects.create_user(
+                email=email,
+                password=password,
+                role='tenant',
+                is_active=False,  # Inactive until email is verified
+                is_verified=False
+            )
+
+            # Create the tenant profile linked to the user
+            Tenant.objects.create(
+                user=user,
+                name=tenant_data.get('name'),
+                phone_number=tenant_data.get('phone_number'),
+                criminal_history=tenant_data.get('criminal_history', False),
+                employment_status=tenant_data.get('employment_status', False),
+                user_image=tenant_data.get('user_image')
+            )
+
+            # Send OTP for email verification
+            user.send_verification_email()
+
+            return Response({'message': 'Tenant registered successfully. Please verify your email.'}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 
 
 class RegisterOwnerView(generics.CreateAPIView):
-    queryset = Owner.objects.all()
-    serializer_class = OwnerCSerializer
+    def post(self, request):
+        data = request.data
+        email = data.get('email')
+        password = data.get('password')  # Extract the password from the request data
+        owner_data = {
+            'name': data.get('name'),
+            'phone_number': data.get('phone_number'),
+            'criminal_history': data.get('criminal_history', 'false').lower() == 'true',  # Convert to boolean
+            'employment_status': data.get('employment_status', 'false').lower() == 'true',  # Convert to boolean
+            'user_image': data.get('user_image'),
+        }
+
+        # Check if email already exists
+        if User.objects.filter(email=email).exists():
+            return Response({'error': 'Email already exists'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # Create the user with inactive status
+            user = User.objects.create_user(
+                email=email,
+                password=password,
+                role='owner',
+                is_active=False,  # Inactive until email is verified
+                is_verified=False
+            )
+
+            # Create the tenant profile linked to the user
+            Owner.objects.create(
+                user=user,
+                name=owner_data.get('name'),
+                phone_number=owner_data.get('phone_number'),
+                criminal_history=owner_data.get('criminal_history', False),
+                employment_status=owner_data.get('employment_status', False),
+                user_image=owner_data.get('user_image')
+            )
+
+            # Send OTP for email verification
+            user.send_verification_email()
+
+            return Response({'message': 'Tenant registered successfully. Please verify your email.'}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class RegisterAdminView(generics.CreateAPIView):
     queryset = Admin.objects.all()
     serializer_class = AdminSerializer
+
+class SendOTPView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email=email)
+            if user.is_verified:
+                return Response({'error': 'Email is already verified'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            user.send_verification_email()
+            return Response({'message': 'OTP sent successfully'}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'error': 'User with this email does not exist'}, status=status.HTTP_404_NOT_FOUND)
+
+class VerifyEmailView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        otp = request.data.get('otp')
+
+        try:
+            # Fetch the user by email
+            user = User.objects.get(email=email)
+
+            # Check if OTP is valid
+            if user.otp != otp:
+                return Response({'error': 'Invalid OTP'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Check if OTP is expired (5 minutes validity)
+            if user.otp_created_at < timezone.now() - timedelta(minutes=5):
+                return Response({'error': 'OTP has expired'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Mark email as verified and activate the account
+            user.is_verified = True
+            user.is_active = True  # Activate the user
+            user.otp = None  # Clear OTP
+            user.save()
+
+            return Response({'message': 'Email verified successfully!'}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
 
 
 class LocationCreateView(generics.CreateAPIView):
@@ -295,11 +427,27 @@ from .serializers import LoginSerializer
 
 class LoginView(generics.GenericAPIView):
     serializer_class = LoginSerializer
-    
+
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response(serializer.create(serializer.validated_data), status=status.HTTP_200_OK)
+        user = serializer.validated_data['user']
+
+        # Check if the user is verified
+        if not user.is_verified:
+            # Generate and send OTP
+            user.send_verification_email()
+            return Response(
+                {
+                    'message': 'Your email is not verified. An OTP has been sent to your email.',
+                    'email': user.email,
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # If verified, proceed with login
+        tokens = serializer.create(serializer.validated_data)
+        return Response(tokens, status=status.HTTP_200_OK)
 
 class BookingCreateView(generics.CreateAPIView):
     queryset = Booking.objects.all()
@@ -327,33 +475,20 @@ class BookingListView(APIView):
         except Booking.DoesNotExist:
             return Response({"error": "Booking not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        # new_status = request.data.get("status")
-        # if new_status not in ["accepted", "rejected", "pending"]:
-        #     return Response({"error": "Invalid status"}, status=status.HTTP_400_BAD_REQUEST)
-        # if new_status == "accepted":
-        #     property = booking.property
-        #     property.status = False
-        #     property.save()
-
-        # booking.status = new_status
-        # booking.save()
-        # return Response({"message": f"Booking status updated to {new_status}"}, status=status.HTTP_200_OK)
-
         new_status = request.data.get("status")
         if new_status not in ["accepted", "rejected", "pending"]:
             return Response({"error": "Invalid status"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
         property = booking.property
-        
+
         if new_status == "accepted":
             # Create occupancy record
             Occupancy.objects.create(
                 property=property,
                 tenant=booking.tenant,
                 booking=booking,
-                # check_in=timezone.now()  # or use booking dates if you have them
             )
-            
+
             # Check if property should be marked unavailable
             if not property.co_living:
                 property.status = False
@@ -362,18 +497,42 @@ class BookingListView(APIView):
                 # Check current occupancy count
                 current_occupants = Occupancy.objects.filter(
                     property=property,
-                    # check_out_date__isnull=True  # assuming they're still checked in
                 ).count()
-                
-                if current_occupants >= property.max_occupants:  # or max_occupants if different
+
+                if current_occupants >= property.max_occupants:
                     property.status = False
                     property.save()
 
+            # Send email to the tenant
+            tenant_email = booking.tenant.user.email
+            subject = "Booking Accepted"
+            message = f"Dear {booking.tenant.name},\n\nYour booking request for the property '{property.title}' has been accepted.\n\nThank you for choosing our service!"
+            send_mail(
+                subject,
+                message,
+                'noreply@yourdomain.com',  # Replace with your sender email
+                [tenant_email],
+                fail_silently=False,
+            )
+        
+        elif new_status == "rejected":
+            # Send email for rejected booking
+            tenant_email = booking.tenant.user.email
+            subject = "Booking Rejected"
+            message = f"Dear {booking.tenant.name},\n\nWe regret to inform you that your booking request for the property '{property.title}' has been rejected.\n\nThank you for understanding."
+            send_mail(
+                subject,
+                message,
+                'noreply@yourdomain.com',  # Replace with your sender email
+                [tenant_email],
+                fail_silently=False,
+            )
+
+
         booking.status = new_status
         booking.save()
-        
-        return Response({"message": f"Booking status updated to {new_status}"}, status=status.HTTP_200_OK)
 
+        return Response({"message": f"Booking status updated to {new_status}"}, status=status.HTTP_200_OK)
 
 #tenant side
 class BookingUpdateDeleteView(generics.UpdateAPIView, generics.DestroyAPIView):
@@ -822,16 +981,17 @@ from datetime import datetime  # Needed for date formatting
 
 class DashboardView(APIView):
     def get(self, request, format=None):
-        # Tenant location distribution
-        tenant_location_data = list(
-            Tenant.objects.values('user_image')
-            .annotate(count=Count('id'))
-            .order_by('-count')
-        )
-        
-        # Owner location distribution
-        owner_location_data = list(
-            Owner.objects.values('user_image')
+        # Get counts for each category
+        counts = {
+            'owners': Owner.objects.count(),
+            'tenants': Tenant.objects.count(),
+            'properties': Property.objects.count(),
+            'locations': Location.objects.count()
+        }
+
+
+        user_type_data = list(
+            User.objects.values('role')
             .annotate(count=Count('id'))
             .order_by('-count')
         )
@@ -858,35 +1018,48 @@ class DashboardView(APIView):
         )
         
         # Monthly registrations with proper TruncMonth usage
+        # Get filter parameters
+        selected_month = request.query_params.get('month', None)
+        selected_year = request.query_params.get('year', None)
+        
+        # Base querysets
+        owner_qs = Owner.objects.all()
+        tenant_qs = Tenant.objects.all()
+        
+        # Apply filters if provided
+        if selected_year:
+            owner_qs = owner_qs.filter(owner_created__year=selected_year)
+            tenant_qs = tenant_qs.filter(tenant_created__year=selected_year)
+        
+        if selected_month:
+            owner_qs = owner_qs.filter(owner_created__month=selected_month)
+            tenant_qs = tenant_qs.filter(tenant_created__month=selected_month)
+        
+        # Get monthly registrations
         owner_registrations = list(
-            Owner.objects.annotate(month=TruncMonth('owner_created'))
+            owner_qs.annotate(month=TruncMonth('owner_created'))
             .values('month')
             .annotate(count=Count('id'))
             .order_by('month')
         )
         
         tenant_registrations = list(
-            Tenant.objects.annotate(month=TruncMonth('tenant_created'))
+            tenant_qs.annotate(month=TruncMonth('tenant_created'))
             .values('month')
             .annotate(count=Count('id'))
             .order_by('month')
         )
         
-        # Prepare monthly labels
-        all_months = sorted(set(
-            [item['month'].strftime('%b %Y') for item in owner_registrations] +
-            [item['month'].strftime('%b %Y') for item in tenant_registrations]
-        ), key=lambda x: datetime.strptime(x, '%b %Y'))
-        
         # Prepare the response data
         data = {
-            'tenant_location_data': {
-                'labels': [item['user_image'] for item in tenant_location_data],
-                'data': [item['count'] for item in tenant_location_data]
+            'counts': counts,  # Add this line
+            'user_type_data': {
+                'labels': [item['role'].capitalize() for item in user_type_data],
+                'data': [item['count'] for item in user_type_data]
             },
-            'owner_location_data': {
-                'labels': [item['user_image'] for item in owner_location_data],
-                'data': [item['count'] for item in owner_location_data]
+            'user_type_data': {
+                'labels': [item['role'].capitalize() for item in user_type_data],
+                'data': [item['count'] for item in user_type_data]
             },
             'property_location_data': {
                 'labels': [item['location__name'] for item in property_location_data],
@@ -903,7 +1076,7 @@ class DashboardView(APIView):
                 'pethealth': [item['pethealthcost'] for item in utility_cost_data]
             },
             'monthly_registrations': {
-                'labels': all_months,
+                'labels': [item['month'].strftime('%b %Y') for item in owner_registrations],
                 'owners': [item['count'] for item in owner_registrations],
                 'tenants': [item['count'] for item in tenant_registrations]
             }

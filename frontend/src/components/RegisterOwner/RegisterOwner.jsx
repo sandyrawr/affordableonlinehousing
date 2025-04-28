@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import styles from './OwnerSignup.module.css';
+import { useNavigate } from 'react-router-dom';
 import {
   Mail,
   Lock,
@@ -34,12 +35,19 @@ const RegisterOwner = () => {
     setFormData({ ...formData, user_image: e.target.files[0] });
   };
 
-  const handleSubmit = async e => {
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage('');
+  
     const data = new FormData();
-    data.append('user.email', formData.email);
-    data.append('user.password', formData.password);
-    data.append('user.role', formData.role);
+    data.append('email', formData.email);
+    data.append('password', formData.password);
+    data.append('role', formData.role);
     data.append('name', formData.name);
     data.append('phone_number', formData.phone_number);
     data.append('criminal_history', formData.criminal_history);
@@ -47,13 +55,18 @@ const RegisterOwner = () => {
     if (formData.user_image) {
       data.append('user_image', formData.user_image);
     }
-
+  
     try {
+      // Send tenant data to the backend to register the tenant and send OTP
       await axios.post('http://localhost:8000/api/register/owner/', data);
-      alert('Owner registered successfully!');
+  
+      // Redirect to the email verification page
+      navigate('/verify-email', { state: { email: formData.email } });
     } catch (err) {
       console.error(err);
-      alert('Registration failed.');
+      setMessage('Failed to register tenant: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setLoading(false);
     }
   };
 

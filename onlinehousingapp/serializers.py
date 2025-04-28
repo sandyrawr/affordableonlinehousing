@@ -5,10 +5,6 @@ from .models import Location
 from .models import User, Owner, Tenant, Admin, Property, Booking, TourRequest, Occupancy
 from django.contrib.auth.hashers import make_password
 
-# class PropertySerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Property
-#         fields = '__all__'
 
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,45 +12,6 @@ class LocationSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-# class UserSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ['email', 'password', 'role']
-#         extra_kwargs = {
-#             'password': {'write_only': True}
-#         }
-
-#     def create(self, validated_data):
-#         validated_data['password'] = make_password(validated_data['password'])
-#         return super().create(validated_data)
-
-
-# class OwnerSerializer(serializers.ModelSerializer):
-#     user_id = serializers.PrimaryKeyRelatedField(
-#         queryset=User.objects.filter(role='owner'), source='user'
-#     )
-
-#     class Meta:
-#         model = Owner
-#         fields = '__all__'
-
-# class TenantSerializer(serializers.ModelSerializer):
-#     user_id = serializers.PrimaryKeyRelatedField(
-#         queryset=User.objects.filter(role='tenant'), source='user'
-#     )
-
-#     class Meta:
-#         model = Tenant
-#         fields = '__all__'
-
-# class AdminSerializer(serializers.ModelSerializer):
-#     user_id = serializers.PrimaryKeyRelatedField(
-#         queryset=User.objects.filter(role='admin'), source='user'
-#     )
-
-#     class Meta:
-#         model = Admin
-#         fields = '__all__'
 
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
@@ -66,44 +23,6 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['email', 'password', 'role']
         extra_kwargs = {'password': {'write_only': True}}
 
-# class TenantSerializer(serializers.ModelSerializer):
-#     user = UserSerializer()
-
-#     class Meta:
-#         model = Tenant
-#         fields = ['user', 'name', 'phone_number', 'criminal_history', 'employment_status', 'user_image']
-
-#     def create(self, validated_data):
-#         user_data = validated_data.pop('user')
-#         user = User.objects.create_user(**user_data)
-#         tenant = Tenant.objects.create(user=user, **validated_data)
-#         return tenant
-
-#     def update(self, instance, validated_data):
-#         user_data = validated_data.pop('user', {})
-#         password = validated_data.pop('password', None)
-#         new_password = validated_data.pop('new_password', None)
-
-#         user = instance.user
-
-#         if 'email' in user_data:
-#             user.email = user_data['email']
-
-#         # Verify current password before setting new one
-#         if new_password:
-#             if not password:
-#                 raise serializers.ValidationError({"password": "Current password is required to change password."})
-#             if not user.check_password(password):
-#                 raise serializers.ValidationError({"password": "Current password is incorrect."})
-#             user.set_password(new_password)
-
-#         user.save()
-
-#         for attr, value in validated_data.items():
-#             setattr(instance, attr, value)
-#         instance.save()
-
-#         return instance
 
 class TenantSerializer(serializers.ModelSerializer):
     user = UserSerializer()
@@ -251,29 +170,6 @@ class PropertySerializer(serializers.ModelSerializer):
             'property_image': {'required': False}  # Make image optional for updates
         }
 
-#for returning  owner image for property details page
-
-# class PropertySerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Property
-#         fields = '__all__'
-#             # 'id', 'title', 'description', 'property_type', 'location', 'rent', 'total_room'
-#             # 'bedrooms', 'bathrooms', 'property_size', 'property_image', 'owner', 'price_type',, 
-        
-
-#for returning owner details for displaying in property details page
-# class PropertyOSerializer(serializers.ModelSerializer):
-#     owner_id = serializers.IntegerField(source="owner.id", read_only=True)
-#     owner_name = serializers.CharField(source="owner.name", read_only=True)
-#     owner_image = serializers.ImageField(source="owner.user_image", read_only=True)
-
-#     class Meta:
-#         model = Property
-#         fields = [
-#             'id', 'title', 'description', 'property_type', 'location', 'rent',
-#             'bedrooms', 'bathrooms', 'property_size', 'property_image',
-#             'owner_id', 'owner_name', 'owner_image'
-        # ]
 #for extracting owner image for property details page
 class PropertyDetailSerializer(serializers.ModelSerializer):
     location_name = serializers.CharField(source='location.name', read_only=True)
@@ -291,18 +187,6 @@ class PropertyDetailSerializer(serializers.ModelSerializer):
 
     def get_owner_image(self, obj):
         return obj.owner.user_image.url if obj.owner.user_image else None
-
-
-    # def create(self, validated_data):
-    #     # Extract user-related data
-    #     user_data = validated_data.pop('user')
-    #     user_data['role'] = 'tenant'  # Ensure the role is set to 'tenant'
-
-    #     # Create the User first
-    #     user = User.objects.create(**user_data)
-
-    #     # Create the Tenant instance with the user as a foreign key
-    #     return Tenant.objects.create(user=user, **validated_data)
 
 # serializers.py
 from rest_framework import serializers
@@ -344,30 +228,72 @@ class LoginSerializer(serializers.Serializer):
 
 
 class TenantCSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    email = serializers.EmailField(write_only=True)
+    password = serializers.CharField(write_only=True)
+    role = serializers.CharField(write_only=True, default='tenant')
 
     class Meta:
         model = Tenant
-        fields = ['user', 'name', 'phone_number', 'criminal_history', 'employment_status', 'user_image']
+        fields = ['email', 'password', 'role', 'name', 'phone_number', 
+                 'criminal_history', 'employment_status', 'user_image']
 
     def create(self, validated_data):
-        user_data = validated_data.pop('user')
+        user_data = {
+            'email': validated_data.pop('email'),
+            'password': validated_data.pop('password'),
+            'role': validated_data.pop('role'),
+        }
+        
         user = User.objects.create_user(**user_data)
         tenant = Tenant.objects.create(user=user, **validated_data)
         return tenant
 
 class OwnerCSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    email = serializers.EmailField(write_only=True)
+    password = serializers.CharField(write_only=True)
+    role = serializers.CharField(write_only=True, default='tenant')
 
     class Meta:
         model = Owner
-        fields = ['user', 'name', 'phone_number', 'criminal_history', 'employment_status', 'user_image']
+        fields = ['email', 'password', 'role', 'name', 'phone_number', 
+                 'criminal_history', 'employment_status', 'user_image']
 
     def create(self, validated_data):
-        user_data = validated_data.pop('user')
+        user_data = {
+            'email': validated_data.pop('email'),
+            'password': validated_data.pop('password'),
+            'role': validated_data.pop('role'),
+        }
+        
         user = User.objects.create_user(**user_data)
         owner = Owner.objects.create(user=user, **validated_data)
         return owner
+
+
+class VerifyEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otp = serializers.CharField(max_length=6)
+
+    def validate(self, data):
+        email = data.get('email')
+        otp = data.get('otp')
+
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User with this email does not exist.")
+
+        if user.is_verified:
+            raise serializers.ValidationError("Email is already verified.")
+
+        if not user.otp or user.otp != otp:
+            raise serializers.ValidationError("Invalid OTP.")
+
+        # Check if OTP is expired (5 minutes validity)
+        if user.otp_created_at < timezone.now() - timedelta(minutes=5):
+            raise serializers.ValidationError("OTP has expired.")
+
+        return data
 
 class BookingCSerializer(serializers.ModelSerializer):
     class Meta:
@@ -466,7 +392,7 @@ class TenantASerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class OwnerASerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    email = serializers.EmailField(source='user.email')
 
     class Meta:
         model = Owner

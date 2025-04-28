@@ -1,70 +1,141 @@
 .dashboard {
-    padding: 2rem;
-    background-color: #f5f5f5;
-    min-height: 100vh;
-  }
-  
-  .title {
-    color: #0D1B2A;
-    text-align: center;
-    margin-bottom: 2rem;
-  }
-  
+  padding: 2rem;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+.title {
+  color: #0D1B2A;
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 2rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card h2 {
+  color: #1B263B;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.3rem;
+  text-align: center;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #E0E1DD;
+}
+
+.chartContainer {
+  position: relative;
+  height: 300px;
+  width: 100%;
+  min-height: 300px; /* Ensures minimum height */
+}
+
+/* Specific chart container styles */
+.pieChartContainer {
+  height: 350px; /* Slightly taller for pie charts */
+  width: 100%;
+  margin: 0 auto;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  grid-column: 1 / -1;
+}
+
+.loading {
+  color: #415A77;
+}
+
+.error {
+  color: #d32f2f;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
   .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 2rem;
+    grid-template-columns: 1fr;
   }
   
   .card {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 1.5rem;
-    transition: transform 0.2s;
-  }
-  
-  .card:hover {
-    transform: translateY(-5px);
-  }
-  
-  .card h2 {
-    color: #1B263B;
-    margin-top: 0;
-    margin-bottom: 1rem;
-    font-size: 1.2rem;
+    padding: 1rem;
   }
   
   .chartContainer {
+    height: 250px;
+  }
+  
+  .pieChartContainer {
     height: 300px;
-    width: 100%;
-    position: relative;
   }
-  
-  .fullWidth {
-    grid-column: 1 / -1;
+}
+
+
+.statsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.statsBox {
+  border-radius: 10px;
+  padding: 1.5rem;
+  color: white;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.statsBox:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.boxHeader {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.boxCount {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin: auto 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .statsContainer {
+    grid-template-columns: 1fr 1fr;
   }
-  
-  .loading, .error {
-    text-align: center;
-    padding: 2rem;
-    font-size: 1.2rem;
+}
+
+@media (max-width: 480px) {
+  .statsContainer {
+    grid-template-columns: 1fr;
   }
-  
-  .loading {
-    color: #415A77;
-  }
-  
-  .error {
-    color: #d32f2f;
-  }
-  
-  @media (max-width: 768px) {
-    .grid {
-      grid-template-columns: 1fr;
-    }
-    
-    .card {
-      padding: 1rem;
-    }
-  }
+}

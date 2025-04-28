@@ -122,11 +122,11 @@ const MyRentedSpaces = () => {
                   <span>{property.bathrooms} baths</span>
                 </div>
                 <div className={styles.occupancyInfo}>
-                  <Users className={styles.detailIcon} />
-                  <span>
-                    {property.current_occupants}/{property.max_occupants} occupants
-                  </span>
-                </div>
+          <Users className={styles.detailIcon} />
+          <span>
+            {property.current_occupants?.length || 0}/{property.max_occupants} occupants
+          </span>
+        </div>
                 <div className={styles.detailItem}>
                   <Calendar className={styles.detailIcon} />
                   <span>Added: {new Date(property.date_added).toLocaleDateString()}</span>
