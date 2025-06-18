@@ -11,7 +11,7 @@ function StartPage() {
         <div className={styles.leftBox}>
           <div className={styles.imageContainer}>
             <img
-              src="locations/house.png"
+              src="locations/ap2.jpg"
               alt="House"
               className={styles.signupImage}
             />

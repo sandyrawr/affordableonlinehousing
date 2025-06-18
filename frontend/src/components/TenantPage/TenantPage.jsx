@@ -54,7 +54,6 @@ const TenantPage = () => {
       formData.user_image !== tenantData.user_image
     );
 
-    // Compare current formData with tenantData to check if anything changed
     const changed =
       formData.name !== tenantData.name ||
       formData.phone_number !== tenantData.phone_number ||

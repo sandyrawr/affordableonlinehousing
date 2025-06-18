@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './ManageTenants.module.css';
 import { User, Briefcase, ShieldAlert, ShieldCheck, Trash2, X, Eye } from 'lucide-react';
+import { Modal, Button } from 'react-bootstrap';
 
 const ManageTenants = () => {
     const [tenants, setTenants] = useState([]);
     const [selectedTenant, setSelectedTenant] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     useEffect(() => {
         const fetchTenants = async () => {
@@ -24,24 +26,33 @@ const ManageTenants = () => {
         fetchTenants();
     }, []);
 
-    const handleDelete = async () => {
-      if (!selectedTenant?.id) {
-          console.error('No tenant ID available for deletion:', selectedTenant);
-          return;
-      }
-  
-      if (window.confirm('Are you sure you want to delete this tenant?')) {
-          try {
-              console.log('Deleting tenant with user ID:', selectedTenant.id);
-              await axios.delete(`http://localhost:8000/tenants/${selectedTenant.id}/delete/`);
-              setTenants(tenants.filter(t => t.id !== selectedTenant.id));
-              setSelectedTenant(null);
-          } catch (err) {
-              console.error('Delete error:', err);
-              setError('Failed to delete tenant');
-          }
-      }
-  };
+    const openDeleteModal = (tenant) => {
+        setSelectedTenant(tenant);
+        setShowDeleteModal(true);
+    };
+
+    const closeDeleteModal = () => {
+        setShowDeleteModal(false);
+        setSelectedTenant(null);
+    };
+
+    const confirmDeleteTenant = async () => {
+        if (!selectedTenant?.id) {
+            console.error('No tenant ID available for deletion:', selectedTenant);
+            return;
+        }
+
+        try {
+            await axios.delete(`http://localhost:8000/tenants/${selectedTenant.id}/delete/`);
+            setTenants(tenants.filter(t => t.id !== selectedTenant.id));
+            setSelectedTenant(null);
+        } catch (err) {
+            console.error('Delete error:', err);
+            setError('Failed to delete tenant');
+        } finally {
+            closeDeleteModal();
+        }
+    };
 
     const getEmploymentStatus = (status) => {
         return status ? "Employed" : "Unemployed";
@@ -157,10 +168,8 @@ const ManageTenants = () => {
                         <div className={styles.modalFooter}>
                             <button 
                                 className={styles.deleteButton}
-                                onClick={() => {
-                                  console.log('Deleting tenant with ID:', selectedTenant.id); // Debug log
-                                  handleDelete(selectedTenant.id);
-                              }}                            >
+                                onClick={() => openDeleteModal(selectedTenant)}
+                            >
                                 <Trash2 size={18} /> Delete Tenant
                             </button>
                             <button 
@@ -173,6 +182,23 @@ const ManageTenants = () => {
                     </div>
                 </div>
             )}
+
+            <Modal show={showDeleteModal} onHide={closeDeleteModal} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Are you sure you want to delete this tenant?
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={closeDeleteModal}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={confirmDeleteTenant}>
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };

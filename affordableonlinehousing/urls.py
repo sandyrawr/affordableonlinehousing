@@ -23,6 +23,7 @@ urlpatterns = [
     path('add-property/', views.AddPropertyView.as_view(), name='add-property'),
     # path('my-properties/', views.MyPropertiesView.as_view(), name='my-properties'),
     path('properties/', views.FilteredPropertiesView.as_view(), name='properties-list'), 
+    path('propad/<int:pk>/delete/', views.PropertyAdminView.as_view(), name='properties-list'), 
     path('owner-profile/', views.OwnerProfileView.as_view(), name='owner-profile'), 
     # path('properties/<int:pk>/', PropertyUpdateView.as_view(), name='property-update'),
     path('searchproperties/', views.SearchPropertyView.as_view(), name='search-property'),  

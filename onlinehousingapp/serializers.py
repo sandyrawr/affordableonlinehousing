@@ -398,4 +398,8 @@ class OwnerASerializer(serializers.ModelSerializer):
         model = Owner
         fields = '__all__'
 
+class PropertyASerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = Property
+        fields = '__all__'

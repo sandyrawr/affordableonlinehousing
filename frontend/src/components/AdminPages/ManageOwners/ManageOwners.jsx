@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import styles from './ManageOwners.module.css'; // Make sure to create this CSS module
 import { User, Briefcase, Trash2, X, Eye, ShieldAlert, ShieldCheck } from 'lucide-react';
+import { Modal, Button } from 'react-bootstrap';
 
 const ManageOwners = () => {
     const [owners, setOwners] = useState([]);
     const [selectedOwner, setSelectedOwner] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     useEffect(() => {
         const fetchOwners = async () => {
@@ -24,23 +26,32 @@ const ManageOwners = () => {
         fetchOwners();
     }, []);
 
-    const handleDelete = async () => {
-      if (!selectedOwner?.id) {
-          console.error('No owner ID available for deletion:', selectedOwner);
-          return;
-      }
-  
-      if (window.confirm('Are you sure you want to delete this owner?')) {
-          try {
-              console.log('Deleting owner with ID:', selectedOwner.id);
-              await axios.delete(`http://localhost:8000/owners/${selectedOwner.id}/delete/`);
-              setOwners(owners.filter(o => o.id !== selectedOwner.id));
-              setSelectedOwner(null);
-          } catch (err) {
-              console.error('Delete error:', err);
-              setError('Failed to delete owner');
-          }
-      }
+    const openDeleteModal = (owner) => {
+        setSelectedOwner(owner);
+        setShowDeleteModal(true);
+    };
+
+    const closeDeleteModal = () => {
+        setShowDeleteModal(false);
+        setSelectedOwner(null);
+    };
+
+    const confirmDeleteOwner = async () => {
+        if (!selectedOwner?.id) {
+            console.error('No owner ID available for deletion:', selectedOwner);
+            return;
+        }
+
+        try {
+            await axios.delete(`http://localhost:8000/owners/${selectedOwner.id}/delete/`);
+            setOwners(owners.filter(o => o.id !== selectedOwner.id));
+            setSelectedOwner(null);
+        } catch (err) {
+            console.error('Delete error:', err);
+            setError('Failed to delete owner');
+        } finally {
+            closeDeleteModal();
+        }
     };
 
     const getEmploymentStatus = (status) => {
@@ -159,10 +170,8 @@ const ManageOwners = () => {
                                     <div className={styles.modalFooter}>
                                         <button 
                                             className={styles.deleteButton}
-                                            onClick={() => {
-                                              console.log('Deleting owner with ID:', selectedOwner.id); // Debug log
-                                              handleDelete(selectedOwner.id);
-                                          }}                            >
+                                            onClick={() => openDeleteModal(selectedOwner)}
+                                        >
                                             <Trash2 size={18} /> Delete Owner
                                         </button>
                                         <button 
@@ -175,6 +184,23 @@ const ManageOwners = () => {
                                 </div>
                             </div>
                         )}
+
+            <Modal show={showDeleteModal} onHide={closeDeleteModal} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Deletion</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Are you sure you want to delete this owner?
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={closeDeleteModal}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={confirmDeleteOwner}>
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     );
 };

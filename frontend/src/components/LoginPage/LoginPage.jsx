@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import styles from './login.module.css';
+import styles from './Login.module.css';
 import { useNavigate, Link } from 'react-router-dom';
+import { Mail, Lock, Home } from 'lucide-react';
 
 function LoginPage() {
   const navigate = useNavigate();
@@ -10,7 +11,7 @@ function LoginPage() {
     password: ''
   });
   const [error, setError] = useState('');
-
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,6 +20,9 @@ function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+    
     try {
       const res = await axios.post('http://localhost:8000/api/login/', formData);
       const { access, refresh, user_id, role } = res.data;
@@ -47,15 +51,18 @@ function LoginPage() {
       console.error('Login failed:', error);
   
       if (error.response && error.response.status === 403) {
-        // Redirect to email verification page
         navigate('/verify-email', { state: { email: formData.email } });
       } else if (error.response && error.response.data && error.response.data.non_field_errors) {
         setError(error.response.data.non_field_errors[0]);
       } else if (error.response && error.response.data && typeof error.response.data === 'string') {
         setError(error.response.data);
+      } else if (error.response && error.response.status === 401) {
+        setError('Invalid email or password');
       } else {
-        setError('Invalid credentials');
+        setError('Login failed. Please try again.');
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -64,7 +71,9 @@ function LoginPage() {
       <div className={styles.loginContainer}>
         <div className={styles.leftBox}>
           <div className={styles.imageContainer}>
-            <img src="/locations/house.png" alt="House" className={styles.signupImage} />
+            <Home className={styles.houseIcon} size={48} />
+            <h2 className={styles.welcomeText}>Welcome to Rentable</h2>
+            <p className={styles.tagline}>Your perfect home is waiting</p>
           </div>
         </div>
 
@@ -81,6 +90,7 @@ function LoginPage() {
           )}
 
           <div className={styles.inputGroup}>
+            <Mail className={styles.inputIcon} size={18} />
             <input
               type="email"
               name="email"
@@ -93,6 +103,7 @@ function LoginPage() {
           </div>
 
           <div className={styles.inputGroup}>
+            <Lock className={styles.inputIcon} size={18} />
             <input
               type="password"
               name="password"
@@ -105,19 +116,22 @@ function LoginPage() {
           </div>
 
           <div className={styles.submitGroup}>
-            <button type="submit" className={styles.btnSucess}>
-              Log In
+            <button 
+              type="submit" 
+              className={styles.btnSuccess}
+              disabled={loading}
+            >
+              {loading ? 'Logging in...' : 'Log In'}
             </button>
           </div>
 
-          <div className={styles.textCenter}>
-            <small>
-              Don’t have an account? <Link to="/startregister">Sign Up</Link>
-            </small>
-            <br />
-            <small>
+          <div className={styles.footerLinks}>
+            <div className={styles.linkItem}>
+              <Link to="/startregister">Don't have an account? Sign Up</Link>
+            </div>
+            <div className={styles.linkItem}>
               <Link to="/">Go Back Home</Link>
-            </small>
+            </div>
           </div>
         </form>
       </div>

@@ -4,6 +4,7 @@ import {
   Shirt, Clapperboard, HeartPulse, PawPrint, 
   Image as ImageIcon, Upload 
 } from 'lucide-react';
+import { Modal, Button } from 'react-bootstrap';
 import './LocationForm.css';
 
 const LocationForm = () => {
@@ -21,6 +22,7 @@ const LocationForm = () => {
   });
 
   const [previewImage, setPreviewImage] = useState(null);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -49,8 +51,7 @@ const LocationForm = () => {
       });
 
       if (response.ok) {
-        alert('Location added successfully!');
-        // Reset form after successful submission
+        setShowSuccessModal(true);
         setFormData({
           name: '',
           transportcost: '',
@@ -75,18 +76,17 @@ const LocationForm = () => {
 
   return (
     <div className="location-form-container">
-      <h2 className="form-title"><MapPin size={24} /> Add New Location</h2>
+      <h2 className="form-title"><MapPin size={20} /> Add New Location</h2>
       <form onSubmit={handleSubmit} encType="multipart/form-data" className="location-form">
-        {/* Image Upload - Full Width */}
         <div className="image-upload-container">
           <label className="image-upload-label">
             {previewImage ? (
               <img src={previewImage} alt="Preview" className="image-preview" />
             ) : (
               <div className="image-placeholder">
-                <ImageIcon size={48} />
+                <ImageIcon size={36} />
                 <span>Click to add image</span>
-                <Upload size={16} className="upload-icon" />
+                <Upload size={14} className="upload-icon" />
               </div>
             )}
             <input 
@@ -99,9 +99,8 @@ const LocationForm = () => {
           </label>
         </div>
 
-        {/* Location Details */}
         <div className="form-group">
-          <label><MapPin size={18} /> Location Name</label>
+          <label><MapPin size={16} /> Location Name</label>
           <input 
             type="text" 
             name="name" 
@@ -113,7 +112,7 @@ const LocationForm = () => {
 
         <div className="form-row">
           <div className="form-group">
-            <label><DollarSign size={18} /> Transport Cost</label>
+            <label><DollarSign size={16} /> Transport Cost</label>
             <input 
               type="number" 
               name="transportcost" 
@@ -123,7 +122,7 @@ const LocationForm = () => {
             />
           </div>
           <div className="form-group">
-            <label><Zap size={18} /> Utility Cost</label>
+            <label><Zap size={16} /> Utility Cost</label>
             <input 
               type="number" 
               name="utilitycost" 
@@ -136,7 +135,7 @@ const LocationForm = () => {
 
         <div className="form-row">
           <div className="form-group">
-            <label><Utensils size={18} /> Food Cost</label>
+            <label><Utensils size={16} /> Food Cost</label>
             <input 
               type="number" 
               name="foodcost" 
@@ -146,7 +145,7 @@ const LocationForm = () => {
             />
           </div>
           <div className="form-group">
-            <label><Clapperboard size={18} /> Entertainment Cost</label>
+            <label><Clapperboard size={16} /> Entertainment Cost</label>
             <input 
               type="number" 
               name="entertainmentcost" 
@@ -159,7 +158,7 @@ const LocationForm = () => {
 
         <div className="form-row">
           <div className="form-group">
-            <label><HeartPulse size={18} /> Healthcare Cost</label>
+            <label><HeartPulse size={16} /> Healthcare Cost</label>
             <input 
               type="number" 
               name="healthcarecost" 
@@ -169,7 +168,7 @@ const LocationForm = () => {
             />
           </div>
           <div className="form-group">
-            <label><Shirt size={18} /> Clothing Cost</label>
+            <label><Shirt size={16} /> Clothing Cost</label>
             <input 
               type="number" 
               name="clothingcost" 
@@ -182,7 +181,7 @@ const LocationForm = () => {
 
         <div className="form-row">
           <div className="form-group">
-            <label><PawPrint size={18} /> Pet Health Cost</label>
+            <label><PawPrint size={16} /> Pet Health Cost</label>
             <input 
               type="number" 
               name="pethealthcost" 
@@ -192,7 +191,7 @@ const LocationForm = () => {
             />
           </div>
           <div className="form-group">
-            <label><Shield size={18} /> Safety Rating (1-10)</label>
+            <label><Shield size={16} /> Safety Rating (1-10)</label>
             <input 
               type="number" 
               name="safetyrating" 
@@ -206,9 +205,23 @@ const LocationForm = () => {
         </div>
 
         <button type="submit" className="form-button">
-          <MapPin size={18} /> Add Location
+          <MapPin size={16} /> Add Location
         </button>
       </form>
+
+      <Modal show={showSuccessModal} onHide={() => setShowSuccessModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Success</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Location added successfully!
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="primary" onClick={() => setShowSuccessModal(false)}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

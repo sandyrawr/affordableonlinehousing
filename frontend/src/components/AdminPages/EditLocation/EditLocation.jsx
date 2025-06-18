@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Home, DollarSign, Shield, Utensils, Zap, HeartPulse, Shirt, PawPrint, X, Save, Image, Edit, Trash2 } from 'lucide-react';
+import { Modal, Button } from 'react-bootstrap';
 import styles from './EditLocation.module.css';
 
 const EditLocation = () => {
@@ -8,6 +9,7 @@ const EditLocation = () => {
   const [editData, setEditData] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newImage, setNewImage] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     fetchLocations();
@@ -77,28 +79,31 @@ const EditLocation = () => {
     }
   };
 
-  const handleDeleteLocation = async () => {
-    if (!window.confirm("Are you sure you want to delete this location?")) return;
-    
+  const openDeleteModal = () => {
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+  };
+
+  const confirmDeleteLocation = async () => {
     try {
       const response = await fetch(`http://localhost:8000/locations/${selectedLocation.id}/`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
-        // 1. Close modal FIRST
         setIsModalOpen(false);
-        
-        // 2. Clear the selected location
         setSelectedLocation(null);
-        
-        // 3. Refresh locations
         fetchLocations();
       } else {
         console.error('Failed to delete location');
       }
     } catch (error) {
       console.error('Error deleting location:', error);
+    } finally {
+      closeDeleteModal();
     }
   };
 
@@ -250,16 +255,13 @@ const EditLocation = () => {
               </div>
               
               <div className={styles.buttonGroup}>
-              <button 
-                className={styles.modalDeleteButton}
-                onClick={() => {
-                  if (window.confirm('Are you sure you want to delete this location?')) {
-                    handleDeleteLocation(selectedLocation.id);
-                  }
-                }}
-              >
-                <Trash2 size={18} /> Delete
-              </button>
+                <Button
+                  variant="danger"
+                  onClick={openDeleteModal}
+                  className={styles.modalDeleteButton}
+                >
+                  <Trash2 size={16} /> Delete
+                </Button>
                 <button type="submit" className={styles.saveButton}>
                   <Save size={16} /> Save Changes
                 </button>
@@ -275,6 +277,23 @@ const EditLocation = () => {
           </div>
         </div>
       )}
+
+      <Modal show={showDeleteModal} onHide={closeDeleteModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this location?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeDeleteModal}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={confirmDeleteLocation}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

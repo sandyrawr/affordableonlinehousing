@@ -5,38 +5,26 @@ import { Home, UserPlus, Building2 } from 'lucide-react'; // Lucide icons
 
 function StartRegister() {
   return (
-    <div className={styles["page-wrapper"]}>
-      <div className={styles["signup-container"]}>
-        <div className={styles["left-box"]}>
-          <div className={styles["image-container"]}>
-            <img src="locations/house.png" alt="House" className={styles["signup-image"]} />
-          </div>
-        </div>
+    <div className={styles.pageWrapper} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#ffffff' }}>
+      <h2 style={{ color: '#1a1a2e', fontWeight: 'bold', marginBottom: '10px' }}>Select Your Role</h2>
+      <p style={{ color: '#555', marginBottom: '20px' }}>Choose the type of account to proceed</p>
 
-        <div className={styles["right-box"]}>
-          <div className={styles["form-header"]}>
-            <h2>
-              <Home size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-              Welcome to <span className={styles.brand}>Rentable</span>
-            </h2>
-            <p>Select your role to continue</p>
+      <div style={{ display: 'flex', gap: '20px', marginBottom: '30px' }}>
+        <Link to="/registertenant" style={{ textDecoration: 'none' }}>
+          <div style={{ border: '1px solid #ddd', borderRadius: '10px', padding: '20px', textAlign: 'center', width: '200px', cursor: 'pointer', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
+            <UserPlus size={40} style={{ color: '#1a1a2e', marginBottom: '10px' }} />
+            <h3 style={{ color: '#1a1a2e', marginBottom: '5px' }}>Tenant</h3>
+            <p style={{ color: '#555' }}>Find and rent properties easily</p>
           </div>
+        </Link>
 
-          <div className={styles["horizontal-button-group"]}>
-            <Link to="/registertenant">
-              <button type="button" className={`${styles.button} btn btn-success`}>
-                <UserPlus size={18} style={{ marginRight: '8px' }} />
-                Tenant
-              </button>
-            </Link>
-            <Link to="/registerowner">
-              <button type="button" className={`${styles.button} btn btn-primary`}>
-                <Building2 size={18} style={{ marginRight: '8px' }} />
-                Owner
-              </button>
-            </Link>
+        <Link to="/registerowner" style={{ textDecoration: 'none' }}>
+          <div style={{ border: '1px solid #ddd', borderRadius: '10px', padding: '20px', textAlign: 'center', width: '200px', cursor: 'pointer', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)' }}>
+            <Building2 size={40} style={{ color: '#1a1a2e', marginBottom: '10px' }} />
+            <h3 style={{ color: '#1a1a2e', marginBottom: '5px' }}>Owner</h3>
+            <p style={{ color: '#555' }}>List and manage your properties</p>
           </div>
-        </div>
+        </Link>
       </div>
     </div>
   );

@@ -1,154 +1,180 @@
 /* Login.module.css */
-
 .pageWrapper {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 100vw;
+    min-height: 100vh;
     display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+    padding: 1rem;
+  }
+  
+  .loginContainer {
+    display: flex;
+    max-width: 900px;
+    width: 100%;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .leftBox {
+    flex: 1;
+    padding: 2rem;
+    background-color: #1a1a2e;
+    color: white;
+    display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 2rem;
-    background-color: #f2f2f2;
-    box-sizing: border-box;
-    overflow: auto;
-}
-
-.loginContainer {
-    display: flex;
-    flex-direction: row;
-    background-color: #fff;
-    border: 2px solid #574caf;
-    border-radius: 12px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-    max-width: 850px;
-    width: 100%;
-    overflow: hidden;
-}
-
-/* Left (image) side */
-.leftBox {
-    flex: 1;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-}
-
-/* Right (form) side */
-.rightBox {
-    flex: 1;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
-}
-
-.formHeader {
-    font-size: 1.6rem;
-    margin-bottom: 0.25rem;
-    text-align: center;
-}
-
-.inputGroup {
-    margin-bottom: 1rem;
-}
-
-.formControl {
-    width: 100%;
-    padding: 0.75rem;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    background-color: #f9f9f9;
-    font-size: 1rem;
-    transition: border 0.3s ease;
-}
-
-.formControl:focus {
-    outline: none;
-    border-color: #4CAF50;
-    box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
-}
-
-.submitGroup {
-    margin-top: 1.5rem;
-}
-
-.btnSucess {
-    background-color: #4CAF50;
-    border: none;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    border-radius: 6px;
-    color: #fff;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.btnSuccess:hover {
-    background-color: #3e8e41;
-}
-
-.message {
-    color: #d9534f;
-    font-size: 1rem;
-    margin-bottom: 1rem;
-    text-align: center;
-}
-
-.signupLink {
-    text-align: center;
-    margin-top: 1.5rem;
-}
-
-.signupLink p {
-    font-size: 1rem;
-    color: #555;
-}
-
-.signupLink a {
-    color: #4CAF50;
-    text-decoration: none;
-}
-
-.signupLink a:hover {
-    text-decoration: underline;
-}
-
-.imageContainer {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-}
-
-.signupImage {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
-}
-
-.textCenter {
-    text-align: center;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .loginContainer {
-        flex-direction: column;
-    }
-
-    .leftBox,
-    .rightBox {
-        width: 100%;
-    }
-}
-
-.errorMessage {
-    color: red;
-    margin-bottom: 10px;
-    font-weight: 500;
     text-align: center;
   }
   
+  .imageContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .houseIcon {
+    color: #e94560;
+  }
+  
+  .welcomeText {
+    font-size: 1.8rem;
+    margin: 0.5rem 0;
+  }
+  
+  .tagline {
+    color: #a1a1a1;
+    font-size: 1rem;
+  }
+  
+  .rightBox {
+    flex: 1;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .formHeader {
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  
+  .formHeader h2 {
+    font-size: 1.8rem;
+    color: #1a1a2e;
+    margin-bottom: 0.5rem;
+  }
+  
+  .formHeader p {
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  .errorMessage {
+    color: #dc3545;
+    background-color: #f8d7da;
+    padding: 0.75rem;
+    border-radius: 5px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+  
+  .inputGroup {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+    padding: 0 0.75rem;
+  }
+  
+  .inputIcon {
+    color: white;
+    margin-right: 0.75rem;
+  }
+  
+  .formControl {
+    flex: 1;
+    padding: 0.75rem 0;
+    border: none;
+    outline: none;
+    font-size: 0.95rem;
+  }
+  
+  .formControl::placeholder {
+    color: #999;
+  }
+  
+  .submitGroup {
+    margin: 1.5rem 0;
+  }
+  
+  .btnSuccess {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #1a1a2e; /* Change button to the specified blue */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btnSuccess:hover {
+    background-color: #d13354;
+  }
+  
+  .btnSuccess:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+  
+  .footerLinks {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+  
+  .linkItem {
+    font-size: 0.9rem;
+  }
+  
+  .linkItem a {
+    color: #1a1a2e; /* Change footer links to the specified blue */
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .linkItem a:hover {
+    color: #e94560;
+    text-decoration: underline;
+  }
+  
+  @media (max-width: 768px) {
+    .loginContainer {
+      flex-direction: column;
+    }
+  
+    .leftBox, .rightBox {
+      padding: 1.5rem;
+    }
+  
+    .leftBox {
+      order: -1;
+      padding-bottom: 1rem;
+    }
+  
+    .welcomeText {
+      font-size: 1.5rem;
+    }
+  }

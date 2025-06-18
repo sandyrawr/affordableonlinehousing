@@ -25,7 +25,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, Admin, Owner, Property, Booking, TourRequest, Occupancy
 from .serializers import OwnerSerializer, TenantSerializer, UserSerializer, AdminSerializer, PropertySerializer, BookingSerializer, TourRequestSerializer, PropertyDetailSerializer
 from .serializers import OwnerCSerializer, TenantCSerializer, UserSerializer, AdminSerializer, BookingCSerializer, TourRequestCSerializer
-from .serializers import TenantASerializer, UserASerializer, OwnerASerializer
+from .serializers import TenantASerializer, UserASerializer, OwnerASerializer, PropertyASerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework import status
@@ -196,6 +196,35 @@ class PropertyDetailUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
             request.data.update(request.FILES)
         return super().update(request, *args, **kwargs)
 
+# views.py
+from rest_framework.permissions import IsAdminUser
+from rest_framework.response import Response
+
+class AdminPropertyDeleteView(generics.DestroyAPIView):
+    """
+    Admin-only endpoint to delete ANY property
+    """
+    queryset = Property.objects.all()
+    serializer_class = PropertySerializer
+    permission_classes = [IsAuthenticated]  
+    lookup_field = 'id'
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            property = self.get_object()
+            property.delete()
+            return Response(
+                {"message": "Property forcibly deleted by admin"},
+                status=status.HTTP_204_NO_CONTENT
+            )
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    
+
 from rest_framework import viewsets
 
 
@@ -356,7 +385,7 @@ class RegisterOwnerView(generics.CreateAPIView):
             # Send OTP for email verification
             user.send_verification_email()
 
-            return Response({'message': 'Tenant registered successfully. Please verify your email.'}, status=status.HTTP_201_CREATED)
+            return Response({'message': 'Owner registered successfully. Please verify your email.'}, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -482,19 +511,16 @@ class BookingListView(APIView):
         property = booking.property
 
         if new_status == "accepted":
-            # Create occupancy record
             Occupancy.objects.create(
                 property=property,
                 tenant=booking.tenant,
                 booking=booking,
             )
 
-            # Check if property should be marked unavailable
             if not property.co_living:
                 property.status = False
                 property.save()
             else:
-                # Check current occupancy count
                 current_occupants = Occupancy.objects.filter(
                     property=property,
                 ).count()
@@ -970,6 +996,19 @@ class OwnerAdminView(generics.DestroyAPIView):
         self.perform_destroy(instance)
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class PropertyAdminView(generics.DestroyAPIView):
+    queryset = Property.objects.all()
+    serializer_class = PropertyASerializer
+    permission_classes = [IsAuthenticated]  # Ensure only authenticated users can delete
+
+    def destroy(self, request, *args, **kwargs):
+        try:
+            instance = self.get_object()
+            instance.delete()
+            return Response({"message": "Property deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+        except Property.DoesNotExist:
+            return Response({"error": "No Property matches the given query."}, status=status.HTTP_404_NOT_FOUND)
 
 
 from django.db.models import Count

@@ -16,6 +16,7 @@ const MyProperties = () => {
   const [locations, setLocations] = useState([]);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const token = localStorage.getItem("accessToken");
 
@@ -70,9 +71,16 @@ const MyProperties = () => {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
+    let newValue = type === 'checkbox' ? checked : value;
+
+    // Prevent negative values for integer fields
+    if (['bedrooms', 'bathrooms', 'max_occupants', 'total_floors', 'property_size', 'rent'].includes(name)) {
+      newValue = Math.max(0, newValue);
+    }
+
     setSelectedProperty((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: newValue,
     }));
   };
 
@@ -165,8 +173,6 @@ const MyProperties = () => {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this property?")) return;
-    
     try {
       await axios.delete(`http://localhost:8000/property/${selectedProperty.id}/`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -185,7 +191,17 @@ const MyProperties = () => {
     } catch (err) {
       console.error("Delete failed:", err);
       alert("Failed to delete property. Please try again.");
+    } finally {
+      setShowDeleteModal(false);
     }
+  };
+
+  const openDeleteModal = () => {
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
   };
 
   return (
@@ -504,7 +520,7 @@ const MyProperties = () => {
             <Button variant="secondary" onClick={handleCloseModal} className={styles.cancelButton}>
               Cancel
             </Button>
-            <Button variant="danger" onClick={handleDelete} className={styles.deleteButton}>
+            <Button variant="danger" onClick={openDeleteModal} className={styles.deleteButton}>
               <Trash2 className={styles.buttonIcon} /> Delete Property
             </Button>
             <Button 
@@ -518,6 +534,24 @@ const MyProperties = () => {
                   <Save className={styles.buttonIcon} /> Save Changes
                 </>
               )}
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        {/* Delete Confirmation Modal */}
+        <Modal show={showDeleteModal} onHide={closeDeleteModal} centered>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirm Deletion</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Are you sure you want to delete this property?
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={closeDeleteModal}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleDelete}>
+              Delete
             </Button>
           </Modal.Footer>
         </Modal>

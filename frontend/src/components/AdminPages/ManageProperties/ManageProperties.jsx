@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { 
   Home, MapPin, Bed, Bath, Users, DollarSign, 
   Edit, Trash2, Eye, User, Calendar 
 } from 'lucide-react';
+import { Modal, Button } from 'react-bootstrap';
 import styles from './ManageProperties.module.css';
 
 const ManageProperties = () => {
   const [properties, setProperties] = useState([]);
   const [selectedProperty, setSelectedProperty] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [propertyToDelete, setPropertyToDelete] = useState(null);
   const token = localStorage.getItem('accessToken');
 
   useEffect(() => {
@@ -34,20 +38,34 @@ const ManageProperties = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteProperty = async (propertyId) => {
-    if (!window.confirm('Are you sure you want to delete this property?')) return;
-    
+  const openDeleteModal = (property) => {
+    setPropertyToDelete(property);
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setPropertyToDelete(null);
+  };
+
+  const confirmDeleteProperty = async () => {
+    if (!propertyToDelete?.id) {
+      console.error('No property ID available for deletion:', propertyToDelete);
+      return;
+    }
+
     try {
-      await fetch(`http://localhost:8000/properties/${propertyId}/`, {
-        method: 'DELETE',
+      await axios.delete(`http://localhost:8000/propad/${propertyToDelete.id}/delete/`, {
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          'Authorization': `Bearer ${token}`,
+        },
       });
-      setProperties(properties.filter(p => p.id !== propertyId));
+      setProperties(properties.filter((p) => p.id !== propertyToDelete.id));
       setIsModalOpen(false);
     } catch (error) {
       console.error('Error deleting property:', error);
+    } finally {
+      closeDeleteModal();
     }
   };
 
@@ -167,7 +185,7 @@ const ManageProperties = () => {
             <div className={styles.modalFooter}>
               <button 
                 className={styles.deleteButton}
-                onClick={() => handleDeleteProperty(selectedProperty.id)}
+                onClick={() => openDeleteModal(selectedProperty)}
               >
                 <Trash2 size={16} /> Delete Property
               </button>
@@ -181,6 +199,24 @@ const ManageProperties = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <Modal show={showDeleteModal} onHide={closeDeleteModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Deletion</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to delete this property?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeDeleteModal}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={confirmDeleteProperty}>
+            Delete
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

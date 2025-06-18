@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import styles from './RegisterTenant.module.css';
 import {
   Mail,
@@ -8,7 +8,12 @@ import {
   User,
   Phone,
   FileImage,
-  CheckCircle,
+  ShieldCheck,
+  Search,
+  Heart,
+  Bell,
+  MessageSquare,
+  Clock
 } from 'lucide-react';
 
 const RegisterTenant = () => {
@@ -18,8 +23,8 @@ const RegisterTenant = () => {
     role: 'tenant',
     name: '',
     phone_number: '',
-    criminal_history: false,
-    employment_status: false,
+    criminal_history: null,
+    employment_status: null,
     user_image: null,
   });
   const [loading, setLoading] = useState(false);
@@ -56,10 +61,7 @@ const RegisterTenant = () => {
     }
   
     try {
-      // Send tenant data to the backend to register the tenant and send OTP
       await axios.post('http://localhost:8000/api/register/tenant/', data);
-  
-      // Redirect to the email verification page
       navigate('/verify-email', { state: { email: formData.email } });
     } catch (err) {
       console.error(err);
@@ -73,14 +75,61 @@ const RegisterTenant = () => {
     <div className={styles.pageWrapper}>
       <div className={styles.signupContainer}>
         <div className={styles.leftBox}>
-          <div className={styles.imageContainer}>
-            <img src="/locations/house.png" alt="House" className={styles.signupImage} />
+          <div className={styles.infoContainer}>
+            <h2>Sign Up as Tenant</h2>
+            <div className={styles.benefitsList}>
+              <div className={styles.benefitItem}>
+                <Search className={styles.benefitIcon} />
+                <span>Find your perfect home</span>
+              </div>
+              <div className={styles.benefitItem}>
+                <ShieldCheck className={styles.benefitIcon} />
+                <span>Verified property owners</span>
+              </div>
+              <div className={styles.benefitItem}>
+                <Heart className={styles.benefitIcon} />
+                <span>Save favorite properties</span>
+              </div>
+              <div className={styles.benefitItem}>
+                <Bell className={styles.benefitIcon} />
+                <span>Get alerts for new listings</span>
+              </div>
+              <div className={styles.benefitItem}>
+                <MessageSquare className={styles.benefitIcon} />
+                <span>Direct communication</span>
+              </div>
+            </div>
           </div>
         </div>
+        
         <form onSubmit={handleSubmit} encType="multipart/form-data" className={styles.rightBox}>
           <div className={styles.formHeader}>
-            <h2>Tenant Sign Up</h2>
-            <p>Create your account as a tenant.</p>
+            <h2>Create Your Account</h2>
+            <p>Find your perfect home</p>
+          </div>
+
+          <div className={styles.photoUpload}>
+            <div className={styles.photoContainer}>
+              <input
+                type="file"
+                id="user_image"
+                name="user_image"
+                onChange={handleFileChange}
+                className={styles.fileInput}
+                accept="image/*"
+              />
+              <label htmlFor="user_image" className={styles.photoCircle}>
+                {formData.user_image ? (
+                  <img 
+                    src={URL.createObjectURL(formData.user_image)} 
+                    alt="Preview" 
+                    className={styles.photoPreview}
+                  />
+                ) : (
+                  <FileImage className={styles.photoIcon} />
+                )}
+              </label>
+            </div>
           </div>
 
           {message && (
@@ -90,7 +139,7 @@ const RegisterTenant = () => {
           )}
 
           <div className={styles.inputGroup}>
-            <Mail className={styles.icon} />
+            <Mail className={styles.icon} size={18} />
             <input
               name="email"
               type="email"
@@ -102,7 +151,7 @@ const RegisterTenant = () => {
           </div>
 
           <div className={styles.inputGroup}>
-            <Lock className={styles.icon} />
+            <Lock className={styles.icon} size={18} />
             <input
               name="password"
               type="password"
@@ -114,7 +163,7 @@ const RegisterTenant = () => {
           </div>
 
           <div className={styles.inputGroup}>
-            <User className={styles.icon} />
+            <User className={styles.icon} size={18} />
             <input
               name="name"
               type="text"
@@ -126,7 +175,7 @@ const RegisterTenant = () => {
           </div>
 
           <div className={styles.inputGroup}>
-            <Phone className={styles.icon} />
+            <Phone className={styles.icon} size={18} />
             <input
               name="phone_number"
               type="text"
@@ -137,38 +186,30 @@ const RegisterTenant = () => {
             />
           </div>
 
-          <div className={styles.checkboxWrapper}>
-            <label className={styles.checkboxLabel}>
-              <input
-                name="criminal_history"
-                type="checkbox"
-                onChange={handleChange}
-                className={styles.checkbox}
-              />
-              <CheckCircle size={16} className={styles.checkIcon} />
-              Criminal History
-            </label>
-
-            <label className={styles.checkboxLabel}>
-              <input
-                name="employment_status"
-                type="checkbox"
-                onChange={handleChange}
-                className={styles.checkbox}
-              />
-              <CheckCircle size={16} className={styles.checkIcon} />
-              Employed
-            </label>
+          <div className={styles.selectGroup}>
+            <select 
+              name="criminal_history" 
+              onChange={handleChange}
+              className={styles.formControl}
+              required
+            >
+              <option value="">Criminal History</option>
+              <option value="true">Has Criminal History</option>
+              <option value="false">No Criminal History</option>
+            </select>
           </div>
 
-          <div className={styles.inputGroup}>
-            <FileImage className={styles.icon} />
-            <input
-              name="user_image"
-              type="file"
-              onChange={handleFileChange}
+          <div className={styles.selectGroup}>
+            <select 
+              name="employment_status" 
+              onChange={handleChange}
               className={styles.formControl}
-            />
+              required
+            >
+              <option value="">Employment Status</option>
+              <option value="true">Employed</option>
+              <option value="false">Unemployed</option>
+            </select>
           </div>
 
           <div className={styles.submitGroup}>
@@ -179,6 +220,9 @@ const RegisterTenant = () => {
             >
               {loading ? 'Registering...' : 'Register as Tenant'}
             </button>
+            <div className={styles.loginLink}>
+              Already have an account? <Link to="/login">Log in</Link>
+            </div>
           </div>
         </form>
       </div>

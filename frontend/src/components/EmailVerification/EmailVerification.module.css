@@ -59,7 +59,7 @@
   }
   
   .btnPrimary {
-    background-color: #4a6bff;
+    background-color: #121e51;
     color: white;
     border: none;
     padding: 0.75rem;
@@ -70,7 +70,7 @@
   }
   
   .btnPrimary:hover {
-    background-color: #3a5bef;
+    background-color: #1a1a2e;
   }
   
   .btnPrimary:disabled {

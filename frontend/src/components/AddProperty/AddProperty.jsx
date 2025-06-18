@@ -45,9 +45,16 @@ function AddProperty() {
 
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
+    let newValue = type === 'checkbox' ? checked : (files ? files[0] : value);
+
+    // Prevent negative values for integer fields
+    if (['bedrooms', 'bathrooms', 'max_occupants', 'total_floors', 'property_size', 'rent'].includes(name)) {
+      newValue = Math.max(0, newValue);
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : (files ? files[0] : value),
+      [name]: newValue,
     }));
   };
 

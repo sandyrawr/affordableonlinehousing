@@ -33,6 +33,11 @@ const PropertyDetails = () => {
   const [selectedExpenses, setSelectedExpenses] = useState([]);
   const [locationExpenses, setLocationExpenses] = useState(null);
   const [calculatedTotal, setCalculatedTotal] = useState(0);
+  const [showAlertModal, setShowAlertModal] = useState(false);
+  const [alertModalContent, setAlertModalContent] = useState("");
+
+  const [modalContent, setModalContent] = useState({ title: '', message: '' });
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const fetchPropertyData = async () => {
@@ -103,7 +108,6 @@ const PropertyDetails = () => {
     setShowTenantModal(true);
   };
 
-  // ... (keep all other existing functions unchanged) ...
   const checkBookingStatus = async () => {
     const token = localStorage.getItem("accessToken");
     try {
@@ -133,7 +137,7 @@ const PropertyDetails = () => {
   const handleBooking = async () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      alert("You must be logged in to book a property.");
+      showModalPopup("Login Required", "You must be logged in to book a property.");
       return;
     }
   
@@ -144,10 +148,10 @@ const PropertyDetails = () => {
     
     // Check all statuses that should prevent re-booking
     if (currentStatus === "accepted" || currentStatus === "approved") {
-      alert("You have already booked this property.");
+      showModalPopup("Booking Status", "You have already booked this property.");
       return;
     } else if (currentStatus === "pending") {
-      alert("Your booking request is already pending.");
+      showModalPopup("Booking Status", "Your booking request is already pending.");
       return;
     }
   
@@ -162,10 +166,10 @@ const PropertyDetails = () => {
           "Content-Type": "application/json",
         },
       });
-      alert("✅ Booking request submitted!");
+      showModalPopup("Success", "✅ Booking request submitted!");
     } catch (err) {
       console.error("❌ Booking error:", err.response?.data || err.message);
-      alert(`❌ Failed to submit booking: ${err.response?.data?.detail || "Please try again"}`);
+      showModalPopup("Error", `❌ Failed to submit booking: ${err.response?.data?.detail || "Please try again"}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -174,34 +178,34 @@ const PropertyDetails = () => {
   const handleTourRequest = async () => {
     const token = localStorage.getItem("accessToken");
     if (!token) {
-      alert("You must be logged in to request a tour.");
+      showModalPopup("Login Required", "You must be logged in to request a tour.");
       return;
     }
 
     const bookingStatus = await checkBookingStatus();
     if (bookingStatus.status === "approved") {
-      alert("You have already booked this property. No need to request a tour.");
+      showModalPopup("Tour Request", "You have already booked this property. No need to request a tour.");
       return;
     }
 
     const tourStatus = await checkTourRequestStatus();
     if (tourStatus.status === "confirmed") {
-      alert("Your tour request has already been confirmed.");
+      showModalPopup("Tour Request", "Your tour request has already been confirmed.");
       return;
     } else if (tourStatus.status === "pending") {
-      alert("Your tour request is pending.");
+      showModalPopup("Tour Request", "Your tour request is pending.");
       return;
     }
 
     if (!tourDate) {
-      alert("Please select a tour date.");
+      showModalPopup("Invalid Date", "Please select a tour date.");
       return;
     }
 
     const selectedDate = new Date(tourDate);
     const today = new Date();
     if (selectedDate <= today) {
-      alert("Please select a date after today.");
+      showModalPopup("Invalid Date", "Please select a date after today.");
       return;
     }
 
@@ -216,10 +220,10 @@ const PropertyDetails = () => {
           "Content-Type": "application/json",
         },
       });
-      alert("✅ Tour request submitted!");
+      showModalPopup("Success", "✅ Tour request submitted!");
     } catch (err) {
       console.error("❌ Tour request error:", err.response?.data || err.message);
-      alert("❌ Failed to request tour. Please check your login status.");
+      showModalPopup("Error", "❌ Failed to request tour. Please check your login status.");
     } finally {
       setIsSubmitting(false);
     }
@@ -264,6 +268,13 @@ const PropertyDetails = () => {
     setShowExpenseModal(false);
     setSelectedExpenses([]);
     setCalculatedTotal(0);
+  };
+
+  const handleModalClose = () => setShowModal(false);
+
+  const showModalPopup = (title, message) => {
+    setModalContent({ title, message });
+    setShowModal(true);
   };
 
   if (!property) return <div className="text-center mt-5">Loading...</div>;
@@ -311,7 +322,7 @@ const PropertyDetails = () => {
             <h6>Owner</h6>
           </div>
 
-          {/* Safety Rating Scale - Add this new component */}
+          {/* Safety Rating Scale */}
           <div className="safety-rating-container">
             <h5>Neighborhood Safety</h5>
             <div className="safety-scale" style={{
@@ -551,6 +562,19 @@ const PropertyDetails = () => {
               </div>
             </div>
           )}
+
+      {/* Alert Modal */}
+      <Modal show={showModal} onHide={handleModalClose} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{modalContent.title}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{modalContent.message}</Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleModalClose}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
       {/* Related Properties */}
       {relatedProperties.length > 0 && (

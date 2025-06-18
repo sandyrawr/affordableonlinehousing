@@ -12,6 +12,8 @@ const MyRentedSpaces = () => {
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [occupancyToDelete, setOccupancyToDelete] = useState(null);
 
   const token = localStorage.getItem("accessToken");
 
@@ -26,7 +28,29 @@ const MyRentedSpaces = () => {
         const response = await axios.get("http://localhost:8000/owner-rented-properties/", {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setProperties(response.data);
+
+        // Fetch occupants count for each property
+        const propertiesWithOccupants = await Promise.all(
+          response.data.map(async (property) => {
+            try {
+              const occupantsResponse = await axios.get(`http://localhost:8000/property-occupants/${property.id}/`, {
+                headers: { Authorization: `Bearer ${token}` }
+              });
+              return {
+                ...property,
+                current_occupants: occupantsResponse.data.length
+              };
+            } catch (err) {
+              console.error(`Failed to fetch occupants for property ${property.id}:`, err);
+              return {
+                ...property,
+                current_occupants: 0
+              };
+            }
+          })
+        );
+
+        setProperties(propertiesWithOccupants);
       } catch (err) {
         console.error("Failed to fetch rented properties:", err);
         if (err.response?.status === 401) {
@@ -62,26 +86,36 @@ const MyRentedSpaces = () => {
     setIsLoading(false);
   };
 
-  const handleRemoveTenant = async (occupancyId) => {
-    if (!window.confirm("Are you sure you want to remove this tenant?")) return;
-    
+  const openDeleteModal = (occupancyId) => {
+    setOccupancyToDelete(occupancyId);
+    setShowDeleteModal(true);
+  };
+
+  const closeDeleteModal = () => {
+    setShowDeleteModal(false);
+    setOccupancyToDelete(null);
+  };
+
+  const handleRemoveTenant = async () => {
     try {
-      await axios.delete(`http://localhost:8000/occupancy/${occupancyId}/`, {
-        headers: { Authorization: `Bearer ${token}` }
+      await axios.delete(`http://localhost:8000/occupancy/${occupancyToDelete}/`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      
+
       // Refresh the occupants list
       const updatedOccupants = await fetchPropertyOccupants(selectedProperty.id);
-      setSelectedProperty(prev => ({
+      setSelectedProperty((prev) => ({
         ...prev,
-        occupants: updatedOccupants
+        occupants: updatedOccupants,
       }));
-      
+
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 3000);
     } catch (err) {
       console.error("Failed to remove tenant:", err);
       alert("Failed to remove tenant. Please try again.");
+    } finally {
+      closeDeleteModal();
     }
   };
 
@@ -124,7 +158,7 @@ const MyRentedSpaces = () => {
                 <div className={styles.occupancyInfo}>
           <Users className={styles.detailIcon} />
           <span>
-            {property.current_occupants?.length || 0}/{property.max_occupants} occupants
+            {property.current_occupants || 0}/{property.max_occupants} occupants
           </span>
         </div>
                 <div className={styles.detailItem}>
@@ -176,7 +210,7 @@ const MyRentedSpaces = () => {
                         <Button
                           variant="danger"
                           size="sm"
-                          onClick={() => handleRemoveTenant(occupant.id)}
+                          onClick={() => openDeleteModal(occupant.id)}
                           className={styles.removeButton}
                         >
                           <Trash2 size={16} /> Remove
@@ -200,6 +234,24 @@ const MyRentedSpaces = () => {
               className={styles.closeButton}
             >
               Close
+            </Button>
+          </Modal.Footer>
+        </Modal>
+
+        {/* Delete Confirmation Modal */}
+        <Modal show={showDeleteModal} onHide={closeDeleteModal} centered>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirm Removal</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Are you sure you want to remove this tenant?
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={closeDeleteModal}>
+              Cancel
+            </Button>
+            <Button variant="danger" onClick={handleRemoveTenant}>
+              Remove
             </Button>
           </Modal.Footer>
         </Modal>

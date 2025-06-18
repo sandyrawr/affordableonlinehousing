@@ -193,20 +193,7 @@ const handleLogout = () => {
         <aside className="filter-sidebar">
           <h4>Filters</h4>
 
-          <div className="form-group">
-            <label>
-              <Building2 size={16} className="filter-icon" /> Property Type
-            </label>
-            <select name="property_type" value={filters.property_type} onChange={handleFilterChange}>
-              <option value="">Select</option>
-              <option value="Apartment">Apartment</option>
-              <option value="House">House</option>
-              <option value="Studio">Studio</option>
-              <option value="Villa">Villa</option>
-              {/* <option value="Commercial">Commercial</option> */}
-              {/* <option value="Flat">Flat</option> */}
-            </select>
-          </div>
+         
 
           <div className="form-group">
             <label>

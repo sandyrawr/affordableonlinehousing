@@ -270,6 +270,7 @@ function ProfilePage() {
                           name="email"
                           value={formData.email || ''}
                           onChange={handleChange}
+                          disabled
                         />
                       </div>
                     </div>
